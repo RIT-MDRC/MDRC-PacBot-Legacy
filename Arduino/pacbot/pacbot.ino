@@ -96,14 +96,15 @@ void loop()
       case's':
         
     }
-    
-    
+
+     
   }
-  
-  
-  
-
   updateSensors();
-
   
+  //between walls
+
+  lastLoopUsefulTime = micros() - loopStartTime;
+  if(lastLoopUsefulTime < STD_LOOP_TIME)
+  delayMicroseconds(STD_LOOP_TIME - lastLoopUsefulTime);
+  loopStartTime = micros();
 }

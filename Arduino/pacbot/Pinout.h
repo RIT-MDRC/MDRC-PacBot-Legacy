@@ -1,0 +1,1 @@
+#define MPU6050_INT_PIN 12
