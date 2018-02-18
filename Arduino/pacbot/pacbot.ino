@@ -52,8 +52,8 @@ void loop()
 {
   while(stopKey)
   {
-    char chPC
-    Serial.print("Stopped")
+    char chPC;
+    Serial.println("Stopped");
     if (Serial.available())  
     {
       chPC = Serial.read();  //Sets inch to char on serial port
@@ -61,7 +61,7 @@ void loop()
       {
         case'G':
         case'g':
-          stopKey = false
+          stopKey = false;
       }
     }
   }
@@ -77,24 +77,25 @@ void loop()
     inch = Serial.read();
     switch(inch)
     {
-      case'w':
+      case'j':
         polar = 90;
         waitingDirection = false;
         break;
-      case'a':
+      case'h':
         polar = 180;
         waitingDirection = false;
         break;
-      case's':
+      case'k':
         polar = 270;
         waitingDirection = false;
         break;
-      case'd':
+      case'l':
         polar = 0;
         waitingDirection = false;
         break;
       case's':
-        
+        stopKey = true;
+        waitingDirection = true;
     }
 
      

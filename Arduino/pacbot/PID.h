@@ -1,6 +1,6 @@
 
-#define MIN_INTEGRATED_ERROR = -50;
-#define MAX_INTEGRATED_ERROR = 50;
+#define MIN_INTEGRATED_ERROR -50
+#define MAX_INTEGRATED_ERROR 50
 
 double kp;
 double ki;
