@@ -1,8 +1,13 @@
 #include "Pinout.h"
+#include <Wire.h>
+#include <Adafruit_MotorShield.h>
+#include "utility/Adafruit_MS_PWMServoDriver.h"
 
-int Motor1(int speed);
-int Motor2(int speed);
-int Motor3(int speed);
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+
+Adafruit_DCMotor *myMotor1 = AFMS.getMotor(1);
+Adafruit_DCMotor *myMotor2 = AFMS.getMotor(2);
+Adafruit_DCMotor *myMotor3 = AFMS.getMotor(3);
 
 
 void InitMotors(void)
@@ -17,22 +22,75 @@ void InitMotors(void)
   pinMode(InB_3, OUTPUT);
   pinMode(PWM_3, OUTPUT);
 
-  Motor1(0);
-  Motor2(0);
-  Motor3(0);
+  AFMS.begin();
+
+  myMotor1->setSpeed(0);
+  myMotor2->setSpeed(0);
+  myMotor3->setSpeed(0);
+
+  myMotor1->run(FORWARD);
+  myMotor2->run(FORWARD);
+  myMotor3->run(FORWARD);
 }
 
 
-void strafe(int pwmValue){
-  Motor1(pwmValue);
-  Motor2(pwmValue);
-  Motor3((int)(-0.5*pwmValue));
+int drive1(int pwmValue)
+{
+  if(pwmValue >= 0)
+  {
+    myMotor1 -> run(FORWARD); 
+  }
+  else
+  {
+    myMotor1 -> run(BACKWARD);
+  }
+  myMotor1->setSpeed(pwmValue);
+  
 }
 
 
-void climb(int pwmValue){
-  Motor1(pwmValue);
-  Motor2(-pwmValue);
-  Motor3(0)
+int drive2(int pwmValue)
+{
+  if(pwmValue >= 0)
+  {
+    myMotor2 -> run(FORWARD); 
+  }
+  else
+  {
+    myMotor2 -> run(BACKWARD);
+  }
+  myMotor2->setSpeed(pwmValue);
+  
 }
+
+
+int drive3(int pwmValue)
+{
+  if(pwmValue >= 0)
+  {
+    myMotor3 -> run(FORWARD); 
+  }
+  else
+  {
+    myMotor3 -> run(BACKWARD);
+  }
+  myMotor3->setSpeed(pwmValue);
+  
+}
+
+
+void driveAll(int dir[])
+{
+  
+  
+}
+
+
+
+
+
+
+
+
+
 
