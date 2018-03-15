@@ -1,12 +1,12 @@
 """
-MDRC Pacbot AI 
+MDRC Pacbot AI
 uses Neural Evalution through Augmenting Topolodgies
-Credit goes to Sethblings MarI/O for much of the design elements 
+Credit goes to Sethblings MarI/O for much of the design elements
 Ethan Yaccarino-Mims
 """
 import pacman
-import 
 
+#! ALL SudoCode
 
 moves = ["Up", "Down", "Left", "Right"]
 moveDirections = {"Up": 90, "Down": 270, "Left": 180, "Right": 0}
@@ -46,7 +46,7 @@ def getPositions():
 	positions = {"Pacman": pacmanPos, "Red": redPos, "Blue": bluePos,
 				"Orange": orangePos, "Pink": pinkPos}
 	return positions
-	
+
 
 """
 @return the tile at (x,y)
@@ -65,7 +65,7 @@ def getInputs():
 			inputs[len(inputs) + 1] = 0
 
 			tile = getTile(x, y)
-			if tile == 1 and positions["Mario"][0] 
+			if tile == 1 and positions["Mario"][0]
 
 
 
