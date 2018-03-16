@@ -18,3 +18,7 @@ def heuristic(node1, node2):
     return abs(x2 - x1) + abs(y2 - y1)
 
 
+def AStar(grid, start, target):
+
+
+
