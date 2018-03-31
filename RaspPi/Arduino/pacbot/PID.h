@@ -85,15 +85,3 @@ int headingPID(double current, double target)
 
 	return ((int)constrain(out, -255, 255));
 }
-
-
-
-
-
-
-
-
-
-
-
-
