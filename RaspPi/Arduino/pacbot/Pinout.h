@@ -1,4 +1,6 @@
-/*
+/**
+ * Pinout.h
+ * Ethan Yaccarino-Mims
  * PacBot motor pin definitions
  */
 

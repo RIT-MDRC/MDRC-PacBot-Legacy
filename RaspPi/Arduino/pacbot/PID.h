@@ -1,7 +1,7 @@
 /**
- *PID.h
- *Ethan Yaccrino-Mims
- *PID controllers for MDRC pacbot
+ * PID.h
+ * Ethan Yaccrino-Mims
+ * PID controllers for MDRC pacbot
  */
 
 
@@ -40,11 +40,11 @@ void initPID(void)
 
 
 /**
- *PID control structure for lane keeping
+ * PID control structure for lane keeping
  *
- *@param left the distance to the left wall scaled by some constant k
- *@param right the distance to the right wall scaled by some constant k
- *@return the output of the PID controller
+ * @param left the distance to the left wall scaled by some constant k
+ * @param right the distance to the right wall scaled by some constant k
+ * @return the output of the laneKeep PID controller
  */
 int laneKeepPID(double left, double right)
 {
@@ -66,9 +66,8 @@ int laneKeepPID(double left, double right)
 /**
  * PID control structure for the heading
  *
- *@param current the current 
- *
- *
+ * @param current the current 
+ * @return the output of the heading PID controller
  */
 int headingPID(double current, double target)
 {
