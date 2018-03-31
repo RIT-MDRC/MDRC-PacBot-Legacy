@@ -6,16 +6,14 @@
 
 
 #define STD_LOOP_TIME 5000
-#define LoopTimeSeconds STD_LOOP_TIME/1000000 
-#define GyroWeight 0.995
-#define GyrOffset 0
-#define AccOffset 0
-#define zOffset 0
+#define LOOP_TIME_SECONDS STD_LOOP_TIME/1000000 
+#define GYRO_OFFSET 0
 
 
-int polar = 0; //0:right, 90:up, 180:left, 270:down
-int right; //which side is left
-int left; //which side is right
+int wantedAngle = 0; //0:right, 90:up, 180:left, 270:down
+int angle = 0; //stores the current angle based off of starting angle
+int right = 0; //which side is left
+int left = 0; //which side is right
 
 boolean waitingDirection = true;
 boolean stopKey = true;
@@ -41,7 +39,9 @@ void setup()
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
 
-  
+  initMotors();
+  initSensors();
+  initPID();
   
   delay(1000);
     
@@ -68,14 +68,14 @@ void loop()
 
 
   char msg[80];
-  char inch;
+  char cmd;
 
   digitalWrite(LED_PIN, HIGH);
 
   if(Serial.available())
   {
-    inch = Serial.read();
-    switch(inch)
+    cmd = Serial.read();
+    switch(cmd)
     {
       case'j':
         polar = 90;
@@ -101,6 +101,7 @@ void loop()
      
   }
   updateSensors();
+  angle += (getGyroRate() + gyroOffset) * LoopTimeSeconds
   
   //between walls
 

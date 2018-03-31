@@ -20,11 +20,11 @@ void InitMotors(void)
 
   AFMS.begin();
 
-  leftMotor->setSpeed(0);
-  rightMotor->setSpeed(0);
+  leftMotor -> setSpeed(0);
+  rightMotor -> setSpeed(0);
 
-  leftMotor->run(FORWARD);
-  rightMotor->run(FORWARD);
+  leftMotor -> run(FORWARD);
+  rightMotor -> run(FORWARD);
 }
 
 
@@ -32,13 +32,13 @@ int driveLeft(int pwmValue)
 {
   if(pwmValue >= 0)
   {
-    myMotor1 -> run(FORWARD); 
+    leftMotor -> run(FORWARD); 
   }
   else
   {
-    myMotor1 -> run(BACKWARD);
+    leftMotor -> run(BACKWARD);
   }
-  myMotor1->setSpeed(pwmValue);
+  leftMotor -> setSpeed(pwmValue);
   
 }
 
@@ -47,15 +47,18 @@ int driveRight(int pwmValue)
 {
   if(pwmValue >= 0)
   {
-    myMotor2 -> run(FORWARD); 
+    rightMotor -> run(FORWARD); 
   }
   else
   {
-    myMotor2 -> run(BACKWARD);
+    rightMotor -> run(BACKWARD);
   }
-  myMotor2->setSpeed(pwmValue);
+  rightMotor -> setSpeed(pwmValue);
   
 }
+
+
+int 
 
 
 

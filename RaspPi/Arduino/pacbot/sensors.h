@@ -11,6 +11,17 @@ int16_t ax, ay, az;
 int16_t gx, gy, gz;
 
 
+void initSensors()
+{
+	Wire.begin(); //start connection
+
+	accelgyro.initialize(); //starts accelGyro object
+
+	accelgyro.setRate(8); // sample rate to 8KHz/40
+
+}
+
+
 void updateSensors()
 {
   accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);

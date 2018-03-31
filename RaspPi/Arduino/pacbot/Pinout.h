@@ -13,11 +13,6 @@
 #define InB_2 8
 #define PWM_2 3
 
-//Motor 3
-#define InA_3 9
-#define InB_3 10
-#define PWM_3 4
-
 //AccelGyro
 #define MPU6050_INT_PIN 12
 
