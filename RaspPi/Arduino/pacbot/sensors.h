@@ -18,7 +18,7 @@ int16_t gx, gy, gz;
 /**
  * initializes values and objects
  */
-void initSensors()
+void InitSensors()
 {
 	//start connection
 	Wire.begin(); 
@@ -53,22 +53,19 @@ double getGyroRate()
 }
 
 
-/**
- * gets a measurement of the distance to the left wall
- */
-//TODO
+
+boolean containsWall(int value, int lastValue)
+{
+  return abs(lastValue - value) < 50;
+}
 
 
 
-/**
- * gets a measurement of the distance to the right wall
- */
-//TODO
 
 
 
-/**
- * gets a measurement of the distance to the wall infront of the pacman
- */
-//TODO
+
+
+
+
 

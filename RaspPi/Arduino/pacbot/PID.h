@@ -10,15 +10,24 @@
 #define MIN_INTEGRATED_ERROR -50
 #define MAX_INTEGRATED_ERROR 50
 
+//distance out of bounds indicator
+#define DISTANCE_OUT_OF_BOUNDS -1
+
+//max distance sensor value
+#define MAX_DISTANCE 500
+
+//min distance sensor value
+#define MIN_DISTANCE 120
+
 //lane keeping constants
-#define LP 3;
-#define LI 1;
-#define LD 0.5;
+double LP = 3;
+double LI = 1;
+double LD = 0.5;
 
 //heading hold constants
-#define HP 5;
-#define HI 0;
-#define HD 0.5;
+double HP = 5;
+double HI = 0;
+double HD = 0.5;
 
 //the error on the last function call
 double lastLaneError = 0;
@@ -30,11 +39,11 @@ double integratedHeadingError = 0;
 
 
 //initializes working values to zero
-void initPID(void)
+void InitPID(void)
 {
-	lastLaneError = 0
+	lastLaneError = 0;
 	lastHeadingError = 0;
-	integratedLaneError
+	integratedLaneError = 0;
 	integratedHeadingError = 0;  
 }
 
@@ -51,13 +60,13 @@ int laneKeepPID(double left, double right)
 	double error = right - left;
 	double out;
 
-	out = KP * error;
-	integratedError += KI * error;
-	integratedError = constrain(integratedError, MIN_INTEGRATED_ERROR,
+	out = LP * error;
+	integratedLaneError += LI * error;
+	integratedLaneError = constrain(integratedLaneError, MIN_INTEGRATED_ERROR,
 		MAX_INTEGRATED_ERROR);
-	out += integratedError;
-	out += KD * (error - lastError);
-	lastError = error;
+	out += integratedLaneError;
+	out += LD * (error - lastLaneError);
+	lastLaneError = error;
 
 	return ((int)constrain(out, -255, 255));
 }
@@ -76,12 +85,47 @@ int headingPID(double current, double target)
 	double out;
 
 	out = HP * error;
-	integratedError += HI * error;
-	integratedError = constrain(integratedError, MIN_INTEGRATED_ERROR,
+	integratedHeadingError += HI * error;
+	integratedHeadingError = constrain(integratedHeadingError, MIN_INTEGRATED_ERROR,
 		MAX_INTEGRATED_ERROR);
-	out += integratedError;
-	out += HD * (error - lastError);
-	lastError = error;
+	out += integratedHeadingError;
+	out += HD * (error - lastHeadingError);
+	lastHeadingError = error;
 
 	return ((int)constrain(out, -255, 255));
 }
+
+
+
+/**
+ * 
+ * 
+ * 
+ * 
+ */
+ int FilterSensor(int value)
+ {
+  if((MIN_DISTANCE < value && value < MAX_DISTANCE))
+  {
+    return value;
+  }
+  
+  return DISTANCE_OUT_OF_BOUNDS;
+ }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
