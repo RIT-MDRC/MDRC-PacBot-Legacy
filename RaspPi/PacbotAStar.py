@@ -4,7 +4,6 @@ A* search algo for finding distance to an object on the field
 Ethan Yaccarino-Mims
 """
 
-
 """
 heuristic distance between two nodes
 

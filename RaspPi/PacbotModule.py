@@ -46,6 +46,17 @@ class PacbotModule(robomodules.ProtoModule):
         
 
 
+    def buildGraph(grid):
+        for x in range(len(grid)):
+            for y in range(len(grid[0])):
+                pass
+
+
+
+    def makeSplit(loc, prior):
+        pass
+
+
     """
  	0: till end, 1: first right, -1: first left,..., 
  	TURNAROUND(): turn around

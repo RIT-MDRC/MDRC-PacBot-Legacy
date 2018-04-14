@@ -22,3 +22,16 @@ def sendString(cmd):
 def getLine():
 	return ser.readline()
 
+
+
+def main():
+	line = ""
+	while(line != "q"):
+		line = input("enter 'q' to quit")
+		sendString(line)
+	print("done")
+
+
+
+if __name_ == "__main__":
+	main()
