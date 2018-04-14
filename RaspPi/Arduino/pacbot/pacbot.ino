@@ -47,7 +47,7 @@ int runMotors = false;
 int nextTurn = 0;
 
 //the next turn
-int queue.push(0;
+int queue.push(0);
 
 //is the pacman waiting for a command?
 boolean waitingDirection = true;
@@ -252,17 +252,17 @@ void loop()
               }
             }
           }
-          else if(!containsWall(rightDistance, lastRight)
+          else if(!containsWall(rightDistance, lastRight)) {
+          //if there is no wall on the right
+            //
+          }
           else
           {
             motorOffset += laneKeepPID(leftDistance, rightDistance); 
           }
       }
   }
-  else
-  {
-      
-  }
+  
   
   //get new angle
   
