@@ -146,7 +146,7 @@ void loop()
         break;
       case '@':
         queue.push(-2);
-        break;
+        break'
       case '3'
         queue.push(3);
         break;
@@ -253,9 +253,6 @@ void loop()
             }
           }
           else if(!containsWall(rightDistance, lastRight)
-          {
-            
-          }
           else
           {
             motorOffset += laneKeepPID(leftDistance, rightDistance); 
