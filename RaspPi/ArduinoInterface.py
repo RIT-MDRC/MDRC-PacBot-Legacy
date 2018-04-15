@@ -8,19 +8,31 @@ Ethan Yaccarino-Mims
 import serial
 import RPi.GPIO as GPIO
 
-ser = serial.Serial("/dev/ttyACM&", 9600) #replace & with num found from ls /dev/tty/ACM*
-ser.baudrate = 9600    
 
 """
 cmd: String
 """
-def sendString(cmd):
-	for ch in cmd:
-		ser.write(bytes(ch.encode("ascii")))
+
+class Comms:
+
+	def __init(self, baud)
+	ser = serial.Serial("/dev/ttyACM&", baud) #replace & with num found from ls /dev/tty/ACM*
+	ser.baudrate = baud    
 
 
-def getLine():
-	return ser.readline()
+	def sendString(self, cmd):
+		for ch in cmd:
+			ser.write(bytes(ch.encode("ascii")))
+
+
+	def getLine(self):
+		return ser.readline()
+
+
+
+
+
+
 
 
 

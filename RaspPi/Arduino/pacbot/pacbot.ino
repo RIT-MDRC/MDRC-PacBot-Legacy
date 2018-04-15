@@ -179,6 +179,12 @@ void loop()
       case '0':
         queue.push(180);
         break;
+      case 'c':
+        while(!queue.isEmpty)
+        {
+          queue.pop();
+        }
+        break;
       case 's':
         stopKey = true;
         waitingDirection = true;
