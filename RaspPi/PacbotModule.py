@@ -10,6 +10,9 @@ import os
 import robomodules
 from .messages import *
 from grid import *
+from variables import *
+
+
 
 #from PacbotBFS import *
 
@@ -59,13 +62,13 @@ class PacbotModule(robomodules.ProtoModule):
 
     def updateGame(self):
         pacmanLocation = (self.state.pacman.x, self.state.pacman.y)
-        if self.grid[p_loc[0]][p_loc[1]] in [o, O]:
-            self.grid[p_loc[0]][p_loc[1]] = e
-        self.tempPLoc = p_loc
-        self.blueLocation = ghost.state.blueGhost.loc
-        self.redLocation = ghost.state.redGhost.loc
-        self.orangeLocation = ghost.state.orangeGhost.loc
-        self.pinkLocation = ghost.state.pinkGhost.loc
+        if self.grid[self.p_loc[0]][self.p_loc[1]] in [o, O]:
+            self.grid[self.p_loc[0]][self.p_loc[1]] = e
+        self.tempPLoc = self.p_loc
+        self.blueLocation = self.ghost.state.blueGhost.loc
+        self.redLocation = self.ghost.state.redGhost.loc
+        self.orangeLocation = self.ghost.state.orangeGhost.loc
+        self.pinkLocation = self.ghost.state.pinkGhost.loc
 
 
 
@@ -86,6 +89,7 @@ class PacbotModule(robomodules.ProtoModule):
         pass
         if self.tempDir == PacmanCommand.EAST:
             self.tempPLoc[0] += 1
+            if not self.grid[self.tempPLoc[0]][self.tempPLoc[1]]
         elif self.tempDir == PacmanCommand.WEST:
             self.tempPLoc[0] += 1
         elif self.tempDir == PacmanCommand.NORTH:
@@ -159,7 +163,7 @@ def main():
     module.run()
 
 
-if __name == "__main__":
+if __name__ == "__main__":
     main()
 
 
