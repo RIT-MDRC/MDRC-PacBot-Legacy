@@ -198,7 +198,17 @@ class PacbotModule(robomodules.ProtoModule):
 
 
 
-    def moveGhost(self):
+    def moveGhost(self, dir, ghostLoc):
+        if dir == PacmanCommand.EAST:
+            ghostLoc[1] += 1
+        elif dir == PacmanCommand.WEST:
+            ghostLoc[1] -= 1
+        elif dir == PacmanCommand.NORTH:
+            ghostLoc[0] -= 1
+        else:
+            ghostLoc[1] += 1
+
+        return ghostLoc
 
 
 
