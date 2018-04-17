@@ -113,6 +113,7 @@ class PacbotModule(robomodules.ProtoModule):
         self.tempPLoc[axis] += dir
         while not self.grid[self.tempPLoc[0] + ud][self.tempPLoc[1] + ud] in [2, 3, 4] and \
                 not self.grid[self.tempPLoc[0] - ud][self.tempPLoc[1] - ud] in [2, 3, 4]:
+            if
             if self.grid[self.tempPLoc[0]][self.tempPLoc[1]] == 2:
                 totalWeight *= HITDOT()
             elif self.grid[self.tempPLoc[0]][self.tempPLoc[1]] == 4:
@@ -132,6 +133,13 @@ class PacbotModule(robomodules.ProtoModule):
         return self
 
 
+
+    def updateTempGhosts(self):
+
+
+
+
+    def moveGhost(self):
 
 
 

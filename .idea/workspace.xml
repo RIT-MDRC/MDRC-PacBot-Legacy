@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="49c68638-b924-432c-bc07-21c042ff5935" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino" afterPath="$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/RaspPi/PacbotModule.py" afterPath="$PROJECT_DIR$/RaspPi/PacbotModule.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -33,11 +35,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="PacbotModule.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="PacbotModule.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="900">
-              <caret line="135" column="0" lean-forward="true" selection-start-line="135" selection-start-column="0" selection-end-line="135" selection-end-column="0" />
+            <state relative-caret-position="1075">
+              <caret line="142" column="0" lean-forward="false" selection-start-line="142" selection-start-column="0" selection-end-line="142" selection-end-column="0" />
               <folding>
                 <element signature="e#122#131#0" expanded="true" />
               </folding>
@@ -87,11 +89,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pacbot.ino" pinned="false" current-in-tab="false">
+      <file leaf-file-name="pacbot.ino" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4650">
-              <caret line="186" column="14" lean-forward="false" selection-start-line="186" selection-start-column="14" selection-end-line="186" selection-end-column="14" />
+            <state relative-caret-position="800">
+              <caret line="263" column="12" lean-forward="false" selection-start-line="263" selection-start-column="12" selection-end-line="263" selection-end-column="12" />
               <folding />
             </state>
           </provider>
@@ -141,10 +143,10 @@
         <option value="$PROJECT_DIR$/PacbotAStar.py" />
         <option value="$PROJECT_DIR$/PacbotModule.py" />
         <option value="$PROJECT_DIR$/RaspPi/PacbotBFS.py" />
-        <option value="$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino" />
         <option value="$PROJECT_DIR$/RaspPi/ArduinoInterface.py" />
         <option value="$PROJECT_DIR$/RaspPi/variables.py" />
         <option value="$PROJECT_DIR$/RaspPi/PacbotModule.py" />
+        <option value="$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino" />
       </list>
     </option>
   </component>
@@ -371,7 +373,14 @@
       <option name="project" value="LOCAL" />
       <updated>1523927338936</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="finished straight path following">
+      <created>1523927385301</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1523927385301</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -382,7 +391,7 @@
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32974684" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23768248" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.23768248" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -707,14 +716,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4650">
-          <caret line="186" column="14" lean-forward="false" selection-start-line="186" selection-start-column="14" selection-end-line="186" selection-end-column="14" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/RaspPi/PacbotBFS.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="75">
@@ -793,11 +794,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="900">
-          <caret line="135" column="0" lean-forward="true" selection-start-line="135" selection-start-column="0" selection-end-line="135" selection-end-column="0" />
+        <state relative-caret-position="1075">
+          <caret line="142" column="0" lean-forward="false" selection-start-line="142" selection-start-column="0" selection-end-line="142" selection-end-column="0" />
           <folding>
             <element signature="e#122#131#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/RaspPi/Arduino/pacbot/pacbot.ino">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="800">
+          <caret line="263" column="12" lean-forward="false" selection-start-line="263" selection-start-column="12" selection-end-line="263" selection-end-column="12" />
+          <folding />
         </state>
       </provider>
     </entry>

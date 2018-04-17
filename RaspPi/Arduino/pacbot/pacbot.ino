@@ -147,7 +147,7 @@ void loop()
       case '@':
         queue.push(-2);
         break'
-          case '3':
+      case '3':
         queue.push(3);
         break;
       case '#':
@@ -248,7 +248,7 @@ void loop()
             }
             else if(!openingPresent)
             {
-             turning = true;
+              turning = true;
               moving = false;
               wantedAngle += 180;
               runMotors = false;
@@ -258,10 +258,10 @@ void loop()
           else
           {
             motorOffset += laneKeepPID(leftDistance, rightDistance);
-          turning = false;
-          moving = true;
-          wantedAngle = 0;
-          runMotors = true;
+            turning = false;
+            moving = true;
+            wantedAngle = 0;
+            runMotors = true;
           }
       } 
     }
@@ -288,8 +288,8 @@ void loop()
 
   //loop timing control structure
   lastLoopUsefulTime = micros() - loopStartTime;
-  if(lastLoopUsefulTime < STD_LOOP_TIME) {
-  delayMicroseconds(STD_LOOP_TIME - lastLoopUsefulTime);
+  if(lastLoopUsefulTime < STD_LOOP_TIME)
+    delayMicroseconds(STD_LOOP_TIME - lastLoopUsefulTime);
   loopStartTime = micros();
-  }
+
 }
