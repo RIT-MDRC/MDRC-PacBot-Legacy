@@ -87,14 +87,14 @@ class PacbotModule(robomodules.ProtoModule):
         pass
 
 
-    def ridePath(self, cmdSet):
-        if self.tempDir == PacmanCommand.EAST:
+    def ridePath(self, cmdSet, location, direction):
+        if direction == PacmanCommand.EAST:
             dir = 1
             axis = 0
-        elif self.tempDir == PacmanCommand.WEST:
+        elif direction == PacmanCommand.WEST:
             dir = -1
             axis = 0
-        elif self.tempDir == PacmanCommand.NORTH:
+        elif direction == PacmanCommand.NORTH:
             dir = -1
             axis = 1
         else:
@@ -110,26 +110,28 @@ class PacbotModule(robomodules.ProtoModule):
 
         totalWeight = cmdSet[0]
 
-        self.tempPLoc[axis] += dir
-        while not self.grid[self.tempPLoc[0] + ud][self.tempPLoc[1] + ud] in [2, 3, 4] and \
-                not self.grid[self.tempPLoc[0] - ud][self.tempPLoc[1] - ud] in [2, 3, 4]:
+        location[axis] += dir
+        while not self.grid[location[0] + ud][location[1] + lr] in [2, 3, 4] and \
+                not self.grid[location[0] - ud][location[1] - lr] in [2, 3, 4]:
             if
-            if self.grid[self.tempPLoc[0]][self.tempPLoc[1]] == 2:
+            if self.grid[location[0]][location[1]] == 2:
                 totalWeight *= HITDOT()
-            elif self.grid[self.tempPLoc[0]][self.tempPLoc[1]] == 4:
+            elif self.grid[location[0]][location[1]] == 4:
                 totalWeight *= HITLIGHT()
-            elif self.grid[self.tempPLoc[0]][self.tempPLoc[1]] == 3:
+            elif self.grid[location[0]][location[1]] == 3:
                 totalWeight *= PATHWEIGHT()
 
-            self.tempPLoc[axis] += dir
+            location[axis] += dir
 
-        return self.pickDirection([totalWeight].append(cmdSet[1:]))
+        return self.pickDirection([totalWeight].append(cmdSet[1:]), )
 
     def findCmdSet(self):
         pass
 
 
-    def pickDirection(self, cmdSet):
+    def pickDirection(self, cmdSet, loc):
+        cmds = list()
+        if(temp)
         return self
 
 
