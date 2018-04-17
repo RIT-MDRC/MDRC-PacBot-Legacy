@@ -258,7 +258,9 @@ void loop()
               }
             }
           }
-          else if(!containsWall(rightDistance, lastRight)
+          else if(!containsWall(rightDistance, lastRight)) {
+            
+          }
           else
           {
             motorOffset += laneKeepPID(leftDistance, rightDistance); 
