@@ -48,6 +48,10 @@ def HITLIGHT():
     return 3
 
 
+def MINWEIGHT():
+    return 0.5
+
+
 class PacbotModule(robomodules.ProtoModule):
 
 
@@ -87,7 +91,11 @@ class PacbotModule(robomodules.ProtoModule):
         pass
 
 
-    def ridePath(self, cmdSet, location, direction):
+    def ridePath(self, cmdSet, location, direction, ghostLocs):
+
+        if(cmdSet[0] < MINWEIGHT()):
+            return [0].extend(cmdSet[1:])
+
         if direction == PacmanCommand.EAST:
             dir = 1
             axis = 0
@@ -113,26 +121,72 @@ class PacbotModule(robomodules.ProtoModule):
         location[axis] += dir
         while not self.grid[location[0] + ud][location[1] + lr] in [2, 3, 4] and \
                 not self.grid[location[0] - ud][location[1] - lr] in [2, 3, 4]:
-            if
-            if self.grid[location[0]][location[1]] == 2:
-                totalWeight *= HITDOT()
+            if location in ghostLocs:
+                return [HITGHOST()].extend(cmdSet[1:])
+            elif self.grid[location[0]][location[1]] == 2:
+                return [HITDOT()].extend(cmdSet[1:])
             elif self.grid[location[0]][location[1]] == 4:
-                totalWeight *= HITLIGHT()
+                return [HITLIGHT()].extend(cmdSet[1:])
             elif self.grid[location[0]][location[1]] == 3:
                 totalWeight *= PATHWEIGHT()
 
             location[axis] += dir
 
-        return self.pickDirection([totalWeight].append(cmdSet[1:]), )
+        return self.pickDirection([totalWeight].extend(cmdSet[1:]), location)
 
     def findCmdSet(self):
         pass
 
 
-    def pickDirection(self, cmdSet, loc):
+    def pickDirection(self, cmdSet, loc, dir, ghostLocs, ):
         cmds = list()
-        if(temp)
-        return self
+
+        #most disgusting code that I have ever wrote
+        if dir == PacmanCommand.EAST:
+            if self.grid[loc[0] + 1][loc[1]] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(1), loc, PacmanCommand.SOUTH, ghostLocs))
+            if self.grid[loc[0] - 1][loc[1]] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(-1), loc, PacmanCommand.NORTH, ghostLocs))
+            if self.grid[loc[0]][loc[1] + 1] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(0), loc, PacmanCommand.EAST, ghostLocs))
+            if len(cmds) == 0:
+                cmds.append(self.ridePath(cmdSet.append(180), loc, PacmanCommand.WEST, ghostLocs))
+        elif dir == PacmanCommand.WEST:
+            if self.grid[loc[0] - 1][loc[1]] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(1), loc, PacmanCommand.NORTH, ghostLocs))
+            if self.grid[loc[0] + 1][loc[1]] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(-1), loc, PacmanCommand.SOUTH, ghostLocs))
+            if self.grid[loc[0]][loc[1] - 1] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(0), loc, PacmanCommand.WEST, ghostLocs))
+            if len(cmds) == 0:
+                cmds.append(self.ridePath(cmdSet.append(180), loc, PacmanCommand.EAST, ghostLocs))
+        elif dir == PacmanCommand.NORTH:
+            if self.grid[loc[0]][loc[1] + 1] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(1), loc, PacmanCommand.EAST, ghostLocs))
+            if self.grid[loc[0]][loc[1] - 1] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(-1), loc, PacmanCommand.WEST, ghostLocs))
+            if self.grid[loc[0] - 1][loc[1]] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(0), loc, PacmanCommand.NORTH, ghostLocs))
+            if len(cmds) == 0:
+                cmds.append(self.ridePath(cmdSet.append(180), loc, PacmanCommand.SOUTH, ghostLocs))
+        else:
+            if self.grid[loc[0]][loc[1] - 1] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(1), loc, PacmanCommand.WEST, ghostLocs))
+            if self.grid[loc[0]][loc[1] + 1] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(-1), loc, PacmanCommand.EAST, ghostLocs))
+            if self.grid[loc[0] + 1][loc[1]] in [2, 3, 4]:
+                cmds.append(self.ridePath(cmdSet.append(0), loc, PacmanCommand.SOUTH, ghostLocs))
+            if len(cmds) == 0:
+                cmds.append(self.ridePath(cmdSet.append(180), loc, PacmanCommand.NORTH, ghostLocs))
+
+        bestPath = cmds[0]
+
+        for path in cmds:
+            if path[0] > bestPath[0]:
+                bestPath = path
+
+
+        return bestPath
 
 
 
