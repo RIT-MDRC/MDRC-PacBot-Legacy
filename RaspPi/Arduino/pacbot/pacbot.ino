@@ -244,30 +244,29 @@ void loop()
               turning = true;
               moving = false;
               wantedAngle += 90;
-              runMotors = false
+              runMotors = false;
             }
             else if(!openingPresent)
             {
-              if(nextTurn >= 0)
-              {
-                nextTurn -= 1;  
-              }
-              else
-              {
-                nextTurn += 1;
-              }
+             turning = true;
+              moving = false;
+              wantedAngle += 180;
+              runMotors = false;
             }
           }
         
           else
           {
-            motorOffset += laneKeepPID(leftDistance, rightDistance); 
+            motorOffset += laneKeepPID(leftDistance, rightDistance);
+          turning = false;
+          moving = true;
+          wantedAngle = 0;
+          runMotors = true;
           }
-      }
+      } 
+    }
   }
- else {
- pass;
- }
+
   
   //get new angle
   
