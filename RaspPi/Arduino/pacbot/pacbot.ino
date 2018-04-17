@@ -258,19 +258,16 @@ void loop()
               }
             }
           }
-          else if(!containsWall(rightDistance, lastRight)) {
-            
-          }
+        
           else
           {
             motorOffset += laneKeepPID(leftDistance, rightDistance); 
           }
       }
   }
-  else
-  {
-      
-  }
+ else {
+ pass;
+ }
   
   //get new angle
   
