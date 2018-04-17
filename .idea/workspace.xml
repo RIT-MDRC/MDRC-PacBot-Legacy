@@ -37,8 +37,8 @@
       <file leaf-file-name="PacbotModule.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1363">
-              <caret line="188" column="23" lean-forward="false" selection-start-line="188" selection-start-column="23" selection-end-line="188" selection-end-column="23" />
+            <state relative-caret-position="913">
+              <caret line="232" column="30" lean-forward="false" selection-start-line="232" selection-start-column="30" selection-end-line="232" selection-end-column="30" />
               <folding>
                 <element signature="e#122#131#0" expanded="true" />
               </folding>
@@ -400,7 +400,14 @@
       <option name="project" value="LOCAL" />
       <updated>1524002262038</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="built function that picks best direction in sim">
+      <created>1524006642467</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1524006642467</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -446,7 +453,8 @@
     <MESSAGE value="fixed loop timing structure error and syntax errors" />
     <MESSAGE value="added code to test motors" />
     <MESSAGE value="changing simulation locations to local variables" />
-    <option name="LAST_COMMIT_MESSAGE" value="changing simulation locations to local variables" />
+    <MESSAGE value="built function that picks best direction in sim" />
+    <option name="LAST_COMMIT_MESSAGE" value="built function that picks best direction in sim" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -807,8 +815,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1363">
-          <caret line="188" column="23" lean-forward="false" selection-start-line="188" selection-start-column="23" selection-end-line="188" selection-end-column="23" />
+        <state relative-caret-position="913">
+          <caret line="232" column="30" lean-forward="false" selection-start-line="232" selection-start-column="30" selection-end-line="232" selection-end-column="30" />
           <folding>
             <element signature="e#122#131#0" expanded="true" />
           </folding>

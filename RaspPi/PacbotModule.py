@@ -88,7 +88,10 @@ class PacbotModule(robomodules.ProtoModule):
 
 
     def makeCommand(self):
-        pass
+
+
+
+        return None
 
 
     def ridePath(self, cmdSet, location, direction, ghostLocs):
@@ -226,8 +229,10 @@ class PacbotModule(robomodules.ProtoModule):
     TURNAROUND(): turn around
     returns list of 4 instructions read left to right 
     """
-    def sendInstructionSet(self):
-        pass
+    def sendInstructionSet(self, cmdSet):
+        for cmd in cmdSet[1:]:
+            ser.write(bytes(cmd.encode("ascii")))
+
 
 
 
