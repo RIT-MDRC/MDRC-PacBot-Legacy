@@ -47,7 +47,7 @@ int runMotors = false;
 int nextTurn = 0;
 
 //the next turn
-int queue.push(0;
+int queue.push(0);
 
 //is the pacman waiting for a command?
 boolean waitingDirection = true;
@@ -147,7 +147,7 @@ void loop()
       case '@':
         queue.push(-2);
         break'
-      case '3'
+          case '3':
         queue.push(3);
         break;
       case '#':
@@ -288,7 +288,8 @@ void loop()
 
   //loop timing control structure
   lastLoopUsefulTime = micros() - loopStartTime;
-  if(lastLoopUsefulTime < STD_LOOP_TIME)
+  if(lastLoopUsefulTime < STD_LOOP_TIME) {
   delayMicroseconds(STD_LOOP_TIME - lastLoopUsefulTime);
   loopStartTime = micros();
+  }
 }
