@@ -41,7 +41,7 @@ def HITFRUIT():
 
 
 def PATHWEIGHT():
-    return 0.90
+    return 0.98
 
 
 def HITLIGHT():
@@ -137,9 +137,6 @@ class PacbotModule(robomodules.ProtoModule):
 
         return self.pickDirection([totalWeight].extend(cmdSet[1:]), location)
 
-    def findCmdSet(self):
-        pass
-
 
     def pickDirection(self, cmdSet, loc, dir, ghostLocs, ):
         cmds = list()
@@ -192,13 +189,7 @@ class PacbotModule(robomodules.ProtoModule):
         return bestPath
 
 
-
-    def updateTempGhosts(self):
-
-
-
-
-    def moveGhost(self, dir, ghostLoc):
+    def moveTempGhost(self, dir, ghostLoc):
         if dir == PacmanCommand.EAST:
             ghostLoc[1] += 1
         elif dir == PacmanCommand.WEST:
@@ -209,6 +200,73 @@ class PacbotModule(robomodules.ProtoModule):
             ghostLoc[1] += 1
 
         return ghostLoc
+
+
+    def calcGhostMoves(self, tempGhostLoc, tempPacLoc):
+        verticalDistance = tempGhostLoc[0] - tempPacLoc[0]
+        horizontalDistance = tempGhostLoc[1] - tempPacLoc[1]
+        if horizontalDistance > 0 and verticalDistance > 0:
+            up = abs(verticalDistance)
+            left = abs(horizontalDistance)
+            down = 100
+            right = 100
+        elif horizontalDistance > 0:
+            down = abs(verticalDistance)
+            left = abs(horizontalDistance)
+            up = 100
+            right = 100
+        elif verticalDistance > 0:
+            up = abs(verticalDistance)
+            right = abs(horizontalDistance)
+            down = 100
+            left = 100
+        else:
+            down = abs(verticalDistance)
+            right = abs(horizontalDistance)
+            up = 100
+            left = 100
+
+        dirs = [right, left, up, down]
+        dirs.sort()
+
+        if dirs[0] == down:
+            if self.grid[tempGhostLoc[0] + 1][tempGhostLoc[1]] in [2, 3, 4]:
+                tempGhostLoc[0] += 1
+            elif dirs[1] == left:
+                if self.grid[tempGhostLoc[0]][tempGhostLoc[1] - 1] in [2, 3, 4]:
+                    tempGhostLoc[1] -= 1
+            elif dirs[1] == right:
+                if self.grid[tempGhostLoc[0]][tempGhostLoc[1] + 1] in [2, 3, 4]:
+                    tempGhostLoc[1] += 1
+        elif dirs[0] == up:
+            if self.grid[tempGhostLoc[0] - 1][tempGhostLoc[1]] in [2, 3, 4]:
+                tempGhostLoc[0] -= 1
+            elif dirs[1] == left:
+                if self.grid[tempGhostLoc[0]][tempGhostLoc[1] - 1] in [2, 3, 4]:
+                    tempGhostLoc[1] -= 1
+            elif dirs[1] == right:
+                if self.grid[tempGhostLoc[0]][tempGhostLoc[1] + 1] in [2, 3, 4]:
+                    tempGhostLoc[1] += 1
+        elif dirs[0] == left:
+            if self.grid[tempGhostLoc[0]][tempGhostLoc[1] - 1] in [2, 3, 4]:
+                tempGhostLoc[1] -= 1
+            elif dirs[1] == up:
+                if self.grid[tempGhostLoc[0] - 1][tempGhostLoc[1]] in [2, 3, 4]:
+                    tempGhostLoc[0] -= 1
+            elif dirs[1] == down:
+                if self.grid[tempGhostLoc[0] + 1][tempGhostLoc[1]] in [2, 3, 4]:
+                    tempGhostLoc[0] += 1
+        elif dirs[0] == right:
+            if self.grid[tempGhostLoc[0]][tempGhostLoc[1] + 1] in [2, 3, 4]:
+                tempGhostLoc[1] += 1
+            elif dirs[1] == up:
+                if self.grid[tempGhostLoc[0] - 1][tempGhostLoc[1]] in [2, 3, 4]:
+                    tempGhostLoc[0] -= 1
+            elif dirs[1] == down:
+                if self.grid[tempGhostLoc[0] + 1][tempGhostLoc[1]] in [2, 3, 4]:
+                    tempGhostLoc[0] += 1
+
+        return tempGhostLoc
 
 
 
