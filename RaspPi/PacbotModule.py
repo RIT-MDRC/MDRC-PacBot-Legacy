@@ -96,6 +96,9 @@ class PacbotModule(robomodules.ProtoModule):
 
     def ridePath(self, cmdSet, location, direction, ghostLocs):
 
+        for ghostLoc in ghostLocs:
+            ghostLoc = self.calcGhostMoves(ghostLoc, location)
+
         if(cmdSet[0] < MINWEIGHT()):
             return [0].extend(cmdSet[1:])
 
@@ -135,10 +138,10 @@ class PacbotModule(robomodules.ProtoModule):
 
             location[axis] += dir
 
-        return self.pickDirection([totalWeight].extend(cmdSet[1:]), location)
+        return self.pickDirection([totalWeight].extend(cmdSet[1:]), location, direction, ghostLocs)
 
 
-    def pickDirection(self, cmdSet, loc, dir, ghostLocs, ):
+    def pickDirection(self, cmdSet, loc, dir, ghostLocs):
         cmds = list()
 
         #most disgusting code that I have ever wrote
@@ -187,19 +190,6 @@ class PacbotModule(robomodules.ProtoModule):
 
 
         return bestPath
-
-
-    def moveTempGhost(self, dir, ghostLoc):
-        if dir == PacmanCommand.EAST:
-            ghostLoc[1] += 1
-        elif dir == PacmanCommand.WEST:
-            ghostLoc[1] -= 1
-        elif dir == PacmanCommand.NORTH:
-            ghostLoc[0] -= 1
-        else:
-            ghostLoc[1] += 1
-
-        return ghostLoc
 
 
     def calcGhostMoves(self, tempGhostLoc, tempPacLoc):
