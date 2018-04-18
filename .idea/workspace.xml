@@ -37,8 +37,8 @@
       <file leaf-file-name="PacbotModule.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3113">
-              <caret line="193" column="0" lean-forward="true" selection-start-line="193" selection-start-column="0" selection-end-line="193" selection-end-column="0" />
+            <state relative-caret-position="-4037">
+              <caret line="84" column="0" lean-forward="true" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
               <folding>
                 <element signature="e#122#131#0" expanded="true" />
               </folding>
@@ -428,7 +428,14 @@
       <option name="project" value="LOCAL" />
       <updated>1524011552848</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="cleaned up recursive calls">
+      <created>1524012219851</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1524012219851</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -478,7 +485,8 @@
     <MESSAGE value="added functionality for sending instructions" />
     <MESSAGE value="added function to move sim ghost location" />
     <MESSAGE value="completed simple ghost sim calculations" />
-    <option name="LAST_COMMIT_MESSAGE" value="completed simple ghost sim calculations" />
+    <MESSAGE value="cleaned up recursive calls" />
+    <option name="LAST_COMMIT_MESSAGE" value="cleaned up recursive calls" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -839,8 +847,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3113">
-          <caret line="193" column="0" lean-forward="true" selection-start-line="193" selection-start-column="0" selection-end-line="193" selection-end-column="0" />
+        <state relative-caret-position="-4037">
+          <caret line="84" column="0" lean-forward="true" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
           <folding>
             <element signature="e#122#131#0" expanded="true" />
           </folding>

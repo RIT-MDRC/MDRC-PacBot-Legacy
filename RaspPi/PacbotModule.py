@@ -70,28 +70,20 @@ class PacbotModule(robomodules.ProtoModule):
         self.pacmanLocation = (self.state.pacman.x, self.state.pacman.y)
         if self.grid[self.p_loc[0]][self.p_loc[1]] in [2, 4]:
             self.grid[self.p_loc[0]][self.p_loc[1]] = 3
-        self.tempPLoc = self.p_loc
         self.blueLocation = self.ghost.state.blueGhost.loc
         self.redLocation = self.ghost.state.redGhost.loc
         self.orangeLocation = self.ghost.state.orangeGhost.loc
         self.pinkLocation = self.ghost.state.pinkGhost.loc
 
 
-
-    def initTemps(self):
-        self.tempBlueLoc = self.blueLocation
-        self.tempRedLoc = self.redLocation
-        self.tempOrangeLoc = self.orangeLocation
-        self.tempPinkLoc = self.pinkLocation
-        self.tempDir = self.direction
-        self.tempPLoc = self.p_loc
-
-
     def makeCommand(self):
+        ghostLocs = [self.pinkLocation[:][:], self.orangeLocation[:][:],
+                     self.redLocation[:][:], self.blueLocation[:][:]]
+        loc = self.p_loc[:][:]
+        cmdSet = [1]
+        path = self.pickDirection(cmdSet, loc, self.direction, ghostLocs)
 
-
-
-        return None
+        return path
 
 
     def ridePath(self, cmdSet, location, direction, ghostLocs):
