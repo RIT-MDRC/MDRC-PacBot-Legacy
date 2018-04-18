@@ -37,8 +37,8 @@
       <file leaf-file-name="PacbotModule.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4037">
-              <caret line="84" column="0" lean-forward="true" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
+            <state relative-caret-position="863">
+              <caret line="297" column="16" lean-forward="false" selection-start-line="297" selection-start-column="16" selection-end-line="297" selection-end-column="16" />
               <folding>
                 <element signature="e#122#131#0" expanded="true" />
               </folding>
@@ -435,7 +435,14 @@
       <option name="project" value="LOCAL" />
       <updated>1524012219851</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="completed wrapper function for finding best path">
+      <created>1524013286556</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1524013286556</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -486,7 +493,8 @@
     <MESSAGE value="added function to move sim ghost location" />
     <MESSAGE value="completed simple ghost sim calculations" />
     <MESSAGE value="cleaned up recursive calls" />
-    <option name="LAST_COMMIT_MESSAGE" value="cleaned up recursive calls" />
+    <MESSAGE value="completed wrapper function for finding best path" />
+    <option name="LAST_COMMIT_MESSAGE" value="completed wrapper function for finding best path" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -847,8 +855,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/RaspPi/PacbotModule.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4037">
-          <caret line="84" column="0" lean-forward="true" selection-start-line="84" selection-start-column="0" selection-end-line="84" selection-end-column="0" />
+        <state relative-caret-position="863">
+          <caret line="297" column="16" lean-forward="false" selection-start-line="297" selection-start-column="16" selection-end-line="297" selection-end-column="16" />
           <folding>
             <element signature="e#122#131#0" expanded="true" />
           </folding>

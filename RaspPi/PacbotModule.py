@@ -61,7 +61,7 @@ class PacbotModule(robomodules.ProtoModule):
         super().__init__(addr, port, message_buffers, MsgType,
                          FREQUENCY, self.subscriptions)
         self.state = None
-        self.previous_loc = None
+        self.last_p_loc = None
         self.direction = PacmanCommand.EAST
 
 
@@ -130,7 +130,8 @@ class PacbotModule(robomodules.ProtoModule):
 
             location[axis] += dir
 
-        return self.pickDirection([totalWeight].extend(cmdSet[1:]), location, direction, ghostLocs)
+        return self.pickDirection([totalWeight].extend(cmdSet[1:]), location[:][:],
+                                  direction, ghostLocs[:][:][:])
 
 
     def pickDirection(self, cmdSet, loc, dir, ghostLocs):
@@ -261,19 +262,6 @@ class PacbotModule(robomodules.ProtoModule):
         return ser.readline()
 
 
-
-    def sendDirection(self):
-        if True:
-            pass
-
-
-
-    def makeSplit(self, loc, prior):
-        pass
-
-
-
-
     """
     0: till end, 1: first right, -1: first left,..., 
     TURNAROUND(): turn around
@@ -286,14 +274,35 @@ class PacbotModule(robomodules.ProtoModule):
 
 
 
+    def msg_received(self, msg, msg_type):
+        if msg_type == MsgType.LIGHT_STATE:
+            if self.last_p_loc != self.p_loc:
+                if self.last_p_loc != None:
+                    if self.p_loc[0] == self.last_p_loc[0]:
+                        if self.p_loc[1] > self.last_p_loc[1]:
+                            self.direction = PacmanCommand.EAST
+                        else:
+                            self.direction = PacmanCommand.WEST
+                    else:
+                        if self.p_loc[0] > self.last_p_loc[0]:
+                            self.direction = PacmanCommand.SOUTH
+                        else:
+                            self.direction = PacmanCommand.NORTH
+                    self.last_p_loc = self.state.pacman
+            self.state = msg
+
+
 
     def tick(self):
+        if self.state == None:
+            pass
 
-        state = self.server_mo
+
+
+        state = self.server_mode
         if self.state.mode == LightState.RUNNING:
             self.updateGame()
 
-            instructionSet = ()
 
 
 
