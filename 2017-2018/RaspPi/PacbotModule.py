@@ -268,10 +268,9 @@ class PacbotModule(robomodules.ProtoModule):
     returns list of 4 instructions read left to right 
     """
     def sendInstructionSet(self, cmdSet):
+        ser.write(bytes('c'.encode("ascii")))
         for cmd in cmdSet[1:]:
             ser.write(bytes(cmd.encode("ascii")))
-
-
 
 
     def msg_received(self, msg, msg_type):
@@ -294,16 +293,11 @@ class PacbotModule(robomodules.ProtoModule):
 
 
     def tick(self):
-        if self.state == None:
-            pass
-
-
-
         state = self.server_mode
         if self.state.mode == LightState.RUNNING:
             self.updateGame()
-
-
+            cmd = self.makeCommand()
+            sendInstructionSet(cmd)
 
 
 
