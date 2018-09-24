@@ -1,0 +1,8 @@
+[NEAT]
+fitness_criterion     = max
+fitness_threshold     = 3.9
+pop_size              = 150
+reset_on_extinction   = False
+
+[DefaultGenome]
+activation_default = softmax
