@@ -23,7 +23,11 @@ def calc_error(inp, expected):
 # Get best direction
 def best_direction(directions):
     # Command to send back to the arduino
+<<<<<<< HEAD:2018-2019/RaspPi/helper.py
     commands = ["u", "l", "d", "r"]
+=======
+    commands = ["", "", "", ""]
+>>>>>>> 861ff38f6d87225e5967777b46fab616e609b2d6:2018-2019/helper.py
     max_dir_index = directions.index(max(directions))
 
     return commands[max_dir_index]
