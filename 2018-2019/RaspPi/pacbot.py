@@ -61,14 +61,9 @@ def run(config_file):
     # Best net
     best_net = neat.nn.FeedForwardNetwork.create(best_genome, config)
     # Get the inputs and outputs form the game and feed it in the network
-<<<<<<< HEAD:2018-2019/RaspPi/pacbot.py
-    for input, point in zip(inputs, points):
-        output = best_net.activate(input)
-=======
     for inp, point in zip(inputs, points):
         # Prediction
         output = best_net.activate(inp)
->>>>>>> 861ff38f6d87225e5967777b46fab616e609b2d6:2018-2019/pacbot.py
         # Display the output and error
         print("input: {:20}\nexpected output: {:20}\noutput: {:20}\nerror: {:20}".format(input, point, output, calc_error(input, output)))
 
