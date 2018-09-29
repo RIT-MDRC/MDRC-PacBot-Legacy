@@ -1,10 +1,29 @@
 import os
 import neat
-import numpy as np
 from helper import *
 
 checkpoint_interval = 5 # The interval of being reported per genome in generation
 num_generations = 300   # Number of generations
+
+# Activation: Softmax function
+def softmax(vec):
+    # Convert to numpy array
+    output_layer_in = np.array(vec)
+    # Set numerator values from output_layer_in
+    exponents = [np.exp(row) for row in output_layer_in]
+    # Set denominator
+    sum_exp = sum(exponents)
+    # Create the output layer activation values
+    output_vec = [exp/sum_exp for exp in exponents]
+
+    assert output_layer_in.shape == (4,1)
+
+    return output_vec
+
+# Calculate the percentage error
+def calc_error(inp, expected):
+    percentage_error = abs(inp - expected) / expected * 100
+    return percentage_error
 
 # Called to evaluate all genomes
 def eval_genomes(genomes, config):
@@ -38,10 +57,10 @@ def run(config_file):
     # Best net
     best_net = neat.nn.FeedForwardNetwork.create(best_genome, config)
     # Get the inputs and outputs form the game and feed it in the network
-    for inp, point in zip(inputs, points):
-        output = best_net.activate(inp)
+    for input, point in zip(inputs, points):
+        output = best_net.activate(input)
         # Display the output and error
-        print("input: {:20}\nexpected output: {:20}\noutput: {:20}\nerror: {:20}".format(inp, point, output, calc_error(inp, output)))
+        print("input: {:20}\nexpected output: {:20}\noutput: {:20}\nerror: {:20}".format(input, point, output, calc_error(input, output)))
 
 if __name__ = '__main__':
     local_dir = os.path.dirname(__file__)
