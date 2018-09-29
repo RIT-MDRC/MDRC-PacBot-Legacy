@@ -37,6 +37,10 @@ def run(config_file):
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
                          config_file)
+
+    # Add custom activation function to config file
+    config.genome_config.add_activation('softmax_custom', softmax)
+
     # Creates the population
     pop = neat.Population(config)
 
