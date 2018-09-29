@@ -1,3 +1,5 @@
+import numpy as np
+
 # Activation: Softmax function
 def softmax(vec):
     # Convert to numpy array
@@ -17,3 +19,11 @@ def softmax(vec):
 def calc_error(inp, expected):
     percentage_error = abs(inp - expected) / expected * 100
     return percentage_error
+
+# Get best direction
+def best_direction(directions):
+    # Command to send back to the arduino
+    commands = ["", "", "", ""]
+    max_dir_index = directions.index(max(directions))
+
+    return commands[max_dir_index]

@@ -1,6 +1,5 @@
 import os
 import neat
-import numpy as np
 from helper import *
 
 checkpoint_interval = 5 # The interval of being reported per genome in generation
@@ -39,6 +38,7 @@ def run(config_file):
     best_net = neat.nn.FeedForwardNetwork.create(best_genome, config)
     # Get the inputs and outputs form the game and feed it in the network
     for inp, point in zip(inputs, points):
+        # Prediction
         output = best_net.activate(inp)
         # Display the output and error
         print("input: {:20}\nexpected output: {:20}\noutput: {:20}\nerror: {:20}".format(inp, point, output, calc_error(inp, output)))
