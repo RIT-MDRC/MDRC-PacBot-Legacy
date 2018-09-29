@@ -13,7 +13,7 @@ def softmax(vec):
 
     assert output_layer_in.shape == (4,1)
 
-    return output_vec
+    return best_direction(output_vec)
 
 # Calculate the percentage error
 def calc_error(inp, expected):

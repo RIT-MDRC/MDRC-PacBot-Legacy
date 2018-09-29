@@ -1,6 +1,6 @@
 import os
 import neat
-import numpy as np
+from helper import *
 
 checkpoint_interval = 5 # The interval of being reported per genome in generation
 num_generations = 300   # Number of generations
