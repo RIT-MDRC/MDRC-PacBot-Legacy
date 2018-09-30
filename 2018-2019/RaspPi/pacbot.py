@@ -2,14 +2,14 @@ import os
 import neat
 from helper import *
 
-checkpoint_interval = 5 # The interval of being reported per genome in generation
 num_generations = 300   # Number of generations
 
 # Called to evaluate all genomes
 def eval_genomes(genomes, config):
-    pass
 
-    # Create Feed Forward Network
+    for genome_id, genome in genomes:
+        pass
+
 
 def run(config_file):
 
@@ -27,7 +27,7 @@ def run(config_file):
     # Set Reporters
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
-    checkpoint = neat.CheckPointer(checkpoint_interval)
+    checkpoint = neat.Checkpointer(5, 500)
     pop.add_reporter(stats)
     pop.add_reporter(checkpoint)
 
