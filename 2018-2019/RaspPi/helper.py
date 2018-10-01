@@ -1,4 +1,5 @@
 import numpy as np
+from field import FieldValues
 
 # Activation: Softmax function
 def softmax(vec):
@@ -27,3 +28,30 @@ def best_direction(directions):
     max_dir_index = directions.index(max(directions))
 
     return commands[max_dir_index]
+
+def reshape_field(field):
+
+    new_field = np.reshape(field, (field.shape[0] * field.shape[1]))
+
+    assert field.shape == (27,30), "Field not correct shape {0}, has to be (27,30)".format(field.shape)
+
+    return new_field
+
+
+def swap_field_values(field):
+
+    for row in field:
+        for col in row:
+            if field[row][col] == 'I' or field[row][col] == 'e':
+                field[row][col] = FieldValues.I
+
+            elif field[row][col] == 'o':
+                field[row][col] == FieldValues.C
+
+            elif field[row][col] == 'O':
+                field[row][col] == FieldValues.O
+
+            elif field[row][col] == 'n':
+                field[row][col] == FieldValues.N
+
+    return field
