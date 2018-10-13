@@ -1,7 +1,7 @@
 import asyncio
-from .comm.serverProto import ServerProto
-from .comm.subscribe_pb2 import Subscribe
-from .comm.constants import _SUBSCRIBE
+from comm import ServerProto
+from comm.subscribe_pb2 import Subscribe
+from comm import _SUBSCRIBE
 
 
 class Server():

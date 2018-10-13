@@ -1,6 +1,6 @@
 import asyncio
-from .comm.asyncClient import AsyncClient
-from .comm.subscribe_pb2 import Subscribe
+from comm.asyncClient import AsyncClient
+from comm.subscribe_pb2 import Subscribe
 
 
 class ProtoModule:

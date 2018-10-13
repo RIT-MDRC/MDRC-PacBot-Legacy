@@ -1,10 +1,10 @@
 #Uses RobotModules to turn input from the robot/server into data for NEAT
 import os
-from .robomodules import ProtoModule
-from .messages import *
+from robomodules import ProtoModule
+from messages import *
 
-SERVER_ADDRESS = os.environ.get("BIND_ADDRESS","192.168.0.101")
-SERVER_PORT = os.environ.get("BIND_PORT", 11297)
+SERVER_ADDRESS = os.environ.get("BIND_ADDRESS","localhost")
+SERVER_PORT = os.environ.get("BIND_PORT", 11295)
 
 LOCAL_ADDRESS = os.environ.get("LOCAL_ADDRESS","localhost")
 LOCAL_PORT = os.environ.get("LOCAL_PORT", 11295)
@@ -54,7 +54,7 @@ class PacbotCommsModule(ProtoModule):
 
 
 def main():
-    module = PacbotCommsModule(SERVER_ADDRESS, SERVER_PORT, LOCAL_ADDRESS, LOCAL_PORT)
+    module = PacbotCommsModule("localhost", "11927", "localhost", "11925")
     module.run()
 
 

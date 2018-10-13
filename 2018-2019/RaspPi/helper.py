@@ -1,5 +1,8 @@
 import numpy as np
 from field import FieldValues
+from robomodules.server import Server
+from commPacbot import PacbotServerClient
+from messages import *
 
 
 # Activation: Softmax function
@@ -59,3 +62,13 @@ def swap_field_values(field):
                 field[row][col] == FieldValues.N
 
     return field
+
+
+def startServer():
+    server = Server("localhost",11295, MsgType)
+    server.run()
+
+
+
+if __name__ == "__main__":
+    startServer()
