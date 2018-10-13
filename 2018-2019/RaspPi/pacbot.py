@@ -2,34 +2,14 @@ import os
 import neat
 from helper import *
 
-checkpoint_interval = 5 # The interval of being reported per genome in generation
 num_generations = 300   # Number of generations
-
-# Activation: Softmax function
-def softmax(vec):
-    # Convert to numpy array
-    output_layer_in = np.array(vec)
-    # Set numerator values from output_layer_in
-    exponents = [np.exp(row) for row in output_layer_in]
-    # Set denominator
-    sum_exp = sum(exponents)
-    # Create the output layer activation values
-    output_vec = [exp/sum_exp for exp in exponents]
-
-    assert output_layer_in.shape == (4,1)
-
-    return output_vec
-
-# Calculate the percentage error
-def calc_error(inp, expected):
-    percentage_error = abs(inp - expected) / expected * 100
-    return percentage_error
 
 # Called to evaluate all genomes
 def eval_genomes(genomes, config):
-    pass
 
-    # Create Feed Forward Network
+    for genome_id, genome in genomes:
+        pass
+
 
 def run(config_file):
 
@@ -47,7 +27,7 @@ def run(config_file):
     # Set Reporters
     pop.add_reporter(neat.StdOutReporter(True))
     stats = neat.StatisticsReporter()
-    checkpoint = neat.CheckPointer(checkpoint_interval)
+    checkpoint = neat.Checkpointer(5, 500)
     pop.add_reporter(stats)
     pop.add_reporter(checkpoint)
 
