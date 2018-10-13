@@ -1,6 +1,6 @@
 #Uses RobotModules to turn input from the robot/server into data for NEAT
 import os
-import robomodules as rm
+from .robomodules import ProtoModule
 from .messages import *
 
 SERVER_ADDRESS = os.environ.get("BIND_ADDRESS","192.168.0.101")
@@ -12,7 +12,7 @@ LOCAL_PORT = os.environ.get("LOCAL_PORT", 11295)
 SERVER_FREQUENCY = 0
 LOCAL_FREQUENCY = 30
 
-class PacbotServerClient(rm.ProtoModule):
+class PacbotServerClient(ProtoModule):
     def __init__(self, addr, port, loop):
         self.subscriptions = [MsgType.LIGHT_STATE]
         super().__init__(addr, port, message_buffers, MsgType, SERVER_FREQUENCY, self.subscriptions, loop)
@@ -30,7 +30,7 @@ class PacbotServerClient(rm.ProtoModule):
     def get_state(self):
         return self.state
 
-class PacbotCommsModule(rm.ProtoModule):
+class PacbotCommsModule(ProtoModule):
     def __init__(self, server_addr, server_port, local_addr, local_port):
         self.subscriptions = [MsgType.PACMAN_LOCATION]
         super().__init__(local_addr, local_port, message_buffers, MsgType, LOCAL_FREQUENCY, self.subscriptions)
