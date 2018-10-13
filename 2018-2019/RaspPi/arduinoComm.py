@@ -1,12 +1,11 @@
-
-
 import serial
-import robomodules
+from .robomodules import ProtoModule
 
-class ArduinoComm(robomodules.ProtoModule):
+
+class ArduinoComm(ProtoModule):
     def __init__(self, baud):
         super()
-        ser = serial.Serial("/dev/ttyACM&", baud) #replace & with num found from ls /dev/tty/ACM*
+        ser = serial.Serial("/dev/ttyACM&", baud) # replace & with num found from ls /dev/tty/ACM*
         ser.baudrate = baud
 
     def sendCommand(self, cmd):

@@ -2,17 +2,16 @@ import os
 import neat
 from helper import *
 
-num_generations = 300   # Number of generations
+num_generations = 300  # Number of generations
+
 
 # Called to evaluate all genomes
 def eval_genomes(genomes, config):
-
     for genome_id, genome in genomes:
         pass
 
 
 def run(config_file):
-
     # Get config_file and set up
     config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
                          neat.DefaultSpeciesSet, neat.DefaultStagnation,
@@ -32,7 +31,7 @@ def run(config_file):
     pop.add_reporter(checkpoint)
 
     # Run through generations
-        # Call function to evaluate genomes in a generation
+    # Call function to evaluate genomes in a generation
     best_genome = pop.run(eval_genomes, num_generations)
 
     # Display the best genome among all num_generations
@@ -45,9 +44,11 @@ def run(config_file):
         # Prediction
         output = best_net.activate(inp)
         # Display the output and error
-        print("input: {:20}\nexpected output: {:20}\noutput: {:20}\nerror: {:20}".format(input, point, output, calc_error(input, output)))
+        print("input: {:20}\nexpected output: {:20}\noutput: {:20}\nerror: {:20}".format(input, point, output,
+                                                                                         calc_error(input, output)))
 
-if __name__ = '__main__':
+
+if __name__ == '__main__':
     local_dir = os.path.dirname(__file__)
     config_path = os.path.join(local_dir, 'config')
     run(config_path)

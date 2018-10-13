@@ -1,6 +1,7 @@
 import asyncio
-from robomodules.comm.asyncClient import AsyncClient
-from robomodules.comm.subscribe_pb2 import Subscribe
+from .comm.asyncClient import AsyncClient
+from .comm.subscribe_pb2 import Subscribe
+
 
 class ProtoModule:
     def __init__(self, addr, port, message_buffers, MsgType, frequency=0, subscriptions=[], loop=None):

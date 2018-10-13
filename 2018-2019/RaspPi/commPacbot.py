@@ -12,6 +12,7 @@ LOCAL_PORT = os.environ.get("LOCAL_PORT", 11295)
 SERVER_FREQUENCY = 0
 LOCAL_FREQUENCY = 30
 
+
 class PacbotServerClient(ProtoModule):
     def __init__(self, addr, port, loop):
         self.subscriptions = [MsgType.LIGHT_STATE]
@@ -29,6 +30,7 @@ class PacbotServerClient(ProtoModule):
 
     def get_state(self):
         return self.state
+
 
 class PacbotCommsModule(ProtoModule):
     def __init__(self, server_addr, server_port, local_addr, local_port):
@@ -50,9 +52,11 @@ class PacbotCommsModule(ProtoModule):
             # Broadcast state to local modules
             self.write(state.SerializeToString(), MsgType.LIGHT_STATE)
 
+
 def main():
     module = PacbotCommsModule(SERVER_ADDRESS, SERVER_PORT, LOCAL_ADDRESS, LOCAL_PORT)
     module.run()
+
 
 if __name__ == "__main__":
     main()

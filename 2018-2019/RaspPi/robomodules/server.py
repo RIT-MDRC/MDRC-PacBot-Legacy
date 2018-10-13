@@ -1,7 +1,8 @@
 import asyncio
-from robomodules.comm.serverProto import ServerProto
-from robomodules.comm.subscribe_pb2 import Subscribe
-from robomodules.comm.constants import _SUBSCRIBE
+from .comm.serverProto import ServerProto
+from .comm.subscribe_pb2 import Subscribe
+from .comm.constants import _SUBSCRIBE
+
 
 class Server():
     def __init__(self, addr, port, MsgType):
