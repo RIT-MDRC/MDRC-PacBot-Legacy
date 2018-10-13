@@ -41,6 +41,7 @@ class PacbotCommsModule(rm.ProtoModule):
         # This gets called whenever any message is received
         if msg_type == MsgType.PACMAN_LOCATION:
             self.server_module.write(msg.SerializeToString(), MsgType.PACMAN_LOCATION)
+            print("test")
 
     def tick(self):
         # Get state from the server
