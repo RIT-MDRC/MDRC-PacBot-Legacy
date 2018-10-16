@@ -1,7 +1,6 @@
 import numpy as np
 from field import FieldValues
 from robomodules.server import Server
-from commPacbot import PacbotServerClient
 from messages import *
 
 

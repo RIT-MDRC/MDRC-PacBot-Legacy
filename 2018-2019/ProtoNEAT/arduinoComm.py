@@ -1,5 +1,5 @@
 import serial
-from .robomodules import ProtoModule
+from robomodules import ProtoModule
 
 
 class ArduinoComm(ProtoModule):
