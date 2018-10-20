@@ -2,6 +2,7 @@ import os
 import neat
 from helper import *
 
+<<<<<<< HEAD:2018-2019/ProtoNEAT/pacbot.py
 num_generations = 300  # Number of generations
 
 
@@ -10,6 +11,16 @@ def eval_genomes(genomes, config):
     for genome_id, genome in genomes:
         pass
 
+=======
+num_generations = 300   # Number of generations
+
+# Called to evaluate all genomes
+def eval_genomes(genomes, config):
+
+    for genome_id, genome in genomes:
+        pass
+
+>>>>>>> 20dbe0a3794592e37650dce0e6b33b2624205e35:2018-2019/RaspPi/pacbot.py
 
 def run(config_file):
     # Get config_file and set up
