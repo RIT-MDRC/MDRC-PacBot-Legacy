@@ -50,11 +50,10 @@ class HardCodedPacman(rm.ProtoModule):
         moves = [up, down, left, right]
 
         if self.state.mode != LightState.PAUSED:
-            if not self._move_if_valid_dir(self.next_dir, self.pacbot_pos[0], self.pacbot_pos[1]):
-                self._move_if_valid_dir(self.cur_dir, self.pacbot_pos[0], self.pacbot_pos[1])
-            else: 
+            if not self._move_if_valid_dir(self.cur_dir, self.pacbot_pos[0], self.pacbot_pos[1]):
                 self.next_dir = moves[random.randint(0,3)]
                 self._move_if_valid_dir(self.next_dir, self.pacbot_pos[0], self.pacbot_pos[1])
+
         pos_buf = PacmanState.AgentState()
         pos_buf.x = self.pacbot_pos[0]
         pos_buf.y = self.pacbot_pos[1]
@@ -65,7 +64,6 @@ class HardCodedPacman(rm.ProtoModule):
       
     def tick(self): 
         #Set directions the pacman takes
-        
         self.slave()        
 
 
