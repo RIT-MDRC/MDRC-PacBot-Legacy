@@ -2,6 +2,8 @@
 import queue as Queue
 
 
+
+
 def getDirection(grid, ghost, pacman):
     path = getPath(grid, ghost, pacman)
     return directionOfPath(path), lengthOfPath(path) 
