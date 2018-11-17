@@ -24,11 +24,9 @@ class PacbotServerClient(rm.ProtoModule):
         # This module will connect to server and receive the game state
         if msg_type == MsgType.LIGHT_STATE:
             self.state = msg
-        
-
 
     def tick(self):
-        return None
+        return
 
     def get_state(self):
         return self.state
