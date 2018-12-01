@@ -1,0 +1,76 @@
+NEAT Section (REQUIRED)
+--> values for the NEAT algorithm itself.
+----------------------------------------------------------
+
+- fitness_criterion (min, max, mean)
+
+    Trying to minimize, maximize, or try to get close
+     to a mean error.
+
+- fitness_threshold
+
+    Point where the program terminates.
+    Program ends when error is minimized, maximized, or
+    at the mean threshold error value.
+
+- no_fitness_termination (True, False)
+
+    If True, ignores fitness_criterion and fitness_threshold
+    If False, the default, uses fitness_criterion and fitness_threshold
+
+- pop_size
+
+    number of individuals in each generation
+
+- reset_on_extinction (True, False)
+
+    If True, when all species are extinct because of stagnation,
+        new random population is created.
+    If False, CompleteExtinctionException is thrown
+
+
+
+DefaultStagnation Section (ONLY REQUIRED WHEN it is declared in
+                            the config file)
+*Can be customized
+--> parameters for checking if the species are showing imporovement
+----------------------------------------------------------
+
+- species_fitness_func (min, max, mean, median)
+
+    Defaults to median.
+    Computes species fitness
+
+- max_stagnation
+
+    A threshold of generations to determine if species are
+    improving. If not improved, it is removed.
+
+- species_elitism
+
+    Used to prevent total extinction, because of stagnation.
+    Number given will prevent that amount of species with the highest
+    fitness from being removed.
+    Defaults to 0.
+
+DefaultReproduction Section (ONLY REQUIRED WHEN it is declared in
+                              the config file)
+*Can be customized
+--> parameters for reproduction of new population
+----------------------------------------------------------
+
+- elitism
+
+    Number of most fit individuals in each species that will be
+    kept as-is from the current generation to the next.
+    Defaults to 0.
+
+- survival_threshold
+
+    Fraction of species allowed to reproduce each generation.
+    Defaults to 0.2
+
+- min_species_size
+
+    Minimum number of genomes per species after reproduction.
+    Defaults to 2.
