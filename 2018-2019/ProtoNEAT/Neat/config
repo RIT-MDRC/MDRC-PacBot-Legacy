@@ -1,11 +1,7 @@
 [NEAT]
-fitness_criterion     = max
-fitness_threshold     = 3.9
-pop_size              = 150
-reset_on_extinction   = False
+fitness_criterion = min
+fitness_threshold = 0.5
+pop_size = 150
+reset_on_extinction = True
 
-[DefaultStagnation]
 
-[DefaultReproduction]
-
-[DefaultStagnation]
