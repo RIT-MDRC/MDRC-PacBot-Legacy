@@ -1,8 +1,10 @@
 import neat
 import os
 
+
 def eval_genomes(genomes, config):
     pass
+
 
 def run(config):
     pass
