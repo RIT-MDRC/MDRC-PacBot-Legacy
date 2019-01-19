@@ -25,13 +25,18 @@
 int leftSpeed = 0;
 int rightSpeed = 0;
 
+bool openLeft = false;
+bool openRight = false;
+
 int motorOffset = 0;
 
 bool stopped = true;
+bool turning = false;
 
 char cmd;
 
 //initial: East, counterClockwise: Positive.
+int newHeading = 0;
 int wantedHeading = 0;
 int currentHeading = 0;
 
@@ -94,16 +99,16 @@ void loop()
         switch(cmd)
         {
             case 'E':
-                wantedHeading = 0;
+                newHeading = 0;
                 break;
             case 'W':
-                wantedHeading = 180;
+                newHeading = 180;
                 break;
             case 'N':
-                wantedHeading = 90;
+                newHeading = 90;
                 break;
             case 'S':
-                wantedHeading = 270;
+                newHeading = 270;
                 break;
             case 'P';
                 stopped = true;
@@ -112,4 +117,21 @@ void loop()
     }
 
     updateSensors();
+
+    //record left sensor
+    //record right sensor
+
+    currentHeading += (getGyroRate() * GYRO_OFFSET) * LOOP_TIME_SECONDS;
+    motorOffset = headingPID(currentHeading, wantedHeading);
+
+    if((wantedHeading + 90) % 360 = newHeading)
+    {
+        wantedHeading = newHeading;
+        while(abs(wantedHeading - currentHeading) < 5) //less than 5 degrees offset
+        {
+            
+        }
+    }
+
+
 }
