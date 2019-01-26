@@ -1,7 +1,15 @@
 [NEAT]
-fitness_criterion = min
-fitness_threshold = 0.5
+fitness_criterion = max
+fitness_threshold = 100
 pop_size = 150
-reset_on_extinction = True
+reset_on_extinction = False
 
 
+[DefaultStagnation]
+max_stagnation = 7
+species_elitism = 5
+
+[DefaultReproduction]
+elitism = 2
+survival_threshold = 0.1
+min_species_size = 5

@@ -33,7 +33,7 @@ NEAT Section (REQUIRED)
 DefaultStagnation Section (ONLY REQUIRED WHEN it is declared in
                             the config file)
 *Can be customized
---> parameters for checking if the species are showing imporovement
+--> parameters for checking if the species are showing improvement
 ----------------------------------------------------------
 
 - species_fitness_func (min, max, mean, median)
