@@ -23,6 +23,8 @@
 
 #define USED -1
 
+#define IDLE 150
+
 //the values to output to the motors
 int leftSpeed = 0;
 int rightSpeed = 0;
@@ -147,7 +149,13 @@ void loop()
     else
     {
         motorOffset = headingPID(currentHeading, wantedHeading);
-        
+        driveMotors(IDLE + motorOffset, IDLE - motorOffset);
     }
 
+    lastLoopUsefulTime = micros() - loopStartTime;
+    if(lastLoopUsefulTime < STD_LOOP_TIME) 
+    {
+        delayMicroseconds(STD_LOOP_TIME - lastLoopUsefulTime);
+    }
+    loopStartTime = micros();
 }

@@ -84,6 +84,12 @@ int driveRight(int pwmValue)
   
 }
 
+int driveMotors(int left, int right)
+{
+  driveLeft(constrain(left, -255, 255));
+  driveRight(constrain(right, -255, 255));
+}
+
 
 int turnBot(int value)
 {
