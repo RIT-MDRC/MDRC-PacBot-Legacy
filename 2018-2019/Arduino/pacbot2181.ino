@@ -21,12 +21,15 @@
 
 #define MOTOR_OFFSET_WEIGHT 1
 
+#define USED -1
+
 //the values to output to the motors
 int leftSpeed = 0;
 int rightSpeed = 0;
 
 bool openLeft = false;
 bool openRight = false;
+bool reverse = false;
 
 int motorOffset = 0;
 
@@ -37,6 +40,7 @@ char cmd;
 
 //initial: East, counterClockwise: Positive.
 int newHeading = 0;
+int rhc = 0; //relativeHeadingChange
 int wantedHeading = 0;
 int currentHeading = 0;
 
@@ -114,23 +118,32 @@ void loop()
                 stopped = true;
                 break;        
         }
+
+        if(newHeading != USED)
+        {
+            
+        }
+        //compare chars instead of angle
     }
 
     updateSensors();
 
-    //record left sensor
-    //record right sensor
+    //record left sensor; open -> openLeft = true
+    //record right sensor; open -> openRight = true
 
     currentHeading += (getGyroRate() * GYRO_OFFSET) * LOOP_TIME_SECONDS;
     motorOffset = headingPID(currentHeading, wantedHeading);
 
-    if((wantedHeading + 90) % 360 = newHeading)
+    if((newHeading = wantedHeading + 90 && openRight) ||
+        (newHeading = wantedHeading - 90 && openLeft))
     {
         wantedHeading = newHeading;
+        newHeading = USED;
         while(abs(wantedHeading - currentHeading) < 5) //less than 5 degrees offset
         {
-            
+            turnBot(turningPID(wantedHeading, currentHeading));
         }
+        
     }
 
 

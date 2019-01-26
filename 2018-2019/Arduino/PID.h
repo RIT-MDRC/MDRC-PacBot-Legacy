@@ -29,6 +29,12 @@ double HP = 5;
 double HI = 0;
 double HD = 0.5;
 
+//turning constants
+double TP = 5;
+double TI = 0;
+double TD = 0.5;
+
+
 //the error on the last function call
 double lastLaneError = 0;
 double lastHeadingError = 0;
@@ -90,6 +96,23 @@ int headingPID(double current, double target)
 		MAX_INTEGRATED_ERROR);
 	out += integratedHeadingError;
 	out += HD * (error - lastHeadingError);
+	lastHeadingError = error;
+
+	return ((int)constrain(out, -255, 255));
+}
+
+
+int turningPID(double current, double target)
+{
+	double error = target - current;
+	double out;
+
+	out = TP * error;
+	integratedHeadingError += TI * error;
+	integratedHeadingError = constrain(integratedHeadingError, MIN_INTEGRATED_ERROR,
+		MAX_INTEGRATED_ERROR);
+	out += integratedHeadingError;
+	out += TD * (error - lastHeadingError);
 	lastHeadingError = error;
 
 	return ((int)constrain(out, -255, 255));

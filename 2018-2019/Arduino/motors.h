@@ -83,3 +83,19 @@ int driveRight(int pwmValue)
   rightMotor -> setSpeed(pwmValue);
   
 }
+
+
+int turnBot(int value)
+{
+  if(value >= 0)
+  {
+    driveLeft(speed);
+    driveRight(-speed);
+  }
+  else
+  {
+    driveLeft(-speed);
+    driveRight(speed);
+  }
+}
+
