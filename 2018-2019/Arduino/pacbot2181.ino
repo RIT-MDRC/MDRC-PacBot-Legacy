@@ -40,9 +40,8 @@ char cmd;
 
 //initial: East, counterClockwise: Positive.
 int newHeading = 0;
-int rhc = 0; //relativeHeadingChange
 int wantedHeading = 0;
-int currentHeading = 0;
+double currentHeading = 0;
 
 
 
@@ -104,24 +103,23 @@ void loop()
         {
             case 'E':
                 newHeading = 0;
+                turning = true;
                 break;
             case 'W':
                 newHeading = 180;
+                turning = true;
                 break;
             case 'N':
                 newHeading = 90;
+                turning = true;
                 break;
             case 'S':
                 newHeading = 270;
+                turning = true;
                 break;
             case 'P';
                 stopped = true;
                 break;        
-        }
-
-        if(newHeading != USED)
-        {
-            
         }
         //compare chars instead of angle
     }
@@ -132,19 +130,24 @@ void loop()
     //record right sensor; open -> openRight = true
 
     currentHeading += (getGyroRate() * GYRO_OFFSET) * LOOP_TIME_SECONDS;
-    motorOffset = headingPID(currentHeading, wantedHeading);
 
-    if((newHeading = wantedHeading + 90 && openRight) ||
-        (newHeading = wantedHeading - 90 && openLeft))
+    if(turning)
     {
-        wantedHeading = newHeading;
-        newHeading = USED;
-        while(abs(wantedHeading - currentHeading) < 5) //less than 5 degrees offset
+        //find change in angle
+        if(abs(newHeading - (int)wantedHeading) == 270) {newHeading - (int)wantedHeading  > 0 ? wantedHeading -= 90 : wantedHeading += 90;}
+        else if(abs(newHeading - (int)wantedHeading) == 180) {wantedHeading -= 180;}
+        else {wantedHeading += (newHeading - (int)wantedHeading);}
+        
+        //keep in turning mode until diffenrence in angle is less than 5 degrees
+        while(abs(wantedHeading - currentHeading) < 5)
         {
-            turnBot(turningPID(wantedHeading, currentHeading));
+            turnBot(turningPID(currentHeading, wantedHeading));
         }
+    }
+    else
+    {
+        motorOffset = headingPID(currentHeading, wantedHeading);
         
     }
-
 
 }

@@ -89,13 +89,13 @@ int turnBot(int value)
 {
   if(value >= 0)
   {
-    driveLeft(speed);
-    driveRight(-speed);
+    driveLeft(value);
+    driveRight(-value);
   }
   else
   {
-    driveLeft(-speed);
-    driveRight(speed);
+    driveLeft(-value);
+    driveRight(value);
   }
 }
 
