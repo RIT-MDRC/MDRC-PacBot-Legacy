@@ -2,20 +2,24 @@ import os, sys, logging
 import neat
 import robomodules as rm
 from messages import *
+from pacbot.variables import *
 
 
 
 ADDRESS = os.environ.get("BIND_ADDRESS","localhost")
 PORT = os.environ.get("BIND_PORT", 11297)
 
+SPEED = 1.0
+FREQUENCY = SPEED * game_frequency
+
 
 num_generations = 300  # Number of generations
 
-class pacneat(rm.ProtoModule):
+class PacNeat(rm.ProtoModule):
 
     def __init__(self, addr, port):
         self.subscriptions = [MsgType.FULL_STATE]
-        super().__init__(addr, port, message_buffers, MsgType, self.subscriptions)
+        super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
 
 
@@ -35,10 +39,9 @@ class pacneat(rm.ProtoModule):
 
 
 
-    def run(config_file):
+    def runa(config_file):
         # Get config_file and set up
-        config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-                             neat.DefaultSpeciesSet, neat.DefaultStagnation,
+        config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction, neat.DefaultStagnation,
                              config_file)
 
         # Creates the population
@@ -63,8 +66,10 @@ class pacneat(rm.ProtoModule):
         # Best net
         best_net = neat.nn.FeedForwardNetwork.create(best_genome, config)
 
-    if __name__ == '__main__':
-        local_dir = os.path.dirname(__file__)
-        config_path = os.path.join(local_dir, 'config')
-        run(config_path)
 
+def main():
+    module = PacNeat(ADDRESS, PORT)
+    module.run()
+
+if __name__ == "__main__":
+    main()
