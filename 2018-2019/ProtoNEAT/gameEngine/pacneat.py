@@ -7,7 +7,8 @@ from pacbot.variables import game_frequency, ticks_per_update
 from pacbot import StateConverter, GameState
 
 
-
+INPUT_POS = []
+GAME_SCORE = 0
 
 ADDRESS = os.environ.get("BIND_ADDRESS","localhost")
 PORT = os.environ.get("BIND_PORT", 11297)
@@ -39,6 +40,7 @@ class PacEng(rm.ProtoModule):
 
     def tick(self):
         if self.game.lives < 3:
+            GAME_SCORE = self.game.score
             self.quit()
         # this function will get called in a loop with FREQUENCY frequency
         if self.game.play:
@@ -58,11 +60,12 @@ class PacNeat():
     # Called to evaluate all genomes
     def eval_genomes(self,genomes, config):
         for genome_id, genome in genomes:
-            genome.fitness = 100
-            start = time.time()
+            genome.fitness = 10
             self.pacEng.run()
-            duration = (time.time() - start)
-            genome.fitness -= duration
+            #g_net = neat.nn.FeedForwardNetwork()
+            #g_output = g_net.activate(INPUT_POS)
+            genome.fitness = GAME_SCORE
+
 
 
 
