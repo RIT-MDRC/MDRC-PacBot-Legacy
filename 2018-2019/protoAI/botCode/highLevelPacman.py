@@ -29,8 +29,26 @@ class highLevelPacman(rm.ProtoModule):
         new_msg.y = pacmanLocation[1]
         self.write(new_msg.SerializeToString(), MsgType.PACMAN_LOCATION)
     
-        
-
+    def get_direction(self, newLocation, previousLocation): 
+        if(newLocation[0] > previousLocation[0]): 
+            return right
+        elif(newLocation[0] < previousLocation[0]): 
+            return left
+        elif(newLocation[1] > previousLocation[1]): 
+            return up
+        elif(newLocation[1] < previousLocation[1]): 
+            return down
+    
+    def print_direction(self, value): 
+        if(value == 0): 
+            print("Moving Right")
+        elif(value == 1): 
+            print("Moving Left")
+        elif(value == 2): 
+            print("Moving Up")
+        elif(value == 3): 
+            print("Moving Down")
+    
     #Main FUNCTIONALITY
     def tick(self):
         if self.state and self.state.mode == LightState.RUNNING:
@@ -39,11 +57,9 @@ class highLevelPacman(rm.ProtoModule):
                 if(next_location == None):
                     return
                 else:
+                    #GET DIRECTION
+                    self.print_direction(self.get_direction(next_location, self.previousLocation))
                     self.send_data(next_location)
-            
-
-
-        
 
     #Required to update the GRID, to make sure not to go over the same location
     #def update_game_state(self):
