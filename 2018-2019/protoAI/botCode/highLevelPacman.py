@@ -3,6 +3,7 @@ import robomodules as rm
 from messages import *
 from variables import *
 from grid import grid
+from pacBFSHelper import *
 import collections
 
 ADDRESS = os.environ.get("LOCAL_ADDRESS","localhost")
@@ -27,12 +28,22 @@ class highLevelPacman(rm.ProtoModule):
         new_msg.x = pacmanLocation[0]
         new_msg.y = pacmanLocation[1]
         self.write(new_msg.SerializeToString(), MsgType.PACMAN_LOCATION)
+    
+        
 
     #Main FUNCTIONALITY
     def tick(self):
         if self.state and self.state.mode == LightState.RUNNING:
-            next_location = (15,7) #Found by running an algorithm based on previous location
-            self.send_data(next_location)
+            next_location = breadth_first_search(initialize_grid(self.grid), self.previousLocation, (15,26)) #Found by running an algorithm based on previous location
+            if(next_location != self.previousLocation):
+                if(next_location == None):
+                    return
+                else:
+                    self.send_data(next_location)
+            
+
+
+        
 
     #Required to update the GRID, to make sure not to go over the same location
     #def update_game_state(self):
