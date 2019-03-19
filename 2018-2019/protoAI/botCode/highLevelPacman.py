@@ -4,9 +4,10 @@ from messages import *
 from variables import *
 from grid import grid
 from pacBFSHelper import *
+import RPi.GPIO as GPIO
 import collections
 
-ADDRESS = os.environ.get("LOCAL_ADDRESS","localhost")
+ADDRESS = "129.21.63.16"
 PORT = os.environ.get("LOCAL_PORT", 11295)
 
 FREQUENCY = 10
