@@ -19,6 +19,9 @@ class highLevelPacman(rm.ProtoModule):
         self.state = None
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(37, GPIO.OUT)
+        GPIO.setup(35, GPIO.OUT)
+        GPIO.setup(33, GPIO.OUT)
+        GPIO.setup(31, GPIO.OUT)
         #self declared variables
         self.previousLocation = None  
         self.grid = copy.deepcopy(grid)
