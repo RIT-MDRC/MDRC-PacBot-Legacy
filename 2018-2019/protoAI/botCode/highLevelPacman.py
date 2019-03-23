@@ -89,15 +89,18 @@ class highLevelPacman(rm.ProtoModule):
     #Gets LIGHT_STATE from local server(Local Server is updated from game Engine)
     def msg_received(self, msg, msg_type): 
         if msg_type == MsgType.LIGHT_STATE:
-            self.state = msgifconfi
+            self.state = msg
             #Get data from lightstate 
             self.previousLocation = (self.state.pacman.x, self.state.pacman.y)
 
 
 
 def main():
-    module = highLevelPacman(ADDRESS, PORT)
-    module.run()
+    try:
+        module = highLevelPacman(ADDRESS, PORT)
+        module.run()
+    finally:
+        GPIO.cleanup()
 
 if __name__ == "__main__":
     main()
