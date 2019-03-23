@@ -17,7 +17,8 @@ class highLevelPacman(rm.ProtoModule):
         self.subscriptions = [MsgType.LIGHT_STATE]
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
-
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(37, GPIO.OUT)
         #self declared variables
         self.previousLocation = None  
         self.grid = copy.deepcopy(grid)
@@ -43,6 +44,7 @@ class highLevelPacman(rm.ProtoModule):
     def print_direction(self, value): 
         if(value == 0): 
             print("Moving Right")
+            GPIO.output(37, GPIO.HIGH)
         elif(value == 1): 
             print("Moving Left")
         elif(value == 2): 
