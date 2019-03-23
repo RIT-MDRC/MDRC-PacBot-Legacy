@@ -45,12 +45,27 @@ class highLevelPacman(rm.ProtoModule):
         if(value == 0): 
             print("Moving Right")
             GPIO.output(37, GPIO.HIGH)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.LOW)
         elif(value == 1): 
             print("Moving Left")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.HIGH)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.LOW)
         elif(value == 2): 
             print("Moving Up")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.HIGH)
+            GPIO.output(31, GPIO.LOW)
         elif(value == 3): 
             print("Moving Down")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.HIGH)
     
     #Main FUNCTIONALITY
     def tick(self):
@@ -71,7 +86,7 @@ class highLevelPacman(rm.ProtoModule):
     #Gets LIGHT_STATE from local server(Local Server is updated from game Engine)
     def msg_received(self, msg, msg_type): 
         if msg_type == MsgType.LIGHT_STATE:
-            self.state = msg
+            self.state = msgifconfi
             #Get data from lightstate 
             self.previousLocation = (self.state.pacman.x, self.state.pacman.y)
 
