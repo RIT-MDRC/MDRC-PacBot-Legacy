@@ -46,13 +46,12 @@ class pacGrid:
         results = filter(self.passable, results)
         return results
 
-def findPath(node, previousNodes, path, end_point):
+def findPath(node, previousNodes, path):
     if previousNodes[node] == None: 
         return 
     else: 
-        if node != end_point:
-            path.append(node)
-        findPath(previousNodes[node], previousNodes, path, end_point)
+        path.append(node)
+        findPath(previousNodes[node], previousNodes, path)
         
 def breadth_first_search(graph, start, goal):
     path = []
@@ -64,7 +63,7 @@ def breadth_first_search(graph, start, goal):
         current = theQueue.get()
         #Stops and returns the best path
         if current == goal: 
-            findPath(current, visited, path, goal)
+            findPath(current, visited, path)
             break   
         
         #Looks for paths
@@ -75,7 +74,31 @@ def breadth_first_search(graph, start, goal):
     if not path: 
         return None
     else: 
-        return path[-1]
+        return path
+
+def bfs_find_pellet(graph, grid, start, goal): 
+    path = [] 
+    theQueue = Queue() 
+    theQueue.put(start) 
+    visited = {} 
+    visited[start] = None 
+
+    while(not theQueue.empty()): 
+        current = theQueue.get() 
+        #stops and returns the best path
+        if(grid[current[0]][current[1]] == goal): 
+            findPath(current, visited, path)
+            break
+        
+        #Look for paths
+        for i in graph.neighbors(current):
+            if i not in visited: 
+                theQueue.put(i) 
+                visited[i] = current
+    if not path: 
+        return None 
+    else: 
+        return path
 
 def initialize_grid(grid):
     walls = []
@@ -86,6 +109,7 @@ def initialize_grid(grid):
     
     new_grid = pacGrid(len(grid),len(grid[0]))
     new_grid.walls = walls 
+    #print("walls: "+ str(walls))
     
     return new_grid
 
