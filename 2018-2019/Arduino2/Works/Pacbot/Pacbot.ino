@@ -1,230 +1,158 @@
+#include <PID_v1.h>
 #include <Servo.h> 
 #include <Wire.h>
-#include <MPU6050.h>
-#include <MPU6050.h>
-#define period 10000
+#include <PID_AutoTune_v0.h>
 
 
-//NEED https://github.com/jarzebski/Arduino-MPU6050 installed
 
 /**
  * Servo Motors
  */
-Servo myservo;
-Servo myservo2;
-
-
-/**
- * Gyroscope/Accelerometer
- */
-MPU6050 mpu;
+Servo leftServo;
+Servo rightServo;
 
 /*
  * Sensor values
  */
-const int numReadings = 70;
-
-int readingsRight[numReadings];      // the readings from the analog input - RIGHT
-int readingsLeft[numReadings];      // the readings from the analog input - LEFT
-int readingsFront[numReadings];      // the readings from the analog input -FRONT
-int readIndexR = 0;               // the index of the current reading - R
-int readIndexL = 0;               // the index of the current reading - L
-int readIndexF = 0;               // the index of the current reading - F
-int totalR = 0;                  // the running total - R
-int averageR = 0;                // the average - R
-int totalL = 0;                  // the running total -L
-int averageL = 0;                // the average - l
-int totalF = 0;                  // the running total - F
-int averageF = 0;                // the average - F
 
 //PIN VALUES FOR SENSORS
 int rightSensor = A0;
 int leftSensor = A1;
 int frontSensor = A2;
 
+double rightInput;
+double leftInput;
+double frontInput;
 
-int rightRPI = 20
-int leftRPI = 18
-int upRPI = 16
-int downRPI = 14 
+/*
+ * RPI values
+ */
+int rightRPI = 20;
+int leftRPI = 18;
+int upRPI = 16;
+int downRPI = 14;
 
 int directionState = 0;
 
+//Define Variables we'll be connecting to
+double leftSetpoint, rightSetpoint = 180;
+double leftOutput = 93; 
+double rightOutput = 93;
+
+double kpL=2,kiL=0.5,kdL=2;
+double kpR=2,kiR=0.5,kdR=2;
+
+//Specify the links and initial tuning parameters
+PID leftPID(&leftInput, &rightOutput, &leftSetpoint, kpL,kiL,kdL, DIRECT);
+PID rightPID(&rightInput, &leftOutput, &rightSetpoint, kpR,kiR,kdR, DIRECT);
+PID_ATune leftATune(&leftInput, &leftOutput);
+PID_ATune rightATune(&rightInput, &rightOutput);
+
+byte ATuneModeRememberL=2;
+byte ATuneModeRememberR=2;
+
+boolean tuningRight = true;
+boolean tuningLeft = true;
+
 void setup() {
   Serial.begin(9600);
-
-  // Initializes the Gyro
-  Serial.println("Initialize MPU6050");
-  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
-  {
-    Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
-    delay(500);
-  }
-  mpu.calibrateGyro();
-  mpu.setThreshold(3);
-
-  // Initializes arrays for sensor readings to normalize
   
-   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    readingsRight[thisReading] = 0;
+  leftServo.attach(9);
+  rightServo.attach(10);
+  //Setup the pid 
+  leftPID.SetMode(AUTOMATIC);
+  rightPID.SetMode(AUTOMATIC);
+    if(tuningLeft)
+  {
+    tuningLeft=false;
+    changeAutoTune(leftATune, leftPID, tuningLeft);
+    tuningLeft=true;
   }
-  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    readingsLeft[thisReading] = 0;
-  }
-  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
-    readingsFront[thisReading] = 0;
-  }
-
-
-  delay(2000);
-
+  if(tuningRight){
+    tuningRight=false;
+    changeAutoTune(rightATune, rightPID, tuningRight);
+    tuningRight=true;
+    }
+  
 }
 
 void loop() {
-  if(gyroTilt> 0){
-      //left servo increase
-    }else if (gyroTilt <0) {
-      //right servo increases    
-      }
+  //Serial.print(analogRead(rightSensor));
+  //Serial.print(" ");
+  //Serial.println(analogRead(leftSensor));
+  if(tuningLeft)
+  {
+    Serial.println("Tuning Left");
+    byte valLeft = (leftATune.Runtime());
+    Serial.println(valLeft);
+    if (valLeft!=0)
+    {
+      Serial.println("RunTime done");
+      tuningLeft = false;
+    }
+   if(!tuningLeft)
+    {
+   //we're done, set the tuning parameters
+    kpL = leftATune.GetKp();
+    kiL = leftATune.GetKi();
+    kdL = leftATune.GetKd();
+    leftPID.SetTunings(kpL,kiL,kdL);
+          Serial.println("Setting new tunes done");
+    }
+  }else{
+          Serial.println("Computing PID");
+      leftPID.Compute();
+    }
+    if(tuningRight)
+  {
+    byte valRight = (rightATune.Runtime());
+    if (valRight!=0)
+    {
+      Serial.println("Tuning done");
+      tuningRight = false;
+    }
+   if(!tuningRight)
+    {
+   //we're done, set the tuning parameters
+    kpR = rightATune.GetKp();
+    kiR = rightATune.GetKi();
+    kdR = rightATune.GetKd();
+    rightPID.SetTunings(kpR,kiR,kdR);
+    }
+  }else{
+      rightPID.Compute();
+    }
+          Serial.println(leftOutput);
+    Serial.println(rightOutput);
+  //leftServo.write(leftOutput);
+  //rightServo.write(183-rightOutput);
 
-   if !inRangeRight(){
-      //right servo increases
-    }else if (!inRangeLeft(){
-      
-      //left servo increases
-      }
-
-   //add up increase
-
-   
 }
 
-/*
-void tempShow()
+
+
+void changeAutoTune(PID_ATune Atune, PID pid, boolean tuning)
 {
-    float temp = mpu.readTemperature();
-    Serial.print(" Temp = ");
-    Serial.print(temp);
-    Serial.println(" *C");
-    delay(400);
+ if(!tuning)
+  {
+    ATune.SetNoiseBand(aTuneNoise);
+    ATune.SetOutputStep(aTuneStep);
+    ATune.SetLookbackSec((int)aTuneLookBack);
+    AutoTuneHelper(true, pid);
+    tuning = true;
+  }
+  else
+  { //cancel autotune
+    ATune.Cancel();
+    tuning = false;
+    AutoTuneHelper(false);
+  }
 }
-*/
 
-
-int gyroTilt()
+void AutoTuneHelper(boolean start, PID pid, byte ATuneModeRemember)
 {
-  //lcd.setCursor(0,0);
-  Vector rawGyro = mpu.readRawGyro();
-  Vector normGyro = mpu.readNormalizeGyro();
-  Serial.print(" Xnorm = ");
-  Serial.print(normGyro.XAxis);
-  Serial.print(" Ynorm = ");
-  Serial.print(normGyro.YAxis);
-  Serial.print(" Znorm = ");
-  Serial.println(normGyro.ZAxis);
-  return rawGyro.XAxis;
-  delay(200);
+  if(start)
+    ATuneModeRemember = pid.GetMode();
+  else
+    pid.SetMode(ATuneModeRemember);
 }
-
-void accelShow()
-{
-
-  Vector rawAccel = mpu.readRawAccel();
-  Vector normAccel = mpu.readNormalizeAccel();
-
-  Serial.print(" Xnorm = ");
-  Serial.print(normAccel.XAxis);
-  Serial.print(" Ynorm = ");
-  Serial.print(normAccel.YAxis);
-  Serial.print(" Znorm = ");
-  Serial.println(normAccel.ZAxis);
-  delay(200);
-}
-
-/**
- * Function to return if the robot's right side is in good range
- */
-
-boolean inRangeRight(){
-    // subtract the last reading:
-  totalR = totalR - readingsRight[readIndexR];
-  // read from the sensor:
-  readingsRight[readIndexR] = analogRead(rightSensor);
-  // add the reading to the total:
-  totalR = totalR + readingsRight[readIndexR];
-  // advance to the next position in the array:
-  readIndexR = readIndexR + 1;
-
-  // if we're at the end of the array...
-  if (readIndexR >= numReadings) {
-    // ...wrap around to the beginning:
-    readIndexR = 0;
-  }
-
-  // calculate the average:
-  averageR = totalR / numReadings;
-  // send it to the computer as ASCII digits
-  if(averageR < 435){  //Is it in the range of NOT being too far from the wall or too close
-      return true;
-    }else {return false;}
-  
-  }
-
-/**
- * Function to return if the robot's left side is in good range
- */
-
-
-boolean inRangeLeft(){
-    // subtract the last reading:
-  totalL = totalL - readingsLeft[readIndexL];
-  // read from the sensor:
-  readingsLeft[readIndexL] = analogRead(leftSensor);
-  // add the reading to the total:
-  totalL = totalL + readingsLeft[readIndexL];
-  // advance to the next position in the array:
-  readIndexL = readIndexL + 1;
-
-  // if we're at the end of the array...
-  if (readIndexL >= numReadings) {
-    // ...wrap around to the beginning:
-    readIndexL = 0;
-  }
-
-  // calculate the average:
-  averageL = totalL / numReadings;
-  // send it to the computer as ASCII digits
-  if(averageL < 201 || averageL > 231){
-      return false;
-    }else {return true;}
-  
-  }
-
-
-/**  
- *   Returns if the robot has a wall in front of it
- */
-boolean inRangeFront(){
-    // subtract the last reading:
-  totalF = totalF - readingsFront[readIndexF];
-  // read from the sensor:
-  readingsFront[readIndexF] = analogRead(frontSensor);
-  // add the reading to the total:
-  totalF = totalF + readingsFront[readIndexF];
-  // advance to the next position in the array:
-  readIndexF = readIndexF + 1;
-
-  // if we're at the end of the array...
-  if (readIndexF >= numReadings) {
-    // ...wrap around to the beginning:
-    readIndexF = 0;
-  }
-
-  // calculate the average:
-  averageF = totalF / numReadings;
-  // send it to the computer as ASCII digits
-  if(averageF < 0 || averageF > 0){
-      return true;
-    }else {return false;}
-  
-  }
