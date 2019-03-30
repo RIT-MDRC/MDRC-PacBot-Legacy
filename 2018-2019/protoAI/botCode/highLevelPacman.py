@@ -4,9 +4,10 @@ from messages import *
 from variables import *
 from grid import grid
 from pacBFSHelper import *
+import RPi.GPIO as GPIO
 import collections
 
-ADDRESS = os.environ.get("LOCAL_ADDRESS","localhost")
+ADDRESS = "129.21.63.16"
 PORT = os.environ.get("LOCAL_PORT", 11295)
 
 FREQUENCY = 2
@@ -20,7 +21,11 @@ class highLevelPacman(rm.ProtoModule):
         self.subscriptions = [MsgType.LIGHT_STATE]
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
-
+        GPIO.setmode(GPIO.BOARD)
+        GPIO.setup(37, GPIO.OUT)
+        GPIO.setup(35, GPIO.OUT)
+        GPIO.setup(33, GPIO.OUT)
+        GPIO.setup(31, GPIO.OUT)
         #self declared variables
         self.previousLocation = None  
         self.grid = copy.deepcopy(grid)
@@ -52,14 +57,34 @@ class highLevelPacman(rm.ProtoModule):
     def print_direction(self, value): 
         if(value == 0): 
             print("Moving Right")
+            GPIO.output(37, GPIO.HIGH)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.LOW)
         elif(value == 1): 
             print("Moving Left")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.HIGH)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.LOW)
         elif(value == 2): 
             print("Moving Up")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.HIGH)
+            GPIO.output(31, GPIO.LOW)
         elif(value == 3): 
             print("Moving Down")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.HIGH)
         elif(value == 4): 
             print("Stop")
+            GPIO.output(37, GPIO.LOW)
+            GPIO.output(35, GPIO.LOW)
+            GPIO.output(33, GPIO.LOW)
+            GPIO.output(31, GPIO.HIGH)
     
     def print_grid_enum(self, value): 
         if(value == 1):
@@ -176,8 +201,11 @@ class highLevelPacman(rm.ProtoModule):
 
 
 def main():
-    module = highLevelPacman(ADDRESS, PORT)
-    module.run()
+    try:
+        module = highLevelPacman(ADDRESS, PORT)
+        module.run()
+    finally:
+        GPIO.cleanup()
 
 if __name__ == "__main__":
     main()

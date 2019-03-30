@@ -45,7 +45,6 @@ class PacEng(rm.ProtoModule):
             global GHOST_LOCATIONS
             GHOST_LOCATIONS.extend((self.game.red.pos["current"][0], self.game.red.pos["current"][1], self.game.pink.pos["current"][0], self.game.pink.pos["current"][1], self.game.orange.pos["current"][0],self.game.orange.pos["current"][1], self.game.blue.pos["current"][0], self.game.blue.pos["current"][1]))
             self.game.respawnagents()
-            self.quit()
         # this function will get called in a loop with FREQUENCY frequency
         if self.game.play:
             # update_pacbot_pos
@@ -56,8 +55,6 @@ class PacEng(rm.ProtoModule):
 
 class PacNeat():
 
-    def __init__(self):
-        self.pacEng = PacEng(ADDRESS, PORT)
 
 
 
@@ -65,7 +62,11 @@ class PacNeat():
     def eval_genomes(self,genomes, config):
         for genome_id, genome in genomes:
             genome.fitness = 10
+            for attr in ('pacEng',0):
+                self.__dict__.pop(attr, None)
+            self.pacEng = PacEng(ADDRESS, PORT)
             self.pacEng.run()
+            self.pacEng.quit()
             #g_net = neat.nn.FeedForwardNetwork()
             #g_output = g_net.activate(INPUT_POS)
             genome.fitness = GAME_SCORE
