@@ -50,6 +50,8 @@ PID_ATune rightATune(&rightInput, &rightOutput);
 
 byte ATuneModeRememberL=2;
 byte ATuneModeRememberR=2;
+double aTuneStep=50, aTuneNoise=1, aTuneStartValue=100;
+unsigned int aTuneLookBack=20;
 
 boolean tuningRight = true;
 boolean tuningLeft = true;
@@ -79,7 +81,7 @@ void setup() {
 void loop() {
   //Serial.print(analogRead(rightSensor));
   //Serial.print(" ");
-  //Serial.println(analogRead(leftSensor));
+  Serial.println("Loop initiated");
   if(tuningLeft)
   {
     Serial.println("Tuning Left");
@@ -131,21 +133,29 @@ void loop() {
 
 
 
-void changeAutoTune(PID_ATune Atune, PID pid, boolean tuning)
+void changeAutoTune(PID_ATune ATune, PID pid, boolean tuning)
 {
  if(!tuning)
   {
     ATune.SetNoiseBand(aTuneNoise);
     ATune.SetOutputStep(aTuneStep);
     ATune.SetLookbackSec((int)aTuneLookBack);
-    AutoTuneHelper(true, pid);
+    if(tuning == tuningLeft){
+    AutoTuneHelper(true, pid, ATuneModeRememberL );
+    }else{
+     AutoTuneHelper(true, pid, ATuneModeRememberR);
+      }
     tuning = true;
   }
   else
   { //cancel autotune
     ATune.Cancel();
     tuning = false;
-    AutoTuneHelper(false);
+    if(tuning == tuningLeft){
+    AutoTuneHelper(false, pid, ATuneModeRememberL );
+    }else{
+     AutoTuneHelper(false, pid, ATuneModeRememberR);
+      }
   }
 }
 
