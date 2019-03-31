@@ -2,6 +2,7 @@
 #include <Servo.h>
 #include <Wire.h>
 #include <PID_AutoTune_v0.h>
+#include <string.h>
 
 
 
@@ -33,6 +34,8 @@ int upRPI = 16;
 int downRPI = 14;
 
 int directionState = 0;
+char *states[3] = {"turning", "stop", "moving"};
+char *currentState = states[1];
 
 void setup() {
   Serial.begin(9600);
@@ -46,25 +49,28 @@ void adjustRight() {
   rightServo.write(88);
 
 }
-
 void adjustLeft() {
   leftServo.write(99);
   rightServo.write(89);
 }
 
-void loop() {
-  Serial.print(analogRead(rightSensor));
-  Serial.print(" ");
-  Serial.println(analogRead(leftSensor));
+void stopMotors() {
+  leftServo.write(93);
+  rightServo.write(93);
+}
 
-  int readRight = analogRead(rightSensor);
-  int readLeft = analogRead(leftSensor);
+void turnAround180() {
+  delay(1000);
+  leftServo.write(180);
+  rightServo.write(180);
+  delay(1235);
+}
 
+void moveStraight(int readRight, int readLeft) {
   if (readRight > 235 && readRight < 350) {
     Serial.print("stop right");
     //delay(1000);
-    leftServo.write(93);
-    rightServo.write(93);
+    stopMotors();
     adjustRight();
   }
   else if (readLeft > 225 && readLeft < 365 ) {
@@ -79,5 +85,26 @@ void loop() {
     rightServo.write(0);
   }
 
+}
+
+void loop() {
+  Serial.print(analogRead(rightSensor));
+  Serial.print(" ");
+  Serial.println(analogRead(leftSensor));
+
+  int readRight = analogRead(rightSensor);
+  int readLeft = analogRead(leftSensor);
+
+  if (strcmp(currentState, states[2]) == 0) {
+    moveStraight(readRight, readLeft);
+  }
+  else if (strcmp(currentState, states[0]) == 0) {
+    //turnAround180();
+    currentState = states[2]; 
+  }
+  else{
+    stopMotors();
+    currentState = states[0];
+  }
 
 }
