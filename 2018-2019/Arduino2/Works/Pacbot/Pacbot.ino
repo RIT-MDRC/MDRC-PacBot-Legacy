@@ -34,8 +34,9 @@ int upRPI = 16;
 int downRPI = 14;
 
 int directionState = 0;
-char *states[3] = {"turning", "stop", "moving"};
-char *currentState = states[1];
+char *states[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
+char *currentState;
+int counter = 0; 
 
 void setup() {
   Serial.begin(9600);
@@ -44,14 +45,15 @@ void setup() {
   rightServo.attach(10);
 }
 
+
 void adjustRight() {
-  leftServo.write(97);
-  rightServo.write(88);
+  leftServo.write(97); //4 speed slow
+  rightServo.write(87); //6 speed slow
 
 }
 void adjustLeft() {
-  leftServo.write(99);
-  rightServo.write(89);
+  leftServo.write(99); //6 speed slow
+  rightServo.write(89); //4 speed slow  
 }
 
 void stopMotors() {
@@ -60,14 +62,28 @@ void stopMotors() {
 }
 
 void turnAround180() {
-  delay(1000);
+  //delay(1000);
   leftServo.write(180);
   rightServo.write(180);
-  delay(1235);
+  delay(1400);
+}
+
+void turnAround90CW() {
+  //delay(1000);
+  leftServo.write(180);
+  rightServo.write(180);
+  delay(800);  
+}
+
+void turnAround90CCW(){
+  //delay(1000);
+  leftServo.write(0);
+  rightServo.write(0);
+  delay(800);  
 }
 
 void moveStraight(int readRight, int readLeft) {
-  if (readRight > 235 && readRight < 350) {
+  if (readRight > 280 && readRight < 350) {
     Serial.print("stop right");
     //delay(1000);
     stopMotors();
@@ -76,18 +92,20 @@ void moveStraight(int readRight, int readLeft) {
   else if (readLeft > 225 && readLeft < 365 ) {
     Serial.print("stop left");
     //delay(1000);
-    leftServo.write(93);
-    rightServo.write(93);
+    stopMotors(); 
     adjustLeft();
   }
   else {
     leftServo.write(180);
     rightServo.write(0);
   }
+  delay(1340);
 
 }
 
+
 void loop() {
+  
   Serial.print(analogRead(rightSensor));
   Serial.print(" ");
   Serial.println(analogRead(leftSensor));
@@ -95,16 +113,30 @@ void loop() {
   int readRight = analogRead(rightSensor);
   int readLeft = analogRead(leftSensor);
 
-  if (strcmp(currentState, states[2]) == 0) {
+  //straight
+  if (strcmp(currentState, states[4]) == 0) {
     moveStraight(readRight, readLeft);
   }
+  //turn 180 degrees
   else if (strcmp(currentState, states[0]) == 0) {
-    //turnAround180();
-    currentState = states[2]; 
+    turnAround180(); 
   }
+  //turn right
+  else if(strcmp(currentState, states[1]) == 0){
+    turnAround90CW();  
+  }
+  //turn left
+  else if(strcmp(currentState, states[2]) == 0){
+    turnAround90CCW();  
+  }
+  //stop
   else{
     stopMotors();
-    currentState = states[0];
   }
-
+  //Execute commands
+  char *commands[] = {states[4], states[4], states[1], states[4]}; 
+  currentState = commands[counter];
+  if(counter < 4){
+    counter += 1;
+  }
 }
