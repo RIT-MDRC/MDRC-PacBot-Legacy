@@ -1,12 +1,10 @@
-#include <MPU6050.h>
+#include <MPU6050_tockn.h>
+#include <MeOrion.h>
 #include <Servo.h>
 #include <Wire.h>
 #include <string.h>
 
-
-MPU6050 mpu;
-
-
+MPU6050 mpu6050(Wire);
 /**
    Servo Motors
 */
@@ -18,9 +16,14 @@ Servo rightServo;
 */
 
 //PIN VALUES FOR SENSORS
-int rightSensor = A0;
-int leftSensor = A1;
-int frontSensor = A2;
+int rightSensorPin = A1;
+int leftSensorPin = A0;
+int frontSensorPin = A2;
+
+
+MeUltrasonicSensor leftSensor(PORT_8);
+MeUltrasonicSensor rightSensor(PORT_7);
+MeUltrasonicSensor frontSensor(PORT_6);
 
 double rightInput = 0;
 double leftInput = 0;
@@ -49,9 +52,9 @@ char *states[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
 char *currentState;
 int counter = 0; 
 
-double gyroStartVal;
-double gyroTurnedVal;
-double gyro180Val;
+double gyroStartVal = 0.0;
+double gyroTurnedVal = -88.1;
+double gyro180Val= -176.5;
 
 boolean completedTurn = true;
 boolean completed180 = true;
@@ -61,29 +64,11 @@ boolean completed180 = true;
 void setup() {
   Serial.begin(9600);
 
-  leftServo.attach(A0);
-  rightServo.attach(A1);
-  
-    // Initialize MPU6050
-  Serial.println("Initialize MPU6050");
-  while(!mpu.begin(MPU6050_SCALE_2000DPS, MPU6050_RANGE_2G))
-  {   Serial.println("Could not find a valid MPU6050 sensor, check wiring!");
-    delay(500);
-  }
+  leftServo.attach(9);
+  rightServo.attach(10);
+  mpu6050.begin();
 
-   // If you want, you can set gyroscope offsets
-  // mpu.setGyroOffsetX(155);
-  // mpu.setGyroOffsetY(15);
-  // mpu.setGyroOffsetZ(15);
-  
-  // Calibrate gyroscope. The calibration must be at rest.
-  // If you don't want calibrate, comment this line.
-  mpu.calibrateGyro();
-
-  // Set threshold sensivty. Default 3.
-  // If you don't want use threshold, comment this line or set 0.
-  mpu.setThreshold(3);
-
+  mpu6050.setGyroOffsets( -3.85, -.65, .33);
 }
 
 
@@ -134,7 +119,7 @@ boolean wallRight(){
 
 
 boolean wallLeft(){
-  
+    return leftSensor.distanceCm() < 5;
   
   }
 
@@ -142,7 +127,7 @@ boolean wallFront(){
   }
 
 void turnAround90CW() {
-  while(mpu.readNormalizeGyro().XAxis < gyroTurnedVal){
+  while(mpu6050.getAngleZ() < gyroTurnedVal){
         if(wallRight()){
           completedTurn = false;
           break;}
@@ -162,10 +147,19 @@ void turnAround90CW() {
 }
 
 void turnAround90CCW(){
-  while(mpu.readNormalizeGyro().XAxis < gyroTurnedVal){
+  Serial.println("Trying");
+ Serial.println(mpu6050.getAngleZ());
+   mpu6050.update();
+  while(mpu6050.getAngleZ() < abs(gyroTurnedVal)){
+     mpu6050.update();
         if(wallLeft()){
-          completedTurn = false;
-          break;}
+          leftServo.write(93);
+        rightServo.write(93); break;}
+        
+          //Serial.println("wallLEft");
+          //completedTurn = false;
+          //break;}
+          Serial.println("turning");
         leftServo.write(0);
         rightServo.write(0);
     }
@@ -179,6 +173,8 @@ void turnAround90CCW(){
         turnAround90CCW();
         completedTurn = true;
       };  
+              leftServo.write(93);
+        rightServo.write(93);
 }
 
 
@@ -206,12 +202,13 @@ void moveStraight(int readRight, int readLeft) {
 
 
 void loop() {
-  
+  /*
   Serial.print(analogRead(rightSensor));
   Serial.print(" ");
   Serial.println(analogRead(leftSensor));
+  */
 
-
+/*
   if(digitalRead(upRPI) == HIGH ){
       if(directionState != 0){
           
@@ -242,10 +239,12 @@ void loop() {
 
             
             }
-            
+            */
+     /*       
   int readRight = analogRead(rightSensor);
   int readLeft = analogRead(leftSensor);
   int readFront = analogRead(frontSensor);
+  mpu6050.update();
 
   //straight
   if (strcmp(currentState, states[4]) == 0) {
@@ -272,10 +271,13 @@ void loop() {
   currentState = commands[counter];
   if(counter < 4){
     counter += 1;
+    */
+
+    turnAround90CCW();
+    while(1){};
   }
 
   
 
 
   
-}
