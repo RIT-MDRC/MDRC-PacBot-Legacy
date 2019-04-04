@@ -49,10 +49,10 @@ int stopRPI = 4;
 int directionState = 0; 
 int queueState = 0;
 
-char currentPosition = "inWalls";
-char previousPosition = "inWalls";
+char const *currentPosition = "inWalls";
+char const *previousPosition = "inWalls";
 
-char *robotStates[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
+char const *robotStates[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
 char *currentState;
 int counter = 0; 
 
