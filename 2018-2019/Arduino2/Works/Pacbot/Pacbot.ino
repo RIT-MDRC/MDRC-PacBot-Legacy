@@ -4,6 +4,8 @@
 #include <Wire.h>
 #include <string.h>
 
+uint32_t offset = (.5) * 1000L;       // .5 sec
+
 MPU6050 mpu6050(Wire);
 /**
    Servo Motors
@@ -30,7 +32,7 @@ double leftInput = 0;
 double frontInput = 0;
 
 /*
-   RPI values
+   RPI pin values
 */
 int rightRPI = 13;
 int leftRPI = 12;
@@ -43,33 +45,64 @@ int stopRPI = 4;
  *  1 = down
  *  2 = left
  *  3 = right
- *  4 = stop
  */
 int directionState = 0; 
 int queueState = 0;
 
-char *states[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
+char currentPosition = "inWalls";
+char previousPosition = "inWalls";
+
+char *robotStates[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
 char *currentState;
 int counter = 0; 
 
 double gyroStartVal = 0.0;
-double gyroTurnedVal = -88.1;
-double gyro180Val= -176.5;
+double gyroRightVal = -65.1;
+double gyroLeftVal = 77.2;
+double gyro180Val= -185.5;
 
 boolean completedTurn = true;
 boolean completed180 = true;
+
+int servoStopValue = 93;
+int leftFull = 180;
+int rightFull = 0;
+
+
 
 
 
 void setup() {
   Serial.begin(9600);
 
+ pinMode(13, INPUT);    // sets the digital pin 7 as input
+ pinMode(12, INPUT);    // sets the digital pin 7 as input
+ pinMode(11, INPUT);    // sets the digital pin 7 as input
+ pinMode(8, INPUT);    // sets the digital pin 7 as input
+ pinMode(4, INPUT);    // sets the digital pin 7 as input
   leftServo.attach(9);
   rightServo.attach(10);
   mpu6050.begin();
 
   mpu6050.setGyroOffsets( -3.85, -.65, .33);
 }
+
+
+void updatePosition(){
+    if(seeWallRight() && seeWallLeft()){
+        if(currentPosition != "inWalls"){
+            previousPosition = currentPosition;
+            currentPosition = "inWalls";
+          }
+      }else{
+        if(currentPosition != "opening"){
+            
+            previousPosition = currentPosition;
+            currentPosition = "opening";
+          }
+        
+        } 
+  }
 
 
 void adjustRight() {
@@ -79,27 +112,38 @@ void adjustRight() {
 }
 
 void adjustTurnRight(){
-  leftServo.write(93);
-  rightServo.write(93);
+  leftServo.write(180);
+  rightServo.write(180);
+    delay(600);
   }
 
-void adjustTurnLeft(){
-  leftServo.write(93);
-  rightServo.write(93); 
-  }
-
-void adjustForward(){
-  
-  }
-
-void adjustBackward(){
-  
-  }
-  
-void adjustLeft() {
+  void adjustLeft() {
   leftServo.write(99); //6 speed slow
   rightServo.write(89); //4 speed slow  
 }
+
+void adjustTurnLeft(){
+  leftServo.write(0);
+  rightServo.write(0);
+    delay(180);
+  }
+
+void adjustToCircumstance(){
+    if(previousPosition == "opening"){
+        for( uint32_t tStart = millis();  (millis()-tStart) < offset;  ){
+        moveBackwards();
+    }
+        Serial.println("Adjusted Backward");    
+      }else{                
+    for( uint32_t tStart = millis();  (millis()-tStart) < offset;  ){
+        moveStraight();
+    }
+        Serial.println("Adjusted Forward");
+        }   
+  }  
+
+
+  
 
 void stopMotors() {
   leftServo.write(93);
@@ -107,174 +151,237 @@ void stopMotors() {
 }
 
 void turnAround180() {
-  turnAround90CW();
-  turnAround90CW();
+      mpu6050.update();
+  while(mpu6050.getAngleZ() > (gyro180Val+gyroStartVal)){
+        mpu6050.update();
+        Serial.print(gyro180Val+gyroStartVal);
+        Serial.print("  ");
+        Serial.println(mpu6050.getAngleZ());
+         
+        if(wallCloseRight()){
+            Serial.println("Did not complete turn");
+            adjustTurnLeft();
+            adjustToCircumstance();
+          }else{
+            leftServo.write(180);
+            rightServo.write(180);
+          }
+    }
+    Serial.println("Turning Right Done");
+
+    gyroStartVal = gyro180Val+gyroStartVal;
 }
 
 
-boolean wallRight(){
-  
-  
+boolean wallCloseRight(){
+  return rightSensor.distanceCm() < 4.3;
   }
 
-
-boolean wallLeft(){
-    return leftSensor.distanceCm() < 5;
-  
+boolean seeWallRight(){
+  return rightSensor.distanceCm() < 9;
   }
 
-boolean wallFront(){
+boolean wallCloseLeft(){
+    return leftSensor.distanceCm() < 3.6;
+  }
+
+boolean seeWallLeft(){
+   return leftSensor.distanceCm() < 9;
+  
+  }
+  
+boolean wallCloseFront(){
+    return frontSensor.distanceCm() < 5;
   }
 
 void turnAround90CW() {
-  while(mpu6050.getAngleZ() < gyroTurnedVal){
-        if(wallRight()){
-          completedTurn = false;
-          break;}
-        leftServo.write(180);
-        rightServo.write(180);
-    }
-    if(!completedTurn){
-        adjustTurnLeft();
-        if(wallFront){
-        adjustForward();
-        }else{
-          adjustBackward();
-          }
-        turnAround90CW();
-        completedTurn = true;
+    boolean wasInWalls = false;
+      while(seeWallLeft() && seeWallRight){
+        moveStraight();
+        wasInWalls = true;
       }
+      if(wasInWalls){
+       for( int tStart = millis();  (millis()-tStart) < offset;  ){
+        moveStraight();
+      }
+      }
+        Serial.println("Turning Right");
+       updatePosition(); // not in walls
+    mpu6050.update();
+  while(mpu6050.getAngleZ() > (gyroRightVal+gyroStartVal)){
+        mpu6050.update();
+        Serial.print(gyroRightVal+gyroStartVal);
+        Serial.print("  ");
+        Serial.println(mpu6050.getAngleZ());
+         
+        if(wallCloseRight()){
+            Serial.println("Did not complete turn");
+            adjustTurnLeft();
+            adjustToCircumstance();
+          }else{
+            leftServo.write(180);
+            rightServo.write(180);
+          }
+    }
+    Serial.println("Turning Right Done");
+
+    gyroStartVal = gyroRightVal+gyroStartVal;
 }
 
 void turnAround90CCW(){
-  Serial.println("Trying");
- Serial.println(mpu6050.getAngleZ());
-   mpu6050.update();
-  while(mpu6050.getAngleZ() < abs(gyroTurnedVal)){
-     mpu6050.update();
-        if(wallLeft()){
-          leftServo.write(93);
-        rightServo.write(93); break;}
-        
-          //Serial.println("wallLEft");
-          //completedTurn = false;
-          //break;}
-          Serial.println("turning");
-        leftServo.write(0);
-        rightServo.write(0);
-    }
-    if(!completedTurn){
-        adjustTurnRight();
-        if(wallFront){
-        adjustForward();
+    boolean wasInWalls = false;
+      while(seeWallLeft() && seeWallRight){
+        moveStraight();
+         wasInWalls = true;
+      }
+      if(wasInWalls){
+       for( int tStart = millis();  (millis()-tStart) < offset;  ){
+        moveStraight();
+      }
+      }
+       updatePosition(); // not in walls
+   Serial.println("Turning Left");
+  mpu6050.update();
+  while(mpu6050.getAngleZ() < (gyroLeftVal+gyroStartVal)){
+      Serial.println(gyroLeftVal+gyroStartVal);
+      Serial.println(mpu6050.getAngleZ());
+    mpu6050.update();
+    if(wallCloseLeft()){
+        adjustRight();
+        adjustToCircumstance();
         }else{
-          adjustBackward();
-          }
-        turnAround90CCW();
-        completedTurn = true;
-      };  
-              leftServo.write(93);
-        rightServo.write(93);
+      leftServo.write(0);
+      rightServo.write(0);
+        }
+  }
+  gyroStartVal = gyroLeftVal+gyroStartVal;
 }
 
 
 
-void moveStraight(int readRight, int readLeft) {
-  if (wallRight()) {
+void moveStraight() {
+  if(wallCloseFront()){ 
+    stopMotors();
+  }
+  else{
+  Serial.println("Moving Forwards");
+  if (wallCloseRight()) {
     Serial.print("stop right");
     //delay(1000);
-    stopMotors();
     adjustRight();
+    delay(100);
   }
-  else if (wallLeft() ) {
+  else if (wallCloseLeft() ) {
     Serial.print("stop left");
     //delay(1000);
-    stopMotors(); 
+
+
     adjustLeft();
+        delay(100);
   }
-  else {
     leftServo.write(180);
     rightServo.write(0);
   }
-  delay(1340);
+ 
+}
+
+void moveBackwards() {
+  Serial.println("Moving Backwards");
+  if (wallCloseRight()) {
+    Serial.print("stop right");
+    adjustRight();
+        delay(100);
+  }
+  else if (wallCloseLeft() ) {
+    Serial.print("stop left");
+    adjustLeft();
+        delay(100);
+  }
+  else {
+    leftServo.write(0);
+    rightServo.write(180);
+  }
 
 }
 
-
 void loop() {
-  /*
-  Serial.print(analogRead(rightSensor));
-  Serial.print(" ");
-  Serial.println(analogRead(leftSensor));
-  */
 
-/*
+  
+  
+
   if(digitalRead(upRPI) == HIGH ){
-      if(directionState != 0){
-          
-      }
+    Serial.println("up");
+      switch(directionState){
+        case 0: moveStraight();
+                break;
+        case 1: turnAround180();
+                break;
+        case 2: turnAround90CW();
+                break;
+        case 3: turnAround90CCW();
+                break;
+        default: moveStraight();
+                break;
+        }
 
     
     }else if(digitalRead(downRPI) ==HIGH){
-        if(directionState != 1){
-          
-        }
-
+      Serial.println("down");
+            switch(directionState){
+              case 0: turnAround180();
+                      break;
+              case 1: moveStraight();
+                      break;
+              case 2: turnAround90CCW();
+                      break;
+              case 3: turnAround90CW();
+                      break;
+              default: moveStraight();
+                      break;
+              }
 
       
       }else if(digitalRead(leftRPI) == HIGH){
-        if(directionState != 2){
-          
-        }
-
+Serial.println("left");
+            switch(directionState){
+              case 0: turnAround90CCW();
+                      break;
+              case 1: turnAround90CW();
+                      break;
+              case 2: moveStraight();
+                      break;
+              case 3: turnAround180();
+                      break;
+              default: moveStraight();
+                      break;
+              }
 
         
         }else if(digitalRead(rightRPI) == HIGH){
-            if(directionState != 3){
-          
-            }
+        Serial.println("right");
+            switch(directionState){
+              case 0: turnAround90CW();
+                      break;
+              case 1: turnAround90CCW();
+                      break;
+              case 2: turnAround180();
+                      break;
+              case 3: moveStraight();
+                      break;
+              default: moveStraight();
+                      break;
+              }
 
           
           }else{
-
-            
+            Serial.println("stop");
+              stopMotors();
             }
-            */
-     /*       
-  int readRight = analogRead(rightSensor);
-  int readLeft = analogRead(leftSensor);
-  int readFront = analogRead(frontSensor);
-  mpu6050.update();
+  
+        
+    
+    
 
-  //straight
-  if (strcmp(currentState, states[4]) == 0) {
-    moveStraight(readRight, readLeft);
-  }
-  //turn 180 degrees
-  else if (strcmp(currentState, states[0]) == 0) {
-    turnAround180(); 
-  }
-  //turn right
-  else if(strcmp(currentState, states[1]) == 0){
-    turnAround90CW();  
-  }
-  //turn left
-  else if(strcmp(currentState, states[2]) == 0){
-    turnAround90CCW();  
-  }
-  //stop
-  else{
-    stopMotors();
-  }
-  //Execute commands
-  char *commands[] = {states[4], states[4], states[1], states[4]}; 
-  currentState = commands[counter];
-  if(counter < 4){
-    counter += 1;
-    */
-
-    turnAround90CCW();
-    while(1){};
   }
 
   
