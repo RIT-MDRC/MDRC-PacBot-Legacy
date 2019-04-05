@@ -22,6 +22,7 @@ int rightSensorPin = A1;
 int leftSensorPin = A0;
 int frontSensorPin = A2;
 
+long randNumber;
 
 MeUltrasonicSensor leftSensor(PORT_8);
 MeUltrasonicSensor rightSensor(PORT_7);
@@ -46,7 +47,7 @@ int stopRPI = 4;
     2 = left
     3 = right
 */
-int directionState = 0;
+int directionState = -1;
 int queueState = 0;
 
 char currentPosition = "inWalls";
@@ -68,10 +69,6 @@ int servoStopValue = 93;
 int leftFull = 180;
 int rightFull = 0;
 
-
-
-
-
 void setup() {
   Serial.begin(9600);
 
@@ -79,7 +76,11 @@ void setup() {
   rightServo.attach(10);
   mpu6050.begin();
 
-  mpu6050.setGyroOffsets( -3.85, -.65, .33);
+  //mpu6050.setGyroOffsets( -3.85, -.65, .33);
+  mpu6050.setGyroOffsets(128, 24, -10);
+
+  randomSeed(analogRead(2));
+
 }
 
 
@@ -169,27 +170,37 @@ void turnAround180() {
 
 
 boolean wallCloseRight() {
+  delay(50);
   return rightSensor.distanceCm() < 4.3;
 }
 
 boolean seeWallRight() {
-  delay(100);
-  //Serial.print(rightSensor.distanceCm());
+  delay(50);
+  Serial.print("rightsensor: ");
+  Serial.print(rightSensor.distanceCm());
+  Serial.print("          ");
   return rightSensor.distanceCm() < 14;
 }
 
 boolean wallCloseLeft() {
-
+  delay(50);
   return leftSensor.distanceCm() < 3.6;
 }
 
 boolean seeWallLeft() {
-  delay(100);
+  delay(50);
+  Serial.print("leftsensor: ");
+  Serial.print(leftSensor.distanceCm());
+  Serial.print("          ");
   return leftSensor.distanceCm() < 12;
 
 }
 
 boolean wallCloseFront() {
+  delay(50);
+  Serial.print("frontsensor: ");
+  Serial.print(frontSensor.distanceCm());
+  Serial.print("          ");
   return frontSensor.distanceCm() < 5;
 }
 
@@ -254,6 +265,7 @@ void turnAround90CCW() {
     }
   }
   gyroStartVal = gyroLeftVal + gyroStartVal;
+  //delay(500);
 }
 
 
@@ -281,7 +293,29 @@ void moveStraight() {
     leftServo.write(180);
     rightServo.write(0);
   }
-   
+
+}
+
+void tester(){ 
+  //Moving straight until it hits a intersection 
+  boolean wasInWalls = false;
+  while (seeWallLeft() && seeWallRight()) {
+    moveStraight();
+    wasInWalls = true; 
+  } 
+  if (wasInWalls) {
+    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
+      moveStraight();
+    }
+  }
+  stopMotors(); 
+  //delay(500);
+  //WHAT HAPPENS AT THE INTERSECTION **REMEMBER TO COMMENT OUT THE TURNS
+  //Test moving straight
+  //Test all the bad conditions where it will hit a wall and other stuff
+  turnAround90CW();
+  
+  
 }
 
 void moveBackwards() {
@@ -302,113 +336,265 @@ void moveBackwards() {
   }
 
 }
+//0 right, 1 left, 2 up, 3 down;
+void PIzeroOperationsTwo(){
+  if(digitalRead(upRPI) == HIGH){
+    if(directionState == -1){
+      moveStraight(); 
+      directionState = 2;  
+    }
+    else if(directionState == 0){
+      turnAround90CCW(); 
+      moveStraight(); 
+      directionState = 2;   
+    }
+    else if(directionState == 1){
+      turnAround90CW();
+      moveStraight(); 
+      directionState = 2;   
+    }
+    else if(directionState == 2){
+      moveStraight();   
+    }
+    else if(directionState == 3){
+      turnAround180(); 
+      moveStraight(); 
+      directionState = 2;   
+    }
+    
+  }
+  else if(digitalRead(downRPI) == HIGH){
+    if(directionState == -1){
+      moveStraight(); 
+      directionState = 3;   
+    }
+    else if(directionState == 0){
+      turnAround90CW();
+      moveStraight();  
+      directionState = 3;   
+    }
+    else if(directionState == 1){
+      turnAround90CCW();
+      moveStraight(); 
+      directionState = 3;   
+    }
+    else if(directionState == 2){
+      turnAround180();
+      moveStraight(); 
+      directionState = 3;   
+    }
+    else if(directionState == 3){
+      moveStraight();   
+    }
+    
+  }
+  else if(digitalRead(leftRPI) == HIGH){
+    if(directionState == -1){
+      moveStraight(); 
+      directionState = 1;   
+    }
+    else if(directionState == 0){
+      turnAround180(); 
+      moveStraight(); 
+      directionState = 1; 
+    }
+    else if(directionState == 1){
+      moveStraight();   
+    }
+    else if(directionState == 2){
+      turnAround90CCW(); 
+      moveStraight(); 
+      directionState = 1;   
+    }
+    else if(directionState == 3){
+      turnAround90CW();
+      moveStraight(); 
+      directionState = 1;   
+    }
+  }
+  else if(digitalRead(rightRPI) == HIGH){
+    if(directionState == -1){
+      moveStraight();   
+      directionState = 0;
+    }  
+    else if(directionState == 0){
+      moveStraight();   
+    }
+    else if(directionState == 1){
+      turnAround180(); 
+      moveStraight(); 
+      directionState = 0;   
+    }
+    else if(directionState == 2){
+      turnAround90CW();
+      moveStraight();  
+      directionState = 0; 
+    }
+    else if(directionState == 3){
+      turnAround90CCW(); 
+      moveStraight(); 
+      directionState = 0; 
+    }
+  }
+  else{
+    stopMotors();   
+  }
+}
+
+void PIzeroOperations() {
+  if (digitalRead(upRPI) == HIGH ) {
+
+    Serial.print("Go UP");
+    switch (directionState) {
+      case 0:
+        moveStraight();
+        break;
+      case 1:
+        turnAround180();
+        directionState = 1;
+        break;
+      case 2:
+        turnAround90CW();
+        directionState = 2;
+        break;
+      case 3:
+        turnAround90CCW();
+        directionState = 3;
+        break;
+      default: moveStraight();
+        break;
+    }
+
+
+  } else if (digitalRead(downRPI) == HIGH) {
+    Serial.print("Go down");
+    switch (directionState) {
+      case 0:
+        turnAround180();
+        directionState = 0;
+        break;
+      case 1:
+        moveStraight();
+        break;
+      case 2:
+        turnAround90CCW();
+        directionState = 2;
+        break;
+      case 3:
+        turnAround90CW();
+        directionState = 3;
+        break;
+      default: moveStraight();
+        break;
+    }
+
+
+  } else if (digitalRead(leftRPI) == HIGH) {
+    Serial.print("Go left");
+    switch (directionState) {
+      case 0:
+        turnAround90CCW();
+        directionState = 0;
+        break;
+      case 1:
+        turnAround90CW();
+        directionState = 1;
+        break;
+      case 2:
+        moveStraight();
+
+        break;
+      case 3:
+        turnAround180();
+        directionState = 3;
+        break;
+      default: moveStraight();
+        break;
+    }
+
+
+  } else if (digitalRead(rightRPI) == HIGH) {
+    Serial.print("Go right");
+    switch (directionState) {
+      case 0:
+        turnAround90CW();
+        directionState = 0;
+        break;
+      case 1:
+        turnAround90CCW();
+        directionState = 1;
+        break;
+      case 2:
+        turnAround180();
+        directionState = 2;
+        break;
+      case 3:
+        moveStraight();
+        break;
+      default: moveStraight();
+        break;
+    }
+
+
+  } else {
+    stopMotors();
+  }
+}
+
+void backup(){
+  //Moving straight until it hits a intersection 
+  boolean wasInWalls = false;
+  while (seeWallLeft() && seeWallRight()) {
+    moveStraight();
+    wasInWalls = true; 
+  } 
+  if (wasInWalls) {
+    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
+      moveStraight();
+    }
+  }
+  stopMotors(); 
+  //delay(500);
+  //WHAT HAPPENS AT THE INTERSECTION
+  
+  if(!seeWallLeft() && seeWallRight()){
+      turnAround90CCW(); 
+      moveStraight(); 
+      delay(500);
+  }
+  else if(!seeWallRight() && seeWallRight()){
+      turnAround90CW();
+      moveStraight();
+      delay(500);
+  }
+  else if(!seeWallLeft() && !seeWallRight()){
+      randNumber = random(2);
+      if(randNumber == 0){
+        turnAround90CCW();
+        moveStraight();
+        delay(500);  
+      }
+      else{
+        turnAround90CW();
+        moveStraight();
+        delay(500);  
+      }
+  }
+  
+}
+/*
+void getSensorValues(){
+  seeWallLeft(); 
+  seeWallRight(); 
+  wallCloseFront(); 
+  Serial.println("");
+  
+}*/
 
 void loop() {
-
-
-
+  //PIzeroOperations();
+  backup();
+  //PIzeroOperationsTwo(); 
+  //turnAround90CW();
   
-    if(digitalRead(upRPI) == HIGH ){
-
-       Serial.print("Go UP");
-        switch(directionState){
-          case 0: 
-                  moveStraight();
-                  break;
-          case 1: 
-                  turnAround180();
-                  directionState = 1;
-                  break;
-          case 2: 
-                  turnAround90CW();
-                  directionState = 2;
-                  break;
-          case 3: 
-          
-                  turnAround90CCW();
-                  directionState = 3;
-                  break;
-          default: moveStraight();
-                  break;
-          }
-
-
-      }else if(digitalRead(downRPI) ==HIGH){
-        Serial.print("Go down");
-              switch(directionState){
-                case 0: 
-                        turnAround180();
-                        directionState = 0;
-                        break;
-                case 1: 
-                        moveStraight();
-                        
-                        break;
-                case 2: 
-                        turnAround90CCW();
-                        directionState = 2;
-                        break;
-                case 3: 
-                        turnAround90CW();
-                        directionState = 3;
-                        break;
-                default: moveStraight();
-                        break;
-                }
-
-
-        }else if(digitalRead(leftRPI) == HIGH){
-          Serial.print("Go left");
-              switch(directionState){
-                case 0: 
-                        turnAround90CCW();
-                        directionState = 0;
-                        break;
-                case 1: 
-                        turnAround90CW();
-                        directionState = 1;
-                        break;
-                case 2: 
-                        moveStraight();
-                    
-                        break;
-                case 3: 
-                        turnAround180();
-                        directionState = 3;
-                        break;
-                default: moveStraight();
-                        break;
-                }
-
-
-          }else if(digitalRead(rightRPI) == HIGH){
-            Serial.print("Go right");
-              switch(directionState){
-                case 0: 
-                        turnAround90CW();
-                        directionState = 0;
-                        break;
-                case 1: 
-                        turnAround90CCW();
-                        directionState = 1;
-                        break;
-                case 2: 
-                        turnAround180();
-                        directionState = 2;
-                        break;
-                case 3: 
-                        moveStraight();
-                        break;
-                default: moveStraight();
-                        break;
-                }
-
-
-          }else{
-                stopMotors();
-              }
-
-
-
-
 }
