@@ -35,11 +35,11 @@ double frontInput = 0;
 /*
    RPI pin values
 */
-int rightRPI = 13;
+int rightRPI = 4;
 int leftRPI = 12;
 int upRPI = 11;
 int downRPI = 8;
-int stopRPI = 4;
+int stopRPI = 3;
 
 /*
     0 = up
@@ -450,9 +450,10 @@ void PIzeroOperationsTwo(){
 }
 
 void PIzeroOperations() {
-  if (digitalRead(upRPI) == HIGH ) {
+  if (digitalRead(upRPI) == LOW ) {
 
     Serial.print("Go UP");
+    /*
     switch (directionState) {
       case 0:
         moveStraight();
@@ -472,10 +473,11 @@ void PIzeroOperations() {
       default: moveStraight();
         break;
     }
+*/
 
-
-  } else if (digitalRead(downRPI) == HIGH) {
+  } else if (digitalRead(downRPI) == LOW) {
     Serial.print("Go down");
+    /*
     switch (directionState) {
       case 0:
         turnAround180();
@@ -495,10 +497,11 @@ void PIzeroOperations() {
       default: moveStraight();
         break;
     }
+*/
 
-
-  } else if (digitalRead(leftRPI) == HIGH) {
+  } else if (digitalRead(leftRPI) == LOW) {
     Serial.print("Go left");
+    /*
     switch (directionState) {
       case 0:
         turnAround90CCW();
@@ -519,10 +522,12 @@ void PIzeroOperations() {
       default: moveStraight();
         break;
     }
+*/
 
-
-  } else if (digitalRead(rightRPI) == HIGH) {
+  } else if (digitalRead(rightRPI) == LOW) {
     Serial.print("Go right");
+    /*
+    
     switch (directionState) {
       case 0:
         turnAround90CW();
@@ -542,7 +547,7 @@ void PIzeroOperations() {
       default: moveStraight();
         break;
     }
-
+*/
 
   } else {
     stopMotors();
@@ -601,7 +606,7 @@ void getSensorValues(){
 
 void loop() {
   //PIzeroOperations();
-  backup();
+  //backup();
   //PIzeroOperationsTwo(); 
   //turnAround90CW();
 

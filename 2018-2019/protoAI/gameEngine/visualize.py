@@ -4,7 +4,7 @@ import os, sys
 from graphics import Visualizer
 from graphics.variables import Split
 
-ADDRESS = "129.21.92.64"
+ADDRESS = "129.21.94.25"
 PORT = os.environ.get("SERVER_PORT", 11297)
 
 def main():

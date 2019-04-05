@@ -4,14 +4,6 @@ import RPi.GPIO as GPIO
 
 
 
-def __init__(self):
-
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(37, GPIO.OUT)
-    GPIO.setup(35, GPIO.OUT)
-    GPIO.setup(33, GPIO.OUT)
-    GPIO.setup(31, GPIO.OUT)
-    GPIO.setup(29, GPIO.OUT)
 
 def print_direction( value):
     if (value == 0):
@@ -54,6 +46,12 @@ def print_direction( value):
 
 
 def main():
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(37, GPIO.OUT)
+    GPIO.setup(35, GPIO.OUT)
+    GPIO.setup(33, GPIO.OUT)
+    GPIO.setup(31, GPIO.OUT)
+    GPIO.setup(29, GPIO.OUT)
     try:
         while(1):
             print_direction(2)
