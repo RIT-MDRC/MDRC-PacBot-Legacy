@@ -32,7 +32,7 @@
  =========================================================
  */
  
-// I2Cdev and MPU6050 must be installed as libraries
+
 #include "I2Cdev.h"
 #include "MPU6050.h"
 #include "Wire.h"
@@ -75,7 +75,7 @@ void setup() {
     Serial.println(F("Send any character to start sketch.\n"));
     delay(1500);
   } */               
-  while (Serial.available() && Serial.read()); // empty buffer again
+  //while (Serial.available() && Serial.read()); // empty buffer again
  
   // start message
   Serial.println("\nMPU6050 Calibration Sketch");

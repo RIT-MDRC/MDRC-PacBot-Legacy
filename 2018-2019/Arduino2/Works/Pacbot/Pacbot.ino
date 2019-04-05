@@ -71,13 +71,14 @@ int rightFull = 0;
 
 void setup() {
   Serial.begin(9600);
-
+  Wire.begin();
   leftServo.attach(9);
   rightServo.attach(10);
   mpu6050.begin();
 
   //mpu6050.setGyroOffsets( -3.85, -.65, .33);
-  mpu6050.setGyroOffsets(128, 24, -10);
+  //mpu6050.setGyroOffsets(128, 24, -10);
+  mpu6050.calcGyroOffsets(true);
 
   
   pinMode(upRPI, INPUT_PULLUP);
@@ -600,11 +601,11 @@ void getSensorValues(){
 
 void loop() {
   //PIzeroOperations();
-  //backup();
+  backup();
   //PIzeroOperationsTwo(); 
   //turnAround90CW();
 
-  int sensorVal = digitalRead(upRPI);
-  Serial.println(sensorVal);
+  //int sensorVal = digitalRead(upRPI);
+  //Serial.println(sensorVal);
   
 }
