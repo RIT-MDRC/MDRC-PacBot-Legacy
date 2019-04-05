@@ -26,6 +26,7 @@ class highLevelPacman(rm.ProtoModule):
         GPIO.setup(35, GPIO.OUT)
         GPIO.setup(33, GPIO.OUT)
         GPIO.setup(31, GPIO.OUT)
+        GPIO.setup(27, GPIO.OUT)
         #self declared variables
         self.previousLocation = None  
         self.grid = copy.deepcopy(grid)
@@ -61,30 +62,35 @@ class highLevelPacman(rm.ProtoModule):
             GPIO.output(35, GPIO.LOW)
             GPIO.output(33, GPIO.LOW)
             GPIO.output(31, GPIO.LOW)
+            GPIO.output(27, GPIO.LOW)
         elif(value == 1): 
             print("Moving Left")
             GPIO.output(37, GPIO.LOW)
             GPIO.output(35, GPIO.HIGH)
             GPIO.output(33, GPIO.LOW)
             GPIO.output(31, GPIO.LOW)
+            GPIO.output(27, GPIO.LOW)
         elif(value == 2): 
             print("Moving Up")
             GPIO.output(37, GPIO.LOW)
             GPIO.output(35, GPIO.LOW)
             GPIO.output(33, GPIO.HIGH)
             GPIO.output(31, GPIO.LOW)
+            GPIO.output(27, GPIO.LOW)
         elif(value == 3): 
             print("Moving Down")
             GPIO.output(37, GPIO.LOW)
             GPIO.output(35, GPIO.LOW)
             GPIO.output(33, GPIO.LOW)
             GPIO.output(31, GPIO.HIGH)
+            GPIO.output(27, GPIO.LOW)
         elif(value == 4): 
             print("Stop")
             GPIO.output(37, GPIO.LOW)
             GPIO.output(35, GPIO.LOW)
             GPIO.output(33, GPIO.LOW)
-            GPIO.output(31, GPIO.HIGH)
+            GPIO.output(31, GPIO.LOW)
+            GPIO.output(27, GPIO.HIGH)
     
     def print_grid_enum(self, value): 
         if(value == 1):
