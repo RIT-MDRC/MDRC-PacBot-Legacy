@@ -79,6 +79,13 @@ void setup() {
   //mpu6050.setGyroOffsets( -3.85, -.65, .33);
   mpu6050.setGyroOffsets(128, 24, -10);
 
+  
+  pinMode(upRPI, INPUT_PULLUP);
+  pinMode(rightRPI, INPUT_PULLUP);
+  pinMode(leftRPI, INPUT_PULLUP);
+  pinMode(downRPI, INPUT_PULLUP);
+  pinMode(stopRPI, INPUT_PULLUP);
+
   randomSeed(analogRead(2));
 
 }
@@ -338,7 +345,7 @@ void moveBackwards() {
 }
 //0 right, 1 left, 2 up, 3 down;
 void PIzeroOperationsTwo(){
-  if(digitalRead(upRPI) == HIGH){
+  if(digitalRead(upRPI) == LOW){
     if(directionState == -1){
       moveStraight(); 
       directionState = 2;  
@@ -363,7 +370,7 @@ void PIzeroOperationsTwo(){
     }
     
   }
-  else if(digitalRead(downRPI) == HIGH){
+  else if(digitalRead(downRPI) == LOW){
     if(directionState == -1){
       moveStraight(); 
       directionState = 3;   
@@ -388,7 +395,7 @@ void PIzeroOperationsTwo(){
     }
     
   }
-  else if(digitalRead(leftRPI) == HIGH){
+  else if(digitalRead(leftRPI) == LOW){
     if(directionState == -1){
       moveStraight(); 
       directionState = 1;   
@@ -412,7 +419,7 @@ void PIzeroOperationsTwo(){
       directionState = 1;   
     }
   }
-  else if(digitalRead(rightRPI) == HIGH){
+  else if(digitalRead(rightRPI) == LOW){
     if(directionState == -1){
       moveStraight();   
       directionState = 0;
@@ -593,8 +600,11 @@ void getSensorValues(){
 
 void loop() {
   //PIzeroOperations();
-  backup();
+  //backup();
   //PIzeroOperationsTwo(); 
   //turnAround90CW();
+
+  int sensorVal = digitalRead(upRPI);
+  Serial.println(sensorVal);
   
 }
