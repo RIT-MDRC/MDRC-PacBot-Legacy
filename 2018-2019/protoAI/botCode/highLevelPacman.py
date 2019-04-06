@@ -22,7 +22,7 @@ class highLevelPacman(rm.ProtoModule):
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(37, GPIO.OUT)
+        GPIO.setup(37, GPIO.OUT, )
         GPIO.setup(35, GPIO.OUT)
         GPIO.setup(33, GPIO.OUT)
         GPIO.setup(31, GPIO.OUT)
@@ -55,7 +55,7 @@ class highLevelPacman(rm.ProtoModule):
             elif(newLocation[1] < previousLocation[1]): 
                 return down 
     
-    def print_direction(self, value): 
+    def print_direction(self, value):
         if(value == 0): 
             print("Moving Right")
             GPIO.output(37, GPIO.LOW)

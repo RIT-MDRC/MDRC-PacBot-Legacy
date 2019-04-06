@@ -445,6 +445,7 @@ void PIzeroOperationsTwo() {
     }
   }
   else {
+    Serial.println("STOP!");
     stopMotors();
   }
 }
@@ -620,9 +621,9 @@ void backup() {
   }*/
 
 void loop() {
-  PIzeroOperations();
+  //PIzeroOperations();
   //backup();
-  //PIzeroOperationsTwo();
+  PIzeroOperationsTwo();
   //turnAround90CW();
 
   /*int sensorVal = digitalRead(upRPI);
