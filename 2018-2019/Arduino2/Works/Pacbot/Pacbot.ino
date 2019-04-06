@@ -365,18 +365,18 @@ void moveBackwards() {
 
 }
 //0 right, 1 left, 2 up, 3 down;
-void PIzeroOperationsTwo(){
-  if(digitalRead(upRPI) == LOW){
-    if(directionState == -1){
-      moveStraight(); 
-      directionState = 2;  
+void PIzeroOperationsTwo() {
+  if (digitalRead(upRPI) == LOW) {
+    if (directionState == -1) {
+      moveStraight();
+      directionState = 2;
     }
-    else if(directionState == 0){
-      turnAround90CCW(); 
-      moveStraight(); 
-      directionState = 2;   
+    else if (directionState == 0) {
+      turnAround90CCW();
+      moveStraight();
+      directionState = 2;
     }
-    else if(directionState == 1){
+    else if (directionState == 1) {
       turnAround90CW();
       moveStraight(); 
       directionState = 2;   
@@ -391,10 +391,10 @@ void PIzeroOperationsTwo(){
     }
     
   }
-  else if(digitalRead(downRPI) == LOW){
-    if(directionState == -1){
-      moveStraight(); 
-      directionState = 3;   
+  else if (digitalRead(downRPI) == LOW) {
+    if (directionState == -1) {
+      moveStraight();
+      directionState = 3;
     }
     else if(directionState == 0){
       turnAround90CW();
@@ -416,10 +416,10 @@ void PIzeroOperationsTwo(){
     }
     
   }
-  else if(digitalRead(leftRPI) == LOW){
-    if(directionState == -1){
-      moveStraight(); 
-      directionState = 1;   
+  else if (digitalRead(leftRPI) == LOW) {
+    if (directionState == -1) {
+      moveStraight();
+      directionState = 1;
     }
     else if(directionState == 0){
       turnAround180(); 
@@ -440,9 +440,9 @@ void PIzeroOperationsTwo(){
       directionState = 1;   
     }
   }
-  else if(digitalRead(rightRPI) == LOW){
-    if(directionState == -1){
-      moveStraight();   
+  else if (digitalRead(rightRPI) == LOW) {
+    if (directionState == -1) {
+      moveStraight();
       directionState = 0;
     }  
     else if(directionState == 0){
@@ -464,39 +464,44 @@ void PIzeroOperationsTwo(){
       directionState = 0; 
     }
   }
-  else{
-    stopMotors();   
+  else {
+    Serial.println("STOP!");
+    stopMotors();
   }
 }
 
 void PIzeroOperations() {
   if (digitalRead(upRPI) == LOW ) {
 
-    Serial.print("Go UP");
-    /*
-    switch (directionState) {
-      case 0:
-        moveStraight();
-        break;
-      case 1:
-        turnAround180();
-        directionState = 1;
-        break;
-      case 2:
-        turnAround90CW();
-        directionState = 2;
-        break;
-      case 3:
-        turnAround90CCW();
-        directionState = 3;
-        break;
-      default: moveStraight();
-        break;
-    }
-*/
+  if (digitalRead(upRPI) == LOW ) {
 
-  } else if (digitalRead(downRPI) == LOW) {
-    Serial.print("Go down");
+    Serial.println("Go UP");
+    /*
+       switch (directionState) {
+         case 0:
+           moveStraight();
+           break;
+         case 1:
+           turnAround180();
+           directionState = 1;
+           break;
+         case 2:
+           turnAround90CW();
+           directionState = 2;
+           break;
+         case 3:
+           turnAround90CCW();
+           directionState = 3;
+           break;
+         default: moveStraight();
+           break;
+       }
+    */
+  }
+
+
+  if (digitalRead(downRPI) == LOW) {
+    Serial.println("Go down");
     /*
     switch (directionState) {
       case 0:
@@ -519,8 +524,8 @@ void PIzeroOperations() {
     }
 */
 
-  } else if (digitalRead(leftRPI) == LOW) {
-    Serial.print("Go left");
+  }  if (digitalRead(leftRPI) == LOW) {
+    Serial.println("Go left");
     /*
     switch (directionState) {
       case 0:
@@ -545,7 +550,7 @@ void PIzeroOperations() {
 */
 
   } else if (digitalRead(rightRPI) == LOW) {
-    Serial.print("Go right");
+    Serial.println("Go right");
     /*
     
     switch (directionState) {
@@ -627,7 +632,7 @@ void getSensorValues(){
 void loop() {
   //PIzeroOperations();
   //backup();
-  //PIzeroOperationsTwo(); 
+  PIzeroOperationsTwo();
   //turnAround90CW();
 
   //int sensorVal = digitalRead(upRPI);

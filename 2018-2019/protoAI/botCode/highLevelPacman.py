@@ -22,11 +22,11 @@ class highLevelPacman(rm.ProtoModule):
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(37, GPIO.OUT)
+        GPIO.setup(37, GPIO.OUT, )
         GPIO.setup(35, GPIO.OUT)
         GPIO.setup(33, GPIO.OUT)
         GPIO.setup(31, GPIO.OUT)
-        GPIO.setup(27, GPIO.OUT)
+        GPIO.setup(29, GPIO.OUT)
         #self declared variables
         self.previousLocation = None  
         self.grid = copy.deepcopy(grid)
@@ -55,42 +55,42 @@ class highLevelPacman(rm.ProtoModule):
             elif(newLocation[1] < previousLocation[1]): 
                 return down 
     
-    def print_direction(self, value): 
+    def print_direction(self, value):
         if(value == 0): 
             print("Moving Right")
-            GPIO.output(37, GPIO.HIGH)
-            GPIO.output(35, GPIO.LOW)
-            GPIO.output(33, GPIO.LOW)
-            GPIO.output(31, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-        elif(value == 1): 
-            print("Moving Left")
             GPIO.output(37, GPIO.LOW)
             GPIO.output(35, GPIO.HIGH)
-            GPIO.output(33, GPIO.LOW)
-            GPIO.output(31, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-        elif(value == 2): 
-            print("Moving Up")
-            GPIO.output(37, GPIO.LOW)
+            GPIO.output(33, GPIO.HIGH)
+            GPIO.output(31, GPIO.HIGH)
+            GPIO.output(29, GPIO.HIGH)
+        elif(value == 1): 
+            print("Moving Left")
+            GPIO.output(37, GPIO.HIGH)
             GPIO.output(35, GPIO.LOW)
             GPIO.output(33, GPIO.HIGH)
-            GPIO.output(31, GPIO.LOW)
-            GPIO.output(27, GPIO.LOW)
-        elif(value == 3): 
-            print("Moving Down")
-            GPIO.output(37, GPIO.LOW)
-            GPIO.output(35, GPIO.LOW)
+            GPIO.output(31, GPIO.HIGH)
+            GPIO.output(29, GPIO.HIGH)
+        elif(value == 2): 
+            print("Moving Up")
+            GPIO.output(37, GPIO.HIGH)
+            GPIO.output(35, GPIO.HIGH)
             GPIO.output(33, GPIO.LOW)
             GPIO.output(31, GPIO.HIGH)
-            GPIO.output(27, GPIO.LOW)
+            GPIO.output(29, GPIO.HIGH)
+        elif(value == 3): 
+            print("Moving Down")
+            GPIO.output(37, GPIO.HIGH)
+            GPIO.output(35, GPIO.HIGH)
+            GPIO.output(33, GPIO.HIGH)
+            GPIO.output(31, GPIO.LOW)
+            GPIO.output(29, GPIO.HIGH)
         elif(value == 4): 
             print("Stop")
-            GPIO.output(37, GPIO.LOW)
-            GPIO.output(35, GPIO.LOW)
-            GPIO.output(33, GPIO.LOW)
-            GPIO.output(31, GPIO.LOW)
-            GPIO.output(27, GPIO.HIGH)
+            GPIO.output(37, GPIO.HIGH)
+            GPIO.output(35, GPIO.HIGH)
+            GPIO.output(33, GPIO.HIGH)
+            GPIO.output(31, GPIO.HIGH)
+            GPIO.output(29, GPIO.LOW)
     
     def print_grid_enum(self, value): 
         if(value == 1):
