@@ -643,5 +643,5 @@ void loop() {
     //Serial.print(" ");
     //int sensorVal4 = digitalRead(rightRPI);
     //Serial.println(sensorVal4);
-  
+
 }
