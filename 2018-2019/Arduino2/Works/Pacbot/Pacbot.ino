@@ -617,31 +617,17 @@ void backup() {
   }
 
 }
-/*
-  void getSensorValues(){
+
+void getSensorValues(){
   seeWallLeft();
   seeWallRight();
   wallCloseFront();
   Serial.println("");
-
-  }*/
+}
 
 void loop() {
   //PIzeroOperations();
   backup();
   //PIzeroOperationsTwo();
   //turnAround90CW();
-
-//  int sensorVal = digitalRead(upRPI);
-    //Serial.println(frontSensor.distanceCm());
-   // Serial.print(" ");
-   // int sensorVal2 = digitalRead(downRPI);
-    //Serial.print(sensorVal2);
-    //Serial.print(" ");
-    //int sensorVal3 = digitalRead(leftRPI);
-    //Serial.print(sensorVal3);
-    //Serial.print(" ");
-    //int sensorVal4 = digitalRead(rightRPI);
-    //Serial.println(sensorVal4);
-
 }
