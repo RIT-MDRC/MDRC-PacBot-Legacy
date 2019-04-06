@@ -118,7 +118,7 @@ void adjustRight() {
 void adjustTurnRight() {
   leftServo.write(180);
   rightServo.write(180);
-  delay(600);
+  delay(180);
 }
 
 void adjustLeft() {
@@ -179,7 +179,7 @@ void turnAround180() {
 
 boolean wallCloseRight() {
   delay(50);
-  return rightSensor.distanceCm() < 4.3;
+  return rightSensor.distanceCm() < 4.7 || (rightSensor.distanceCm() > 350);
 }
 
 boolean seeWallRight() {
@@ -187,12 +187,12 @@ boolean seeWallRight() {
   Serial.print("rightsensor: ");
   Serial.print(rightSensor.distanceCm());
   Serial.print("          ");
-  return rightSensor.distanceCm() < 14;
+  return rightSensor.distanceCm() < 14 || (rightSensor.distanceCm() > 350);
 }
 
 boolean wallCloseLeft() {
   delay(50);
-  return leftSensor.distanceCm() < 3.6;
+  return leftSensor.distanceCm() < 4 || (leftSensor.distanceCm() > 350);
 }
 
 boolean seeWallLeft() {
@@ -200,7 +200,7 @@ boolean seeWallLeft() {
   Serial.print("leftsensor: ");
   Serial.print(leftSensor.distanceCm());
   Serial.print("          ");
-  return leftSensor.distanceCm() < 12;
+  return leftSensor.distanceCm() < 12 || (leftSensor.distanceCm() > 350);
 
 }
 
@@ -209,7 +209,7 @@ boolean wallCloseFront() {
   Serial.print("frontsensor: ");
   Serial.print(frontSensor.distanceCm());
   Serial.print("          ");
-  return frontSensor.distanceCm() < 5;
+  return (frontSensor.distanceCm() < 5) || (frontSensor.distanceCm() > 350) ;
 }
 
 void turnAround90CW() {
@@ -346,7 +346,7 @@ void moveBackwards() {
 }
 //0 right, 1 left, 2 up, 3 down;
 void PIzeroOperationsTwo() {
-  if (digitalRead(upRPI) == LOW) {
+  if (digitalRead(upRPI) == HIGH) {
     if (directionState == -1) {
       moveStraight();
       directionState = 2;
@@ -371,7 +371,7 @@ void PIzeroOperationsTwo() {
     }
 
   }
-  else if (digitalRead(downRPI) == LOW) {
+  else if (digitalRead(downRPI) == HIGH) {
     if (directionState == -1) {
       moveStraight();
       directionState = 3;
@@ -396,7 +396,7 @@ void PIzeroOperationsTwo() {
     }
 
   }
-  else if (digitalRead(leftRPI) == LOW) {
+  else if (digitalRead(leftRPI) == HIGH) {
     if (directionState == -1) {
       moveStraight();
       directionState = 1;
@@ -420,7 +420,7 @@ void PIzeroOperationsTwo() {
       directionState = 1;
     }
   }
-  else if (digitalRead(rightRPI) == LOW) {
+  else if (digitalRead(rightRPI) == HIGH) {
     if (directionState == -1) {
       moveStraight();
       directionState = 0;
@@ -575,38 +575,44 @@ void backup() {
   //WHAT HAPPENS AT THE INTERSECTION
 
   if (!seeWallLeft() && seeWallRight()) {
-    turnAround90CCW();
+    //turnAround90CCW();
+    adjustTurnLeft();
     moveStraight();
-    delay(500);
+    delay(700);
   }
   else if (!seeWallRight() && seeWallRight()) {
-    turnAround90CW();
+    //turnAround90CW();
+    adjustTurnRight();
     moveStraight();
-    delay(500);
+    delay(700);
   }
   else if (!seeWallLeft() && !seeWallRight()) {
     randNumber = random(2);
     if (randNumber == 0) {
-      turnAround90CCW();
+      //turnAround90CCW();
+      adjustTurnLeft();
       moveStraight();
-      delay(500);
+      delay(700);
     }
     else {
-      turnAround90CW();
+      //turnAround90CW();
+      adjustTurnRight();
       moveStraight();
-      delay(500);
+      delay(700);
     }
 
   }
   else {
     if (!seeWallRight()) {
-      turnAround90CW();
+      //turnAround90CW();
+      adjustTurnRight();
       moveStraight();
-      delay(500);
+      delay(700);
     } else {
-      turnAround90CCW();
+      //turnAround90CCW();
+      adjustTurnLeft();
       moveStraight();
-      delay(500);
+      delay(700);
     }
   }
 
@@ -622,20 +628,20 @@ void backup() {
 
 void loop() {
   //PIzeroOperations();
-  //backup();
-  PIzeroOperationsTwo();
+  backup();
+  //PIzeroOperationsTwo();
   //turnAround90CW();
 
-  /*int sensorVal = digitalRead(upRPI);
-    Serial.print(sensorVal);
-    Serial.print(" ");
-    int sensorVal2 = digitalRead(downRPI);
-    Serial.print(sensorVal2);
-    Serial.print(" ");
-    int sensorVal3 = digitalRead(leftRPI);
-    Serial.print(sensorVal3);
-    Serial.print(" ");
-    int sensorVal4 = digitalRead(rightRPI);
-    Serial.println(sensorVal4);
-  */
+//  int sensorVal = digitalRead(upRPI);
+    //Serial.println(frontSensor.distanceCm());
+   // Serial.print(" ");
+   // int sensorVal2 = digitalRead(downRPI);
+    //Serial.print(sensorVal2);
+    //Serial.print(" ");
+    //int sensorVal3 = digitalRead(leftRPI);
+    //Serial.print(sensorVal3);
+    //Serial.print(" ");
+    //int sensorVal4 = digitalRead(rightRPI);
+    //Serial.println(sensorVal4);
+  
 }

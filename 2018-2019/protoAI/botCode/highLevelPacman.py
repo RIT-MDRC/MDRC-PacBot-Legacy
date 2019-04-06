@@ -185,7 +185,9 @@ class highLevelPacman(rm.ProtoModule):
                         self.print_direction(self.get_direction(next_location, self.previousLocation))
                         self.send_data(next_location)
             elif(bestPath == self.previousLocation): 
-                self.print_direction(self.get_direction(bestPath, self.previousLocation)) 
+                self.print_direction(self.get_direction(bestPath, self.previousLocation))
+        else:
+            self.print_direction(4)
                 
 
         
