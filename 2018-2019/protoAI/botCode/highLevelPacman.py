@@ -22,11 +22,11 @@ class highLevelPacman(rm.ProtoModule):
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(37, GPIO.OUT, )
-        GPIO.setup(35, GPIO.OUT)
-        GPIO.setup(33, GPIO.OUT)
-        GPIO.setup(31, GPIO.OUT)
-        GPIO.setup(29, GPIO.OUT)
+        GPIO.setup(37, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(35, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(33, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(31, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(29, GPIO.OUT, initial=GPIO.HIGH)
         #self declared variables
         self.previousLocation = None  
         self.grid = copy.deepcopy(grid)
