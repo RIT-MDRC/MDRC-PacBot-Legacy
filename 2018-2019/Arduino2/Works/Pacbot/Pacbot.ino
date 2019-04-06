@@ -346,7 +346,7 @@ void moveBackwards() {
 }
 //0 right, 1 left, 2 up, 3 down;
 void PIzeroOperationsTwo() {
-  if (digitalRead(upRPI) == HIGH) {
+  if (digitalRead(upRPI) == LOW) {
     if (directionState == -1) {
       moveStraight();
       directionState = 2;
@@ -371,7 +371,7 @@ void PIzeroOperationsTwo() {
     }
 
   }
-  else if (digitalRead(downRPI) == HIGH) {
+  else if (digitalRead(downRPI) == LOW) {
     if (directionState == -1) {
       moveStraight();
       directionState = 3;
@@ -396,7 +396,7 @@ void PIzeroOperationsTwo() {
     }
 
   }
-  else if (digitalRead(leftRPI) == HIGH) {
+  else if (digitalRead(leftRPI) == LOW) {
     if (directionState == -1) {
       moveStraight();
       directionState = 1;
@@ -420,7 +420,7 @@ void PIzeroOperationsTwo() {
       directionState = 1;
     }
   }
-  else if (digitalRead(rightRPI) == HIGH) {
+  else if (digitalRead(rightRPI) == LOW) {
     if (directionState == -1) {
       moveStraight();
       directionState = 0;
@@ -451,7 +451,7 @@ void PIzeroOperationsTwo() {
 
 void PIzeroOperations() {
 
-  if (digitalRead(upRPI) == HIGH ) {
+  if (digitalRead(upRPI) == LOW ) {
 
     Serial.println("Go UP");
     /*
@@ -478,7 +478,7 @@ void PIzeroOperations() {
   }
 
 
-  if (digitalRead(downRPI) == HIGH) {
+  if (digitalRead(downRPI) == LOW) {
     Serial.println("Go down");
     /*
       switch (directionState) {
@@ -502,7 +502,7 @@ void PIzeroOperations() {
       }
     */
 
-  }  if (digitalRead(leftRPI) == HIGH) {
+  }  if (digitalRead(leftRPI) == LOW) {
     Serial.println("Go left");
     /*
       switch (directionState) {
@@ -527,7 +527,7 @@ void PIzeroOperations() {
       }
     */
 
-  }  if (digitalRead(rightRPI) == LOW) {
+  } else if (digitalRead(rightRPI) == LOW) {
     Serial.println("Go right");
     /*
 
@@ -620,8 +620,8 @@ void backup() {
   }*/
 
 void loop() {
-  //PIzeroOperations();
-  backup();
+  PIzeroOperations();
+  //backup();
   //PIzeroOperationsTwo();
   //turnAround90CW();
 
