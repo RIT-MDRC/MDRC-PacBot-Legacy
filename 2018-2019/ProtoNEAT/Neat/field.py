@@ -1,4 +1,5 @@
 from enum import Enum
+
 class FieldValues(Enum):
     I = -1
     C =  2  # Used C instead of o

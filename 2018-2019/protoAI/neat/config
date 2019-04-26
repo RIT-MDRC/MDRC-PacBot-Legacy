@@ -1,7 +1,0 @@
-[NEAT]
-fitness_criterion = min
-fitness_threshold = 0.5
-pop_size = 150
-reset_on_extinction = True
-
-

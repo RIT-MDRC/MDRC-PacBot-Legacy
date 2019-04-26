@@ -21,19 +21,29 @@
 
 #define MOTOR_OFFSET_WEIGHT 1
 
+#define USED -1
+
+#define IDLE 150
+
 //the values to output to the motors
 int leftSpeed = 0;
 int rightSpeed = 0;
 
+bool openLeft = false;
+bool openRight = false;
+bool reverse = false;
+
 int motorOffset = 0;
 
 bool stopped = true;
+bool turning = false;
 
 char cmd;
 
 //initial: East, counterClockwise: Positive.
+int newHeading = 0;
 int wantedHeading = 0;
-int currentHeading = 0;
+double currentHeading = 0;
 
 
 
@@ -94,22 +104,58 @@ void loop()
         switch(cmd)
         {
             case 'E':
-                wantedHeading = 0;
+                newHeading = 0;
+                turning = true;
                 break;
             case 'W':
-                wantedHeading = 180;
+                newHeading = 180;
+                turning = true;
                 break;
             case 'N':
-                wantedHeading = 90;
+                newHeading = 90;
+                turning = true;
                 break;
             case 'S':
-                wantedHeading = 270;
+                newHeading = 270;
+                turning = true;
                 break;
             case 'P';
                 stopped = true;
                 break;        
         }
+        //compare chars instead of angle
     }
 
     updateSensors();
+
+    //record left sensor; open -> openLeft = true
+    //record right sensor; open -> openRight = true
+
+    currentHeading += (getGyroRate() * GYRO_OFFSET) * LOOP_TIME_SECONDS;
+
+    if(turning)
+    {
+        //find change in angle
+        if(abs(newHeading - (int)wantedHeading) == 270) {newHeading - (int)wantedHeading  > 0 ? wantedHeading -= 90 : wantedHeading += 90;}
+        else if(abs(newHeading - (int)wantedHeading) == 180) {wantedHeading -= 180;}
+        else {wantedHeading += (newHeading - (int)wantedHeading);}
+        
+        //keep in turning mode until diffenrence in angle is less than 5 degrees
+        while(abs(wantedHeading - currentHeading) < 5)
+        {
+            turnBot(turningPID(currentHeading, wantedHeading));
+        }
+    }
+    else
+    {
+        motorOffset = headingPID(currentHeading, wantedHeading);
+        driveMotors(IDLE + motorOffset, IDLE - motorOffset);
+    }
+
+    lastLoopUsefulTime = micros() - loopStartTime;
+    if(lastLoopUsefulTime < STD_LOOP_TIME) 
+    {
+        delayMicroseconds(STD_LOOP_TIME - lastLoopUsefulTime);
+    }
+    loopStartTime = micros();
 }

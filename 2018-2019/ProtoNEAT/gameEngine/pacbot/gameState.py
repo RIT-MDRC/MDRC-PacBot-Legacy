@@ -72,7 +72,6 @@ class GameState:
 
     def _die(self):
         if self.lives > 1:
-            self._respawn_agents()
             self.start_counter = 0
             self.state_counter = 0
             self.lives -= 1
@@ -169,3 +168,6 @@ class GameState:
         self.lives = starting_lives
         self.elapsed_time = 0
         self._update_score()
+
+    def respawnagents(self):
+        self._respawn_agents()

@@ -6,7 +6,7 @@ from messages import *
 from pacbot.variables import game_frequency, ticks_per_update
 from pacbot import StateConverter, GameState
 
-ADDRESS = os.environ.get("BIND_ADDRESS","localhost")
+ADDRESS = "129.21.94.25"
 PORT = os.environ.get("BIND_PORT", 11297)
 
 FREQUENCY = game_frequency * ticks_per_update
