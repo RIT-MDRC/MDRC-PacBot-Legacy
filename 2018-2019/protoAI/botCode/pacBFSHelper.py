@@ -101,21 +101,14 @@ def bfs_find_pellet(graph, grid, start, goal):
         return path
 
 def initialize_grid(grid):
-    walls = []
-    for row in range(len(grid)): 
+    walls = set()
+    for row in range(len(grid)):
         for col in range(len(grid[row])):
-            if(grid[row][col] == I or grid[row][col] == n): 
-                walls.append((row, col))
+            if grid[row][col] == I or grid[row][col] == n:
+                walls.add((row, col))
     
-    new_grid = pacGrid(len(grid),len(grid[0]))
-    new_grid.walls = walls 
-    #print("walls: "+ str(walls))
+    new_grid = pacGrid(len(grid), len(grid[0]))
+    new_grid.walls = walls
+    #print("walls:", walls)
     
     return new_grid
-
-
-    
-
-
-           
-            
