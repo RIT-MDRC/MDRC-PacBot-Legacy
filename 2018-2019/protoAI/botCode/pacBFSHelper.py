@@ -8,22 +8,13 @@ class pacGrid:
         self.height = height
         self.walls = []
     
-    #Test whether or not the object is inside the confines of the map
-    def in_bounds(self, id):
-        (x, y) = id
-        return 0 <= x < self.width and 0 <= y < self.height
-    
-    #Collision detection for the walls 
-    def passable(self, id):
-        return id not in self.walls
-
     def neighbors(self, id):
         (x, y) = id
         results = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
-        if (x + y) % 2 == 0: results.reverse() # aesthetics
-        #gives the results of available neighbors after filtering out the coordinates that are in_bounds and are passable
-        results = filter(self.in_bounds, results)
-        results = filter(self.passable, results)
+        if (x + y) % 2 == 0:
+            results.reverse() # aesthetics
+        # filter out neighbors that are walls
+        results = filter(lambda coords: coords not in self.walls, results)
         return results
 
 def findPath(node, previousNodes, path):
