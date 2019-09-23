@@ -1,26 +1,6 @@
 import collections
 from variables import *
 
-#Used for BFS
-class Queue:
-    def __init__(self):
-        self.elements = collections.deque()
-    
-    def empty(self):
-        return len(self.elements) == 0
-    
-    def put(self, x):
-        self.elements.append(x)
-    
-    def get(self):
-        return self.elements.popleft()
-    
-    def peek(self):
-        return self.elements[0]
-
-    def value(self):
-        print(self.elements)
-
 #Used for grid Initialization
 class pacGrid: 
     def __init__(self, width, height):
@@ -55,49 +35,48 @@ def findPath(node, previousNodes, path):
         
 def breadth_first_search(graph, start, goal):
     path = []
-    theQueue = Queue()
-    theQueue.put(start)
+    theQueue = collections.deque()
+    theQueue.append(start)
     visited = {}
     visited[start] = None
-    while(not theQueue.empty()):
-        current = theQueue.get()
+    while theQueue:
+        current = theQueue.popleft()
         #Stops and returns the best path
-        if current == goal: 
+        if current == goal:
             findPath(current, visited, path)
-            break   
+            break
         
         #Looks for paths
         for i in graph.neighbors(current):
-            if i not in visited: 
-                theQueue.put(i) 
+            if i not in visited:
+                theQueue.append(i)
                 visited[i] = current
-    if not path: 
+    if not path:
         return None
-    else: 
+    else:
         return path
 
-def bfs_find_pellet(graph, grid, start, goal): 
-    path = [] 
-    theQueue = Queue() 
-    theQueue.put(start) 
-    visited = {} 
-    visited[start] = None 
-
-    while(not theQueue.empty()): 
-        current = theQueue.get() 
+def bfs_find_pellet(graph, grid, start, goal):
+    path = []
+    theQueue = collections.deque()
+    theQueue.append(start)
+    visited = {}
+    visited[start] = None
+    while theQueue:
+        current = theQueue.popleft()
         #stops and returns the best path
-        if(grid[current[0]][current[1]] == goal): 
+        if grid[current[0]][current[1]] == goal:
             findPath(current, visited, path)
             break
         
         #Look for paths
         for i in graph.neighbors(current):
-            if i not in visited: 
-                theQueue.put(i) 
+            if i not in visited:
+                theQueue.append(i)
                 visited[i] = current
-    if not path: 
-        return None 
-    else: 
+    if not path:
+        return None
+    else:
         return path
 
 def initialize_grid(grid):
