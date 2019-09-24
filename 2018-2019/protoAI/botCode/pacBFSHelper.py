@@ -17,15 +17,14 @@ class pacGrid:
         results = filter(lambda coords: coords not in self.walls, results)
         return results
 
-def findPath(node, previousNodes, path):
-    if previousNodes[node] == None: 
-        return 
-    else: 
-        path.append(node)
-        findPath(previousNodes[node], previousNodes, path)
-        
-def breadth_first_search(graph, start, goal):
+def makePathList(node, previousNodes):
     path = []
+    while previousNodes[node] is not None:
+        path.append(node)
+        node = previousNodes[node]
+    return path or None
+
+def breadth_first_search(graph, start, goal):
     theQueue = collections.deque()
     theQueue.append(start)
     visited = {}
@@ -34,21 +33,16 @@ def breadth_first_search(graph, start, goal):
         current = theQueue.popleft()
         #Stops and returns the best path
         if current == goal:
-            findPath(current, visited, path)
-            break
+            return makePathList(current, visited)
         
         #Looks for paths
         for i in graph.neighbors(current):
             if i not in visited:
                 theQueue.append(i)
                 visited[i] = current
-    if not path:
-        return None
-    else:
-        return path
+    return None
 
 def bfs_find_pellet(graph, grid, start, goal):
-    path = []
     theQueue = collections.deque()
     theQueue.append(start)
     visited = {}
@@ -57,18 +51,14 @@ def bfs_find_pellet(graph, grid, start, goal):
         current = theQueue.popleft()
         #stops and returns the best path
         if grid[current[0]][current[1]] == goal:
-            findPath(current, visited, path)
-            break
+            return makePathList(current, visited)
         
         #Look for paths
         for i in graph.neighbors(current):
             if i not in visited:
                 theQueue.append(i)
                 visited[i] = current
-    if not path:
-        return None
-    else:
-        return path
+    return None
 
 def initialize_grid(grid):
     walls = set()

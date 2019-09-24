@@ -175,7 +175,7 @@ class highLevelPacman(rm.ProtoModule):
             self.update_game_state()
             bestPath = self.find_best_location(self.previousLocation)
             path = breadth_first_search(self.initializedGrid, self.previousLocation, bestPath) #Found by running an algorithm based on previous location
-            if(path != None):
+            if path is not None:
                 next_location = path[-1]
                 if(next_location != self.previousLocation):
                     if(next_location == None):
