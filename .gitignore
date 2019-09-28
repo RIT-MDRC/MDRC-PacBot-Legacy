@@ -6,3 +6,6 @@ __pycache__/
 
 # cProfile output files
 *.prof
+
+# macOS folder attributes stuff
+.DS_Store
