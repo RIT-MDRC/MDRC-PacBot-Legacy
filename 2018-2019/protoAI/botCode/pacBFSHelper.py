@@ -1,4 +1,6 @@
 import collections
+from functools import lru_cache
+
 from variables import *
 
 #Used for grid Initialization
@@ -7,14 +9,15 @@ class pacGrid:
         self.width = width
         self.height = height
         self.walls = []
+        self.neighbors = {}
     
-    def neighbors(self, id):
+    def get_neighbors(self, id):
         (x, y) = id
         results = [(x+1, y), (x, y-1), (x-1, y), (x, y+1)]
         if (x + y) % 2 == 0:
             results.reverse() # aesthetics
         # filter out neighbors that are walls
-        results = filter(lambda coords: coords not in self.walls, results)
+        results = [coords for coords in results if coords not in self.walls]
         return results
 
 def makePathList(node, previousNodes):
@@ -24,6 +27,7 @@ def makePathList(node, previousNodes):
         node = previousNodes[node]
     return path or None
 
+@lru_cache(maxsize=200)
 def breadth_first_search(graph, start, goal):
     theQueue = collections.deque()
     theQueue.append(start)
@@ -36,7 +40,7 @@ def breadth_first_search(graph, start, goal):
             return makePathList(current, visited)
         
         #Looks for paths
-        for i in graph.neighbors(current):
+        for i in graph.neighbors[current]:
             if i not in visited:
                 theQueue.append(i)
                 visited[i] = current
@@ -54,7 +58,7 @@ def bfs_find_pellet(graph, grid, start, goal):
             return makePathList(current, visited)
         
         #Look for paths
-        for i in graph.neighbors(current):
+        for i in graph.neighbors[current]:
             if i not in visited:
                 theQueue.append(i)
                 visited[i] = current
@@ -70,5 +74,14 @@ def initialize_grid(grid):
     new_grid = pacGrid(len(grid), len(grid[0]))
     new_grid.walls = walls
     #print("walls:", walls)
+    
+    # pre-compute neighbors
+    neighbors = {}
+    for row in range(len(grid)):
+        for col in range(len(grid[row])):
+            if not (grid[row][col] == I or grid[row][col] == n):
+                coords = (row, col)
+                neighbors[coords] = tuple(new_grid.get_neighbors(coords))
+    new_grid.neighbors = neighbors
     
     return new_grid
