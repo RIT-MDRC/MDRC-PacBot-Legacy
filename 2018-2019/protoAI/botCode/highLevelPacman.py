@@ -1,4 +1,5 @@
 import os, sys, curses, random, copy
+import time
 import robomodules as rm
 from messages import *
 from variables import *
@@ -172,6 +173,10 @@ class highLevelPacman(rm.ProtoModule):
     #Main FUNCTIONALITY
     def tick(self):
         if self.state and self.state.mode == LightState.RUNNING:
+            print("\nbegin tick")
+            start_time = time.perf_counter()
+            
+            # actual code
             self.update_game_state()
             bestPath = self.find_best_location(self.previousLocation)
             path = breadth_first_search(self.initializedGrid, self.previousLocation, bestPath) #Found by running an algorithm based on previous location
@@ -186,11 +191,17 @@ class highLevelPacman(rm.ProtoModule):
                         self.send_data(next_location)
             elif(bestPath == self.previousLocation): 
                 self.print_direction(self.get_direction(bestPath, self.previousLocation))
+            
+            # performance tracking
+            elapsed_time = time.perf_counter() - start_time
+            if not hasattr(self, 'perf_record'):
+                self.perf_record = []
+            self.perf_record.append(elapsed_time)
+            print("bfs cache_info:", breadth_first_search.cache_info())
+            print(f"tick took {elapsed_time*1000:.2f} ms")
+            print(f"average: {sum(self.perf_record)/len(self.perf_record)*1000:.2f} ms")
         else:
             self.print_direction(4)
-                
-
-        
 
     #Required to update the GRID, to make sure not to go over the same location
     def update_game_state(self):
