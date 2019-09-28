@@ -50,16 +50,18 @@ int stopRPI = 3;
 int directionState = -1;
 int queueState = 0;
 
-char currentPosition = "inWalls";
-char previousPosition = "inWalls";
+char currentPosition[8] = "inWalls";
+char previousPosition[8] = "inWalls";
 
-char *robotStates[] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
+const char *robotStates[6] = {"turnfull", "turnright", "turnleft", "stop", "straight"};
 char *currentState;
 int counter = 0;
 
 double gyroStartVal = 0.0;
-double gyroRightVal = -78.1;
-double gyroLeftVal = 74.2;
+//double gyroRightVal = -78.1;
+double gyroRightVal = -39.1;
+//double gyroLeftVal = 74.2;
+double gyroLeftVal = 40.2;
 double gyro180Val = -700.5;
 
 boolean completedTurn = true;
@@ -94,15 +96,15 @@ void setup() {
 
 void updatePosition() {
   if (seeWallRight() && seeWallLeft()) {
-    if (currentPosition != "inWalls") {
-      previousPosition = currentPosition;
-      currentPosition = "inWalls";
+    if (strcmp(currentPosition, "inWalls") != 0 ) {
+      strcpy(previousPosition, currentPosition);
+      strcpy(currentPosition, "inWalls");
     }
   } else {
-    if (currentPosition != "opening") {
+    if (strcmp(currentPosition, "opening") != 0) {
 
-      previousPosition = currentPosition;
-      currentPosition = "opening";
+      strcpy(previousPosition, currentPosition);
+      strcpy(currentPosition, "opening");
     }
 
   }
@@ -110,8 +112,8 @@ void updatePosition() {
 
 
 void adjustRight() {
-  leftServo.write(97); //4 speed slow
-  rightServo.write(87); //6 speed slow
+  leftServo.write(97); //9 speed slow
+  rightServo.write(87); //5 speed slow
 
 }
 
@@ -122,8 +124,8 @@ void adjustTurnRight() {
 }
 
 void adjustLeft() {
-  leftServo.write(99); //6 speed slow
-  rightServo.write(89); //4 speed slow
+  leftServo.write(99); //5 speed slow
+  rightServo.write(89); //9 speed slow
 }
 
 void adjustTurnLeft() {
@@ -209,60 +211,25 @@ boolean wallCloseFront() {
   Serial.print("frontsensor: ");
   Serial.print(frontSensor.distanceCm());
   Serial.print("          ");
-  return (frontSensor.distanceCm() < 5) || (frontSensor.distanceCm() > 350) ;
+  return (frontSensor.distanceCm() < 4.5) || (frontSensor.distanceCm() > 350) ;
 }
 
-void turnAround90CW() {
-  boolean wasInWalls = false;
-  while (seeWallLeft() && seeWallRight()) {
-    moveStraight();
-    wasInWalls = true;
-  }
-  if (wasInWalls) {
-    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
-      moveStraight();
-    }
-  }
-  Serial.println("Turning Right");
-  updatePosition(); // not in walls
-  mpu6050.update();
-  while (mpu6050.getAngleZ() > (gyroRightVal + gyroStartVal)) {
-    mpu6050.update();
-    Serial.print(gyroRightVal + gyroStartVal);
-    Serial.print("  ");
-    Serial.println(mpu6050.getAngleZ());
 
-    if (wallCloseRight()) {
-      Serial.println("Did not complete turn");
-      adjustTurnLeft();
-      adjustToCircumstance();
-    } else {
-      leftServo.write(180);
-      rightServo.write(180);
-    }
-  }
-  Serial.println("Turning Right Done");
-
-  gyroStartVal = gyroRightVal + gyroStartVal;
-}
 
 void turnAround90CCW() {
-  boolean wasInWalls = false;
-  while (seeWallLeft() && seeWallRight()) {
-    moveStraight();
-    wasInWalls = true;
-  }
-  if (wasInWalls) {
-    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
-      moveStraight();
-    }
-  }
+  //  boolean wasInWalls = false;
+  //  while (seeWallLeft() && seeWallRight()) {
+  //    moveStraight();
+  //    wasInWalls = true;
+  //  }
+  //  if (wasInWalls) {
+  //    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
+  //      moveStraight();
+  //    }
+  //  }
   updatePosition(); // not in walls
-  Serial.println("Turning Left");
   mpu6050.update();
   while (mpu6050.getAngleZ() < (gyroLeftVal + gyroStartVal)) {
-    Serial.println(gyroLeftVal + gyroStartVal);
-    Serial.println(mpu6050.getAngleZ());
     mpu6050.update();
     if (wallCloseLeft()) {
       adjustRight();
@@ -279,28 +246,28 @@ void turnAround90CCW() {
 
 
 void moveStraight() {
-  if (wallCloseFront()) {
-    stopMotors();
+  //  if (wallCloseFront()) {
+  //    stopMotors();
+  //  }
+  //  else {
+  Serial.println("Moving Forwards");
+  if (wallCloseRight()) {
+    Serial.print("stop right");
+    //delay(1000);
+    adjustRight();
+    delay(100);
   }
-  else {
-    Serial.println("Moving Forwards");
-    if (wallCloseRight()) {
-      Serial.print("stop right");
-      //delay(1000);
-      adjustRight();
-      delay(100);
-    }
-    else if (wallCloseLeft() ) {
-      Serial.print("stop left");
-      //delay(1000);
+  else if (wallCloseLeft() ) {
+    Serial.print("stop left");
+    //delay(1000);
 
 
-      adjustLeft();
-      delay(100);
-    }
-    leftServo.write(180);
-    rightServo.write(0);
+    adjustLeft();
+    delay(100);
   }
+  leftServo.write(180);
+  rightServo.write(0);
+  //}
 
 }
 
@@ -342,283 +309,172 @@ void moveBackwards() {
     leftServo.write(0);
     rightServo.write(180);
   }
-
-}
-//0 right, 1 left, 2 up, 3 down;
-void PIzeroOperationsTwo() {
-  if (digitalRead(upRPI) == HIGH) {
-    if (directionState == -1) {
-      moveStraight();
-      directionState = 2;
-    }
-    else if (directionState == 0) {
-      turnAround90CCW();
-      moveStraight();
-      directionState = 2;
-    }
-    else if (directionState == 1) {
-      turnAround90CW();
-      moveStraight();
-      directionState = 2;
-    }
-    else if (directionState == 2) {
-      moveStraight();
-    }
-    else if (directionState == 3) {
-      turnAround180();
-      moveStraight();
-      directionState = 2;
-    }
-
-  }
-  else if (digitalRead(downRPI) == HIGH) {
-    if (directionState == -1) {
-      moveStraight();
-      directionState = 3;
-    }
-    else if (directionState == 0) {
-      turnAround90CW();
-      moveStraight();
-      directionState = 3;
-    }
-    else if (directionState == 1) {
-      turnAround90CCW();
-      moveStraight();
-      directionState = 3;
-    }
-    else if (directionState == 2) {
-      turnAround180();
-      moveStraight();
-      directionState = 3;
-    }
-    else if (directionState == 3) {
-      moveStraight();
-    }
-
-  }
-  else if (digitalRead(leftRPI) == HIGH) {
-    if (directionState == -1) {
-      moveStraight();
-      directionState = 1;
-    }
-    else if (directionState == 0) {
-      turnAround180();
-      moveStraight();
-      directionState = 1;
-    }
-    else if (directionState == 1) {
-      moveStraight();
-    }
-    else if (directionState == 2) {
-      turnAround90CCW();
-      moveStraight();
-      directionState = 1;
-    }
-    else if (directionState == 3) {
-      turnAround90CW();
-      moveStraight();
-      directionState = 1;
-    }
-  }
-  else if (digitalRead(rightRPI) == HIGH) {
-    if (directionState == -1) {
-      moveStraight();
-      directionState = 0;
-    }
-    else if (directionState == 0) {
-      moveStraight();
-    }
-    else if (directionState == 1) {
-      turnAround180();
-      moveStraight();
-      directionState = 0;
-    }
-    else if (directionState == 2) {
-      turnAround90CW();
-      moveStraight();
-      directionState = 0;
-    }
-    else if (directionState == 3) {
-      turnAround90CCW();
-      moveStraight();
-      directionState = 0;
-    }
-  }
-  else {
-    Serial.println("STOP!");
-    stopMotors();
-  }
 }
 
-void PIzeroOperations() {
-
-  if (digitalRead(upRPI) == LOW ) {
-
-    Serial.println("Go UP");
-    /*
-       switch (directionState) {
-         case 0:
-           moveStraight();
-           break;
-         case 1:
-           turnAround180();
-           directionState = 1;
-           break;
-         case 2:
-           turnAround90CW();
-           directionState = 2;
-           break;
-         case 3:
-           turnAround90CCW();
-           directionState = 3;
-           break;
-         default: moveStraight();
-           break;
-       }
-    */
+void turnAround90CW() {
+  //  boolean wasInWalls = false;
+  //  while (seeWallLeft() && seeWallRight()) {
+  //    moveStraight();
+  //    wasInWalls = true;
+  //  }
+  //  if (wasInWalls) {
+  //    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
+  //      moveStraight();
+  //    }
+  //  }
+  updatePosition(); // not in walls
+  mpu6050.update();
+  while (mpu6050.getAngleZ() > (gyroRightVal + gyroStartVal)) {
+    mpu6050.update();
+    if (wallCloseRight()) {
+      adjustTurnLeft();
+      adjustToCircumstance();
+    } else {
+      leftServo.write(180);
+      rightServo.write(180);
+    }
   }
 
-
-  if (digitalRead(downRPI) == LOW) {
-    Serial.println("Go down");
-    /*
-      switch (directionState) {
-      case 0:
-        turnAround180();
-        directionState = 0;
-        break;
-      case 1:
-        moveStraight();
-        break;
-      case 2:
-        turnAround90CCW();
-        directionState = 2;
-        break;
-      case 3:
-        turnAround90CW();
-        directionState = 3;
-        break;
-      default: moveStraight();
-        break;
-      }
-    */
-
-  }  if (digitalRead(leftRPI) == LOW) {
-    Serial.println("Go left");
-    /*
-      switch (directionState) {
-      case 0:
-        turnAround90CCW();
-        directionState = 0;
-        break;
-      case 1:
-        turnAround90CW();
-        directionState = 1;
-        break;
-      case 2:
-        moveStraight();
-
-        break;
-      case 3:
-        turnAround180();
-        directionState = 3;
-        break;
-      default: moveStraight();
-        break;
-      }
-    */
-
-  } else if (digitalRead(rightRPI) == LOW) {
-    Serial.println("Go right");
-    /*
-
-      switch (directionState) {
-      case 0:
-        turnAround90CW();
-        directionState = 0;
-        break;
-      case 1:
-        turnAround90CCW();
-        directionState = 1;
-        break;
-      case 2:
-        turnAround180();
-        directionState = 2;
-        break;
-      case 3:
-        moveStraight();
-        break;
-      default: moveStraight();
-        break;
-      }
-    */
-
-  } else {
-    stopMotors();
-  }
+  gyroStartVal = gyroRightVal + gyroStartVal;
 }
+
 
 void backup() {
-  //Moving straight until it hits a intersection
-  boolean wasInWalls = false;
-  while (seeWallLeft() && seeWallRight()) {
-    moveStraight();
-    wasInWalls = true;
-  }
-  if (wasInWalls) {
-    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
-      moveStraight();
-    }
-  }
-  stopMotors();
+  //  //Moving straight until it hits a intersection
+  //  boolean wasInWalls = false;
+  //  while (seeWallLeft() && seeWallRight()) {
+  //    moveStraight();
+  //    wasInWalls = true;
+  //  }
+  //  if (wasInWalls) {
+  //    //    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
+  //    //      moveStraight();
+  //    //    }
+  //    int starttime = millis();
+  //    int endtime = starttime;
+  //    while ((endtime - starttime) <= 450) // do this loop for up to 1000mS
+  //    {
+  //      moveStraight();
+  //      endtime = millis();
+  //    }
+  //    stopMotors();
+  //  }
+  // stopMotors();
   //delay(500);
   //WHAT HAPPENS AT THE INTERSECTION
-
+  //
   if (!seeWallLeft() && seeWallRight()) {
     //turnAround90CCW();
     adjustTurnLeft();
-    moveStraight();
-    delay(700);
+    //      moveStraight();
+    //      delay(700);
+    int starttime = millis();
+    int endtime = starttime;
+    while ((endtime - starttime) <= 700) // do this loop for up to 1000mS
+    {
+      moveStraight();
+      endtime = millis();
+    }
+    stopMotors();
   }
-  else if (!seeWallRight() && seeWallRight()) {
+  else if (!seeWallRight() && seeWallLeft()) {
     //turnAround90CW();
     adjustTurnRight();
-    moveStraight();
-    delay(700);
+    //      moveStraight();
+    //      delay(700);
+    int starttime = millis();
+    int endtime = starttime;
+    while ((endtime - starttime) <= 700) // do this loop for up to 1000mS
+    {
+      moveStraight();
+      endtime = millis();
+    }
+    stopMotors();
   }
   else if (!seeWallLeft() && !seeWallRight()) {
     randNumber = random(2);
     if (randNumber == 0) {
       //turnAround90CCW();
       adjustTurnLeft();
-      moveStraight();
-      delay(700);
+      //        moveStraight();
+      //        delay(700);
+      int starttime = millis();
+      int endtime = starttime;
+      while ((endtime - starttime) <= 700) // do this loop for up to 1000mS
+      {
+        moveStraight();
+        endtime = millis();
+      }
+      stopMotors();
     }
     else {
       //turnAround90CW();
       adjustTurnRight();
-      moveStraight();
-      delay(700);
+      //        moveStraight();
+      //        delay(700);
+      int starttime = millis();
+      int endtime = starttime;
+      while ((endtime - starttime) <= 700) // do this loop for up to 1000mS
+      {
+        moveStraight();
+        endtime = millis();
+      }
+      stopMotors();
     }
-
-  }
-  else {
-    if (!seeWallRight()) {
-      //turnAround90CW();
-      adjustTurnRight();
+    // }
+  } else {
+    //Moving straight until it hits a intersection
+    boolean wasInWalls = false;
+    while (seeWallLeft() && seeWallRight()) {
       moveStraight();
-      delay(700);
-    } else {
-      //turnAround90CCW();
-      adjustTurnLeft();
-      moveStraight();
-      delay(700);
+      wasInWalls = true;
     }
+    if (wasInWalls) {
+      //    for ( int tStart = millis();  (millis() - tStart) < offset;  ) {
+      //      moveStraight();
+      //    }
+      int starttime = millis();
+      int endtime = starttime;
+      while ((endtime - starttime) <= 450) // do this loop for up to 1000mS
+      {
+        moveStraight();
+        endtime = millis();
+      }
+      stopMotors();
+    }
+    //  stopMotors();
   }
+  //  else {
+  //    if (!seeWallRight()) {
+  //      //turnAround90CW();
+  //      adjustTurnRight();
+  //      //        moveStraight();
+  //      //        delay(700);
+  //            int starttime = millis();
+  //      int endtime = starttime;
+  //      while ((endtime - starttime) <= 700) // do this loop for up to 1000mS
+  //      {
+  //        moveStraight();
+  //        endtime = millis();
+  //      }
+  //    } else {
+  //      //turnAround90CCW();
+  //      adjustTurnLeft();
+  //      //        moveStraight();
+  //      //        delay(700);
+  //      int starttime = millis();
+  //      int endtime = starttime;
+  //      while ((endtime - starttime) <= 700) // do this loop for up to 1000mS
+  //      {
+  //        moveStraight();
+  //        endtime = millis();
+  //      }
+  //    }
+  //  }
 
 }
 
-void getSensorValues(){
+void getSensorValues() {
   seeWallLeft();
   seeWallRight();
   wallCloseFront();
@@ -630,4 +486,5 @@ void loop() {
   backup();
   //PIzeroOperationsTwo();
   //turnAround90CW();
+  //getSensorValues();
 }
