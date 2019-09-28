@@ -1,2 +1,8 @@
+# cached Python bytecode
 __pycache__/
+
+# Visual Studio Code settings
 .vscode/
+
+# cProfile output files
+*.prof
