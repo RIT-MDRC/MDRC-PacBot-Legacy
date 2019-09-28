@@ -7,7 +7,7 @@ from pacBFSHelper import *
 import RPi.GPIO as GPIO
 import collections
 
-ADDRESS = "129.21.63.16"
+ADDRESS = "localhost"
 PORT = os.environ.get("LOCAL_PORT", 11295)
 
 FREQUENCY = 2
