@@ -8,6 +8,8 @@ from pacBFSHelper import *
 # import RPi.GPIO as GPIO
 import collections
 
+from preprocessing.optimized_search import get_dist_and_dir
+
 ADDRESS = "localhost"
 PORT = os.environ.get("LOCAL_PORT", 11295)
 
@@ -106,18 +108,12 @@ class highLevelPacman(rm.ProtoModule):
             print("n")
     
     def find_closest_ghosts(self, grid, pacmanLocation): 
-        ghosts = [self.state.red_ghost, self.state.pink_ghost, self.state.orange_ghost, self.state.blue_ghost]
-        paths = []
-        values = []
-        for ghost in ghosts:
-            if(pacmanLocation == (ghost.x, ghost.y)): 
-                paths.append(([], ghost.state))
-            else:
-                paths.append((breadth_first_search(self.initializedGrid, pacmanLocation, (ghost.x,ghost.y)), ghost.state))
-        for path in paths: 
-            if path[0] != None: 
-                values.append((len(path[0]), path[1]))
-        return values
+        results = []
+        for ghost in [self.state.red_ghost, self.state.pink_ghost, self.state.orange_ghost, self.state.blue_ghost]:
+            res = get_dist_and_dir(pacmanLocation, (ghost.x, ghost.y))
+            if res is not None:
+                results.append((res[0], ghost.state))
+        return results
 
     #can change into BFS
     def find_closest_pellets(self, grid, loc): 

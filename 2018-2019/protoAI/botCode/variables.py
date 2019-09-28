@@ -1,9 +1,9 @@
 # Direction enums
-right = 0
-left = 1
-up = 2
-down = 3
-stop = 4
+right = 3
+left = 4
+up = 1
+down = 2
+stop = 0
 
 # Grid enums
 I = 1
