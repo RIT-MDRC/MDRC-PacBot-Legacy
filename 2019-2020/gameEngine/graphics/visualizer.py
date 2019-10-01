@@ -25,6 +25,8 @@ class Visualizer(rm.ProtoModule):
         # Set up the surface to draw on
         # This should also be used in Visualizer.draw()
         self.surface = pygame.Surface((GRID_SIZE[0]*SQUARE_SIZE, GRID_SIZE[1]*SQUARE_SIZE))
+        self.walls_surface = pygame.Surface((GRID_SIZE[0]*SQUARE_SIZE, GRID_SIZE[1]*SQUARE_SIZE))
+        self.has_drawn_walls = False
         self.split = split
         self.y_height = int(GRID_SIZE[1]*SQUARE_SIZE/2)
         if GRID_SIZE[1] % 2 == 1 and self.split == Split.BOTTOM:
@@ -208,10 +210,10 @@ class Visualizer(rm.ProtoModule):
 
         x = int(col_idx * SQUARE_SIZE)
         y = int(row_idx * SQUARE_SIZE)
-        pygame.draw.rect(self.surface, pygame.Color(*dark_blue_color), pygame.Rect(x,y, SQUARE_SIZE, SQUARE_SIZE))
+        pygame.draw.rect(self.walls_surface, pygame.Color(*dark_blue_color), pygame.Rect(x,y, SQUARE_SIZE, SQUARE_SIZE))
         x += int(SQUARE_SIZE/4)
         y += int(SQUARE_SIZE/4)
-        pygame.draw.rect(self.surface, pygame.Color(*black_color), pygame.Rect(x,y, int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
+        pygame.draw.rect(self.walls_surface, pygame.Color(*black_color), pygame.Rect(x,y, int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
 
         right = False
         left = False
@@ -220,39 +222,39 @@ class Visualizer(rm.ProtoModule):
 
         if (u_idx >= 0 and u_idx < len(self.state.grid) and
             self.state.grid[u_idx] == PacmanState.WALL):
-            pygame.draw.rect(self.surface, pygame.Color(*black_color),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color),
                     pygame.Rect(x,y-int(SQUARE_SIZE/4), int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
             up = True
 
         if (d_idx >= 0 and d_idx < len(self.state.grid) and
             self.state.grid[d_idx] == PacmanState.WALL):
-            pygame.draw.rect(self.surface, pygame.Color(*black_color),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color),
                     pygame.Rect(x,y+int(SQUARE_SIZE/4), int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
             down = True
 
         if (l_idx >= 0 and l_idx < len(self.state.grid) and
             self.state.grid[l_idx] == PacmanState.WALL):
-            pygame.draw.rect(self.surface, pygame.Color(*black_color),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color),
                     pygame.Rect(x-int(SQUARE_SIZE/4),y, int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
             left = True
 
         if (r_idx >= 0 and r_idx < len(self.state.grid) and
             self.state.grid[r_idx] == PacmanState.WALL):
-            pygame.draw.rect(self.surface, pygame.Color(*black_color),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color),
                     pygame.Rect(x+int(SQUARE_SIZE/4),y, int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
             right = True
 
         if left and up:
-            pygame.draw.rect(self.surface, pygame.Color(*black_color), pygame.Rect(x-int(SQUARE_SIZE/4),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color), pygame.Rect(x-int(SQUARE_SIZE/4),
                 y-int(SQUARE_SIZE/4), int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
         if right and up:
-            pygame.draw.rect(self.surface, pygame.Color(*black_color), pygame.Rect(x+int(SQUARE_SIZE/4),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color), pygame.Rect(x+int(SQUARE_SIZE/4),
                 y-int(SQUARE_SIZE/4), int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
         if left and down:
-            pygame.draw.rect(self.surface, pygame.Color(*black_color), pygame.Rect(x-int(SQUARE_SIZE/4),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color), pygame.Rect(x-int(SQUARE_SIZE/4),
                 y+int(SQUARE_SIZE/4), int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
         if right and down:
-            pygame.draw.rect(self.surface, pygame.Color(*black_color), pygame.Rect(x+int(SQUARE_SIZE/4),
+            pygame.draw.rect(self.walls_surface, pygame.Color(*black_color), pygame.Rect(x+int(SQUARE_SIZE/4),
                 y+int(SQUARE_SIZE/4), int(SQUARE_SIZE/2)+1, int(SQUARE_SIZE/2)+1))
 
 
@@ -295,7 +297,7 @@ class Visualizer(rm.ProtoModule):
             # make sense to use proper sprites, with assets.
             # I believe proper use of sprites does increase rendering
             # performance slightly.
-            self._clear_screen()
+            self.surface.blit(self.walls_surface, pygame.Rect(0, 0, GRID_SIZE[0]*SQUARE_SIZE, self.y_height))
             row_idx = 0
             col_idx = 0
             for el in state.grid:
@@ -319,13 +321,14 @@ class Visualizer(rm.ProtoModule):
                     self._print_pellet(col_idx, GRID_SIZE[1] - row_idx - 1)
                 elif el == PacmanState.POWER_PELLET:
                     self._print_power_pellet(col_idx, GRID_SIZE[1] - row_idx - 1)
-                elif el == PacmanState.WALL and self.print_walls:
+                elif not self.has_drawn_walls and el == PacmanState.WALL and self.print_walls:
                     self._print_wall(col_idx, row_idx)
 
                 row_idx += 1
                 if row_idx >= state.grid_columns:
                     row_idx = 0
                     col_idx += 1
+            self.has_drawn_walls = True
 
             self._print_score_lives_time(state.score, state.lives, state.elapsed_time)
             #self._print_corners()
