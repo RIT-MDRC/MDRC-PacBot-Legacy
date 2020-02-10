@@ -33,7 +33,7 @@ class MotorController:
 		self.running = True
 		# Constants, probably gonna rewrite how the bot turns
 		self.outer_ticks = 10
-		self.inner_ticks = -10
+		self.inner_ticks = 0
 		self.max_ticks = 50
 		
 	# Starts the motor controller
@@ -123,7 +123,7 @@ class MotorController:
 		self.thread.start()
 		
 	# Sets the robot's linear speed
-	def set_spd(self, spd)
+	def set_spd(self, spd):
 		self.running = False
 		self.thread.join()
 		self.spd = spd

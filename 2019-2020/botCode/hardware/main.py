@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from motor_controller import MotorController
 
 def main():
 	# Start motor controller

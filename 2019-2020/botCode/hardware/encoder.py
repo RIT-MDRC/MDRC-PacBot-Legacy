@@ -3,6 +3,8 @@
 """ Wrapper for encoders.
 """
 
+import RPi.GPIO as GPIO
+
 class Encoder:
 	
 	# Initializes the encoder

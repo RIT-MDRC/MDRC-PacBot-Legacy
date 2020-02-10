@@ -3,6 +3,8 @@
 """ Wrapper for distance sensors.
 """
 
+import RPi.GPIO as GPIO
+
 class DistSensor:
 
 	# Initializes the distance sensor
