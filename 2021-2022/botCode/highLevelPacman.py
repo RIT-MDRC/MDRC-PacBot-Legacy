@@ -174,6 +174,7 @@ class highLevelPacman(rm.ProtoModule):
             
             # actual code
             self.update_game_state()
+            print(f"time after update game state: {(time.perf_counter() - start_time)*1000:.2f}", )
             bestPath = self.find_best_location(self.previousLocation)
             path = breadth_first_search(self.initializedGrid, self.previousLocation, bestPath) #Found by running an algorithm based on previous location
             if path is not None:
