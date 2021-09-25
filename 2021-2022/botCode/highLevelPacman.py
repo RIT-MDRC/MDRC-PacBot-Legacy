@@ -193,6 +193,7 @@ class highLevelPacman(rm.ProtoModule):
             if not hasattr(self, 'perf_record'):
                 self.perf_record = []
             self.perf_record.append(elapsed_time)
+            print("score:", self.state.score)
             print("bfs cache_info:", breadth_first_search.cache_info())
             print(f"tick took {elapsed_time*1000:.2f} ms")
             print(f"average: {sum(self.perf_record)/len(self.perf_record)*1000:.2f} ms")
