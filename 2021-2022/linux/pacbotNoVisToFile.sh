@@ -1,4 +1,5 @@
 cd ../
+mkdir linux/tests/currenttest/
 python3 gameEngine/server.py > linux/tests/currenttest/GameServer.txt &
 python3 botCode/server.py > linux/tests/currenttest/BotServer.txt &
 sleep 1
