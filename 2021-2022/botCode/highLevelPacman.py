@@ -177,6 +177,7 @@ class highLevelPacman(rm.ProtoModule):
             print(f"time after update game state: {(time.perf_counter() - start_time)*1000:.2f}", )
             bestPath = self.find_best_location(self.previousLocation)
             path = breadth_first_search(self.initializedGrid, self.previousLocation, bestPath) #Found by running an algorithm based on previous location
+            print(f"time after bestPath and BFS: {(time.perf_counter() - start_time)*1000:.2f}", )
             if path is not None:
                 next_location = path[-1]
                 if(next_location != self.previousLocation):
@@ -188,6 +189,7 @@ class highLevelPacman(rm.ProtoModule):
                         self.send_data(next_location)
             elif(bestPath == self.previousLocation): 
                 self.print_direction(self.get_direction(bestPath, self.previousLocation))
+            print(f"time after if stack: {(time.perf_counter() - start_time) * 1000:.2f}", )
             
             # performance tracking
             elapsed_time = time.perf_counter() - start_time
