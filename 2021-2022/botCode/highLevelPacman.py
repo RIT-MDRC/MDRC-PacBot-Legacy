@@ -26,13 +26,14 @@ class highLevelPacman(rm.ProtoModule):
         self.subscriptions = [MsgType.LIGHT_STATE]
         with open("weights.txt") as f:
             lines = f.readlines()
-            values = lines[0]
+            values = lines[0].split()
             FREQUENCY = values[0]
             FEAR = values[1]
             PELLET_WEIGHT = values[2]
             SUPER_PELLET_WEIGHT = values[3]
             GHOST_WEIGHT = values[4]
             FRIGHTENED_GHOST_WEIGHT = values[5]
+            print(FREQUENCY)
 
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
