@@ -1,2 +1,2 @@
 import subprocess
-subprocess.run(["pacbotNoVisToFile.sh"])
+subprocess.run(["pacbot/pacbotNoVisToFile.sh"])
