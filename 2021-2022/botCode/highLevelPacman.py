@@ -16,7 +16,7 @@ PORT = os.environ.get("LOCAL_PORT", 11295)
 FREQUENCY = 8
 FEAR = 10
 PELLET_WEIGHT = 0.65
-SUPER_PELLET_WEIGHT =  0.1        #ADDED weight for super pellets
+SUPER_PELLET_WEIGHT = 0.1        #ADDED weight for super pellets
 GHOST_WEIGHT = 0.35
 FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
 
@@ -24,7 +24,7 @@ class highLevelPacman(rm.ProtoModule):
     def __init__(self, addr, port):
         global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT
         self.subscriptions = [MsgType.LIGHT_STATE]
-        with open("weights.txt") as f:
+        with open("weights.txt", "r") as f:
             lines = f.readlines()
             values = lines[0].split()
             FREQUENCY = values[0]
