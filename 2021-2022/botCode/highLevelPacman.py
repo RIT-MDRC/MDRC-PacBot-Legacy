@@ -16,7 +16,7 @@ PORT = os.environ.get("LOCAL_PORT", 11295)
 FREQUENCY = 2
 FEAR = 10
 PELLET_WEIGHT = 0.65
-SUPER_PELLET_WEIGHT = 0.1            #ADDED weight for super pellets
+SUPER_PELLET_WEIGHT = 1            #ADDED weight for super pellets
 GHOST_WEIGHT = 0.35
 FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
 
