@@ -13,15 +13,28 @@ from preprocessing.optimized_search import get_dist_and_dir
 ADDRESS = "localhost"
 PORT = os.environ.get("LOCAL_PORT", 11295)
 
-FREQUENCY = 2
+FREQUENCY = 8
 FEAR = 10
 PELLET_WEIGHT = 0.65
+SUPER_PELLET_WEIGHT = 0.1        #ADDED weight for super pellets
 GHOST_WEIGHT = 0.35
 FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
 
 class highLevelPacman(rm.ProtoModule): 
     def __init__(self, addr, port):
+        global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT
         self.subscriptions = [MsgType.LIGHT_STATE]
+        with open("botCode/weights.txt", "r") as f:
+            lines = f.readlines()
+            values = lines[0].split()
+            FREQUENCY = float(values[0])
+            FEAR = float(values[1])
+            PELLET_WEIGHT = float(values[2])
+            SUPER_PELLET_WEIGHT = float(values[3])
+            GHOST_WEIGHT = float(values[4])
+            FRIGHTENED_GHOST_WEIGHT = float(values[5])
+            print(FREQUENCY)
+
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
         # GPIO.setmode(GPIO.BOARD)
@@ -116,8 +129,8 @@ class highLevelPacman(rm.ProtoModule):
         return results
 
     #can change into BFS
-    def find_closest_pellets(self, grid, loc): 
-        paths = bfs_find_pellet(self.initializedGrid, grid, loc, o)
+    def find_closest_pellets(self, grid, loc, n):
+        paths = bfs_find_pellet(self.initializedGrid, grid, loc, n)
         if(paths != None):
             return len(paths)
         else: 
@@ -131,12 +144,15 @@ class highLevelPacman(rm.ProtoModule):
             if(self.grid[target[0]][target[1]] in [I, n]):
                 heuristics.append(None)
                 continue
-            pellet_dist = self.find_closest_pellets(self.grid, target)
+            pellet_dist = self.find_closest_pellets(self.grid, target, o)
+            super_pellet_dist = self.find_closest_pellets(self.grid, target, O)
             ghost_dists = self.find_closest_ghosts(self.grid, target)
 
             ghost_heuristic = 0 
             #print("pellet dist: " + str(pellet_dist))
             pellet_heuristic = pellet_dist * PELLET_WEIGHT
+            super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT
+
 
 # self.state.red_ghost.state != LightState.FRIGHTENED or
 #                         self.state.pink_ghost.state != LightState.FRIGHTENED or
@@ -155,7 +171,7 @@ class highLevelPacman(rm.ProtoModule):
 
             #print("ghost heuristic: " + str(ghost_heuristic))
             #print("pellet heuristic: " + str(pellet_heuristic))
-            heuristics.append(ghost_heuristic + pellet_heuristic)
+            heuristics.append(ghost_heuristic + pellet_heuristic + super_pellet_heuristic)
 
         min_heuristic = 99999
         min_target = (0,0)
