@@ -24,7 +24,7 @@ class highLevelPacman(rm.ProtoModule):
     def __init__(self, addr, port):
         global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT
         self.subscriptions = [MsgType.LIGHT_STATE]
-        with open("weights.txt", "r") as f:
+        with open("botCode/weights.txt", "r") as f:
             lines = f.readlines()
             values = lines[0].split()
             FREQUENCY = values[0]
