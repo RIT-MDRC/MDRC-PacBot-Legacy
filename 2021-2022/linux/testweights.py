@@ -17,7 +17,7 @@ with open("test_weights.txt", "r") as f:
 
             time.sleep(5)
 
-            pacbotNoVisToFile.kill()
+            pacbotNoVisToFile.terminate()
 
             # with open("")
             # for processLineBinary in highLevelPacman.communicate():
