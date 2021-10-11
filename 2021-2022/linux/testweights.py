@@ -45,5 +45,6 @@ print(results)
 with open("test_weights_results.txt", "a") as f:
     f.write('\n'+results[0])
 
-
+print('Starting new process... goodbye...')
+subprocess.Popen(['nohup', 'python3', 'testweights.py', str(int(sys.argv[1])+1)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
