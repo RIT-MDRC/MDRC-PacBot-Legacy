@@ -29,7 +29,13 @@ with open("test_weights.txt", "r") as f:
 
             gameEngine = subprocess.Popen(["python3", "../gameEngine/gameEngine.py", "<<", "p.txt"])
 
-            for processLineBinary in highLevelPacman.stdout:
+            print('processes created')
+
+            time.sleep(10)
+
+            print('sleep done')
+
+            for processLineBinary in highLevelPacman.communicate():
                 processLine = processLineBinary.decode('ascii')
                 print(processLine)
                 if processLine == 'Stop\n':
