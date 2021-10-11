@@ -19,14 +19,11 @@ with open("test_weights.txt", "r") as f:
 
             pacbotNoVisToFile.terminate()
 
-            # with open("")
-            # for processLineBinary in highLevelPacman.communicate():
-            #     processLine = processLineBinary.decode('ascii')
-            #     print(processLine)
-            #     if processLine == 'Stop\n':
-            #         highLevelPacman.terminate()
-            #     elif processLine[:7] == 'score: ':
-            #         score = processLine[7:]
+            with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
+                pacmanLines = pacmantxt.readlines()
+                for processLine in pacmanLines:
+                    if processLine[:7] == 'score: ':
+                        score = processLine[7:]
 
             # print('creating subprocesses')
             #
