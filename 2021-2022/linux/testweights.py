@@ -25,12 +25,13 @@ with open("test_weights.txt", "r") as f:
             print('Process initialized.')
 
             time.sleep(5)
-            while 1:
+            foundStop = False
+            while not foundStop:
                 with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
                     pacmantxtlines = pacmantxt.readlines()[1:]
                 for pacmantxtline in pacmantxtlines:
                     if pacmantxtline == 'Stop':
-                        break
+                        foundStop = True
                 print('[' + str(datetime.now().strftime("%H:%M:%S")) + '] Pacman is still going!')
                 time.sleep(10)
 
