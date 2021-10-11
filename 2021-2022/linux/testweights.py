@@ -14,7 +14,7 @@ with open("test_weights.txt", "r") as f:
         weights = line.split(' ')
         if len(weights) == 6:
 
-            print('Weights: ' + ', '.join(weights))
+            print('Weight Set ' + sys.argv[1] + ': ' + ', '.join(weights))
             with open("../botCode/weights.txt", "w") as f:
                 f.write(' '.join(weights))
             score = 0
