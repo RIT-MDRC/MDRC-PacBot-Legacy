@@ -12,15 +12,36 @@ with open("test_weights.txt", "r") as f:
             with open("../botCode/weights.txt", "w") as f:
                 f.write(' '.join(weights))
             score = 0
-            print('creating subprocess')
-            # process = subprocess.Popen("sh pacbotNoVis.sh", shell=True, stdout=subprocess.PIPE)
-            process = subprocess.Popen(["sh", "pacbotNoVis.sh"], stdout=subprocess.PIPE)
+            print('creating subprocesses')
 
-            for processLine in process.stdout:
-                print('PROCESS: ' + processLine)
-                if processLine[:7] == 'score: ':
+            gameEngineServer = subprocess.Popen("python3 ../gameEngine/server.py")
+            botCodeServer = subprocess.Popen("python3 ../botCode/server.py")
+            pacbotCommsModule = subprocess.Popen("python3 ../botCode/pacbotCommsModule.py")
+
+            highLevelPacman = subprocess.Popen("python3 ../botCode/highLevelPacman.py", shell=True, stdout=subprocess.PIPE)
+
+            gameEngine = subprocess.Popen("python3 ../gameEngine/gameEngine.py << p.txt")
+
+            for processLineBinary in highLevelPacman.stdout:
+                processLine = processLineBinary.decode('ascii')
+                print(processLine)
+                if processLine == 'Stop\n':
+                    highLevelPacman.terminate()
+                elif processLine[:7] == 'score: ':
                     score = processLine[7:]
-            print('subprocess created')
+
+
+
+
+
+            # process = subprocess.Popen("sh pacbotNoVis.sh", shell=True, stdout=subprocess.PIPE)
+            # process = subprocess.Popen(["sh", "pacbotNoVis.sh"], stdout=subprocess.PIPE)
+            #
+            # for processLine in process.stdout:
+            #     print('PROCESS: ' + processLine)
+            #     if processLine[:7] == 'score: ':
+            #         score = processLine[7:]
+            # print('subprocess created')
             # try:
             #     outs, errs = process.communicate(timeout=5)
             #     for processLine in outs:
