@@ -37,4 +37,7 @@ with open("test_weights.txt", "r") as f:
 
 print(results)
 
+with open("test_weights_results.txt", "w") as f:
+    f.write('\n'.join(results))
+
 
