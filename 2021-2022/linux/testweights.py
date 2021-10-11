@@ -24,7 +24,7 @@ with open("test_weights.txt", "r") as f:
                         score = processLine[7:]
             except subprocess.TimeoutExpired:
                 process.kill()
-            print('subprocess complete: score: ' + score)
+            print('subprocess complete: score: ' + str(score))
             # for processLineBinary in process.stdout:
             #     processLine = processLineBinary.decode('ascii')
             #     print(processLine)
