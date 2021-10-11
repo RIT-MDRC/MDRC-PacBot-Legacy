@@ -1,11 +1,16 @@
 import subprocess
+import sys
 import time
 
 results = []
 
+print('waiting...')
+time.sleep(5)
+
 with open("test_weights.txt", "r") as f:
     lines = f.readlines()
-    for line in lines:
+    if int(sys.argv[0]) < len(lines):
+        line = lines[int(sys.argv[0])]
         weights = line.split(' ')
         if len(weights) == 6:
 
@@ -37,7 +42,8 @@ with open("test_weights.txt", "r") as f:
 
 print(results)
 
-with open("test_weights_results.txt", "w") as f:
-    f.write('\n'.join(results))
+with open("test_weights_results.txt", "a") as f:
+    f.write('\n'+results[0])
+
 
 
