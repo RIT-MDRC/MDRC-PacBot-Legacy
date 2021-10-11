@@ -27,9 +27,9 @@ with open("test_weights.txt", "r") as f:
             time.sleep(5)
             while 1:
                 with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
-                    lines = pacmantxt.readlines()[1:]
-                for line in lines:
-                    if line == 'Stop':
+                    pacmantxtlines = pacmantxt.readlines()[1:]
+                for pacmantxtline in pacmantxtlines:
+                    if pacmantxtline == 'Stop':
                         break
                 print('[' + str(datetime.now().strftime("%H:%M:%S")) + '] Pacman is still going!')
                 time.sleep(10)
