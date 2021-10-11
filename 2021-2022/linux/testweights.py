@@ -9,8 +9,8 @@ time.sleep(5)
 
 with open("test_weights.txt", "r") as f:
     lines = f.readlines()
-    if int(sys.argv[0]) < len(lines):
-        line = lines[int(sys.argv[0])]
+    if int(sys.argv[1]) < len(lines):
+        line = lines[int(sys.argv[1])]
         weights = line.split(' ')
         if len(weights) == 6:
 
