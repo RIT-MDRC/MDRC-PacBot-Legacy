@@ -17,6 +17,7 @@ with open("test_weights.txt", "r") as f:
             process = subprocess.Popen(["sh", "pacbotNoVis.sh"], stdout=subprocess.PIPE)
 
             for processLine in process.stdout:
+                print('PROCESS: ' + processLine)
                 if processLine[:7] == 'score: ':
                     score = processLine[7:]
             print('subprocess created')
