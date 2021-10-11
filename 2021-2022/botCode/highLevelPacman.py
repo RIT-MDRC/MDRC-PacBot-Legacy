@@ -32,8 +32,8 @@ class highLevelPacman(rm.ProtoModule):
             PELLET_WEIGHT = float(values[2])
             SUPER_PELLET_WEIGHT = float(values[3])
             GHOST_WEIGHT = float(values[4])
-            FRIGHTENED_GHOST_WEIGHT = float(values[5])
-            print(FREQUENCY)
+            FRIGHTENED_GHOST_WEIGHT = float(values[5]) * GHOST_WEIGHT
+
 
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
