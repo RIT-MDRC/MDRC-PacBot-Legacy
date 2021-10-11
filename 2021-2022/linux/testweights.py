@@ -13,11 +13,10 @@ with open("test_weights.txt", "r") as f:
             score = 0
             process = subprocess.Popen("sh pacbotNoVis.sh", shell=True, stdout=subprocess.PIPE)
             for processLineBinary in process.stdout:
-                processLine = str(processLineBinary)
+                processLine = processLineBinary.decode('ascii')
                 print(processLine)
                 if processLine == 'Stop\n':
-                    process.kill()
-                    break
+                    process.terminate()
                 elif processLine[:7] == 'score: ':
                     score = processLine[7:]
             results.append(score)
