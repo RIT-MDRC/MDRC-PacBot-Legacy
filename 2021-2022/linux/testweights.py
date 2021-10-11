@@ -29,7 +29,7 @@ with open("test_weights.txt", "r") as f:
                 with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
                     lines = pacmantxt.readlines()[1:]
                 for line in lines:
-                    if line == 'stop':
+                    if line == 'Stop':
                         break
                 print('[' + str(datetime.now().strftime("%H:%M:%S")) + '] Pacman is still going!')
                 time.sleep(10)
