@@ -14,7 +14,7 @@ with open("test_weights.txt", "r") as f:
             score = 0
             print('creating subprocess')
             # process = subprocess.Popen("sh pacbotNoVis.sh", shell=True, stdout=subprocess.PIPE)
-            process = subprocess.Popen("sh pacbotNoVis.sh", stdout=subprocess.PIPE)
+            process = subprocess.Popen(["sh", "pacbotNoVis.sh"], stdout=subprocess.PIPE)
 
             for processLine in process.stdout:
                 if processLine[:7] == 'score: ':
