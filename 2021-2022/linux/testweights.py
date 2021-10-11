@@ -2,10 +2,10 @@ import subprocess
 import sys
 import time
 
-results = []
+results = 0
 
-print('waiting...')
-time.sleep(5)
+print('waiting for ports to close...')
+time.sleep(10)
 
 with open("test_weights.txt", "r") as f:
     lines = f.readlines()
@@ -28,7 +28,7 @@ with open("test_weights.txt", "r") as f:
             print('Terminating process...')
             pacbotNoVisToFile.terminate()
 
-            time.sleep(10)
+            time.sleep(3)
             print('Process terminated. Retrieving data...')
 
             with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
@@ -38,12 +38,12 @@ with open("test_weights.txt", "r") as f:
                         score = str(int(processLine[7:]))
 
             print('Iteration complete: score: ' + str(score))
-            results.append(score)
+            result = score
 
-print(results)
+print('Score: '+result)
 
 with open("test_weights_results.txt", "a") as f:
-    f.write('\n'+results[0])
+    f.write('\n'+result)
 
 print('Starting new process... goodbye...')
 subprocess.Popen(['nohup', 'lxterminal', '-e', 'python3', 'testweights.py', str(int(sys.argv[1])+1)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
