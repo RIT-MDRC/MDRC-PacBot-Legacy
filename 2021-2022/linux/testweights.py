@@ -16,9 +16,16 @@ with open("test_weights.txt", "r") as f:
 
             gameEngineServer = subprocess.Popen(["python3", "../gameEngine/server.py"])
             botCodeServer = subprocess.Popen(["python3", "../botCode/server.py"])
+
+            time.sleep(1)
+
             pacbotCommsModule = subprocess.Popen(["python3", "../botCode/pacbotCommsModule.py"])
 
+            time.sleep(1)
+
             highLevelPacman = subprocess.Popen(["python3", "../botCode/highLevelPacman.py"], shell=True, stdout=subprocess.PIPE)
+
+            time.sleep(1)
 
             gameEngine = subprocess.Popen(["python3", "../gameEngine/gameEngine.py", "<<", "p.txt"])
 
