@@ -12,36 +12,52 @@ with open("test_weights.txt", "r") as f:
             with open("../botCode/weights.txt", "w") as f:
                 f.write(' '.join(weights))
             score = 0
-            print('creating subprocesses')
 
-            gameEngineServer = subprocess.Popen(["python3", "../gameEngine/server.py"])
-            botCodeServer = subprocess.Popen(["python3", "../botCode/server.py"])
+            pacbotNoVisToFile = subprocess.Popen(["sh", "pacbotNoVisToFile.sh"])
 
-            time.sleep(1)
+            time.sleep(5)
 
-            pacbotCommsModule = subprocess.Popen(["python3", "../botCode/pacbotCommsModule.py"])
+            pacbotNoVisToFile.kill()
 
-            time.sleep(1)
+            # with open("")
+            # for processLineBinary in highLevelPacman.communicate():
+            #     processLine = processLineBinary.decode('ascii')
+            #     print(processLine)
+            #     if processLine == 'Stop\n':
+            #         highLevelPacman.terminate()
+            #     elif processLine[:7] == 'score: ':
+            #         score = processLine[7:]
 
-            highLevelPacman = subprocess.Popen(["python3", "../botCode/highLevelPacman.py"], shell=True, stdout=subprocess.PIPE)
-
-            time.sleep(1)
-
-            gameEngine = subprocess.Popen(["python3", "../gameEngine/gameEngine.py", "<<", "p.txt"])
-
-            print('processes created')
-
-            time.sleep(10)
-
-            print('sleep done')
-
-            for processLineBinary in highLevelPacman.communicate():
-                processLine = processLineBinary.decode('ascii')
-                print(processLine)
-                if processLine == 'Stop\n':
-                    highLevelPacman.terminate()
-                elif processLine[:7] == 'score: ':
-                    score = processLine[7:]
+            # print('creating subprocesses')
+            #
+            # gameEngineServer = subprocess.Popen(["python3", "../gameEngine/server.py"])
+            # botCodeServer = subprocess.Popen(["python3", "../botCode/server.py"])
+            #
+            # time.sleep(1)
+            #
+            # pacbotCommsModule = subprocess.Popen(["python3", "../botCode/pacbotCommsModule.py"])
+            #
+            # time.sleep(1)
+            #
+            # highLevelPacman = subprocess.Popen(["python3", "../botCode/highLevelPacman.py"], shell=True, stdout=subprocess.PIPE)
+            #
+            # time.sleep(1)
+            #
+            # gameEngine = subprocess.Popen(["python3", "../gameEngine/gameEngine.py", "<<", "p.txt"])
+            #
+            # print('processes created')
+            #
+            # time.sleep(10)
+            #
+            # print('sleep done')
+            #
+            # for processLineBinary in highLevelPacman.communicate():
+            #     processLine = processLineBinary.decode('ascii')
+            #     print(processLine)
+            #     if processLine == 'Stop\n':
+            #         highLevelPacman.terminate()
+            #     elif processLine[:7] == 'score: ':
+            #         score = processLine[7:]
 
 
 
