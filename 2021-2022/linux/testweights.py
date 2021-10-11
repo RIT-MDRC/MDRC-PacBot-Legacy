@@ -1,6 +1,7 @@
 import subprocess
 import sys
 import time
+from datetime import datetime
 
 results = 0
 
@@ -24,6 +25,14 @@ with open("test_weights.txt", "r") as f:
             print('Process initialized.')
 
             time.sleep(5)
+            while 1:
+                with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
+                    lines = pacmantxt.readlines()[1:]
+                for line in lines:
+                    if line == 'stop':
+                        break
+                print('[' + str(datetime.now().strftime("%H:%M:%S")) + '] Pacman is still going!')
+                time.sleep(10)
 
             print('Terminating process...')
             pacbotNoVisToFile.terminate()
