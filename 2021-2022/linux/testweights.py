@@ -14,13 +14,13 @@ with open("test_weights.txt", "r") as f:
             score = 0
             print('creating subprocesses')
 
-            gameEngineServer = subprocess.Popen("python3 ../gameEngine/server.py")
-            botCodeServer = subprocess.Popen("python3 ../botCode/server.py")
-            pacbotCommsModule = subprocess.Popen("python3 ../botCode/pacbotCommsModule.py")
+            gameEngineServer = subprocess.Popen(["python3", "../gameEngine/server.py"])
+            botCodeServer = subprocess.Popen(["python3", "../botCode/server.py"])
+            pacbotCommsModule = subprocess.Popen(["python3", "../botCode/pacbotCommsModule.py"])
 
-            highLevelPacman = subprocess.Popen("python3 ../botCode/highLevelPacman.py", shell=True, stdout=subprocess.PIPE)
+            highLevelPacman = subprocess.Popen(["python3", "../botCode/highLevelPacman.py"], shell=True, stdout=subprocess.PIPE)
 
-            gameEngine = subprocess.Popen("python3 ../gameEngine/gameEngine.py << p.txt")
+            gameEngine = subprocess.Popen(["python3", "../gameEngine/gameEngine.py << p.txt"])
 
             for processLineBinary in highLevelPacman.stdout:
                 processLine = processLineBinary.decode('ascii')
