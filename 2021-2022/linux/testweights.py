@@ -25,13 +25,15 @@ with open("test_weights.txt", "r") as f:
             print('Process initialized.')
 
             time.sleep(5)
-            foundStop = False
-            while not foundStop:
+            consecutiveStopCount = 0
+            while consecutiveStopCount < 10: # pacman sometimes stops midgame for a second
                 with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
                     pacmantxtlines = pacmantxt.readlines()[1:]
                 for pacmantxtline in pacmantxtlines:
                     if pacmantxtline == 'Stop\n':
-                        foundStop = True
+                        consecutiveStopCount += 1
+                    else:
+                        consecutiveStopCount = 0
                 print('[' + str(datetime.now().strftime("%H:%M:%S")) + '] Pacman is still going!')
                 time.sleep(10)
 
