@@ -1,4 +1,5 @@
 import subprocess
+import time
 
 results = []
 
@@ -13,7 +14,8 @@ with open("test_weights.txt", "r") as f:
             score = 0
             print('creating subprocess')
             # process = subprocess.Popen("sh pacbotNoVis.sh", shell=True, stdout=subprocess.PIPE)
-            process = subprocess.run(["sh", "pacbotNoVis.sh"], capture_output=True, timeout=20)
+            process = subprocess.Popen("sh pacbotNoVis.sh", stdout=subprocess.PIPE)
+
             for processLine in process.stdout:
                 if processLine[:7] == 'score: ':
                     score = processLine[7:]
@@ -37,6 +39,7 @@ with open("test_weights.txt", "r") as f:
             #     elif processLine[:7] == 'score: ':
             #         score = processLine[7:]
             results.append(score)
+        break  # only do 1 iteration for now
 
 print(results)
 
