@@ -38,7 +38,7 @@ with open("test_weights.txt", "r") as f:
                 time.sleep(10)
 
             print('Terminating process...')
-            pacbotNoVisToFile.terminate()
+            pacbotNoVisToFile.kill()
 
             time.sleep(3)
             print('Process terminated. Retrieving data...')
