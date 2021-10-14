@@ -19,7 +19,7 @@ with open("test_weights.txt", "r") as f:
                     f.write(' '.join(weights))
 
                 processes[str(ports[0])] = subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])])
-                print('Process #' + str(len(processes.keys())) + 'initialized.')
+                print('Process #' + str(len(processes.keys())) + ' initialized.')
 
                 ports[0] += 1
                 ports[1] += 1
@@ -33,7 +33,7 @@ with open("test_weights.txt", "r") as f:
         for process in processes:
             consecutiveStopCount = 0
             while consecutiveStopCount < 10: # pacman sometimes stops midgame for a second
-                with open("tests/currenttest/Pacman.txt", "r") as pacmantxt:
+                with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
                     pacmantxtlines = pacmantxt.readlines()[1:]
                 for pacmantxtline in pacmantxtlines:
                     if pacmantxtline == 'Stop\n':
