@@ -23,7 +23,7 @@ with open("test_weights.txt", "r") as f:
 
                 ports[0] += 1
                 ports[1] += 1
-                time.sleep(3)
+                time.sleep(0.5)
 
     print('All processes initialized.')
     time.sleep(5)
