@@ -11,7 +11,10 @@ import collections
 from preprocessing.optimized_search import get_dist_and_dir
 
 ADDRESS = "localhost"
-PORT = os.environ.get("LOCAL_PORT", 11295)
+if len(sys.argv) == 1:
+    PORT = os.environ.get("BIND_PORT", 11295)
+else:
+    PORT = os.environ.get("BIND_PORT", int(sys.argv[2]))
 
 FREQUENCY = 8
 FEAR = 10

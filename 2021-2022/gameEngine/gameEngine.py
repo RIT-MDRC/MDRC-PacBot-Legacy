@@ -7,7 +7,10 @@ from pacbot.variables import game_frequency, ticks_per_update
 from pacbot import StateConverter, GameState
 
 ADDRESS = "localhost"
-PORT = os.environ.get("BIND_PORT", 11297)
+if len(sys.argv) == 1:
+    PORT = os.environ.get("BIND_PORT", 11297)
+else:
+    PORT = os.environ.get("BIND_PORT", int(sys.argv[3]))
 
 FREQUENCY = game_frequency * ticks_per_update
 
