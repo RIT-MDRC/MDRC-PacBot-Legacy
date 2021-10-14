@@ -10,13 +10,13 @@ SERVER_ADDRESS = os.environ.get("BIND_ADDRESS","localhost")
 if len(sys.argv) == 1:
     PORT = os.environ.get("BIND_PORT", 11297)
 else:
-    PORT = os.environ.get("BIND_PORT", int(sys.argv[3]))
+    PORT = os.environ.get("BIND_PORT", int(sys.argv[2]))
 
 LOCAL_ADDRESS = os.environ.get("LOCAL_ADDRESS","localhost")
 if len(sys.argv) == 1:
     PORT = os.environ.get("BIND_PORT", 11295)
 else:
-    PORT = os.environ.get("BIND_PORT", int(sys.argv[2]))
+    PORT = os.environ.get("BIND_PORT", int(sys.argv[1]))
 
 SERVER_FREQUENCY = 0
 LOCAL_FREQUENCY = 30
