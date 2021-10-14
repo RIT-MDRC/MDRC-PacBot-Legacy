@@ -6,9 +6,6 @@ from datetime import datetime
 results = 0
 ports = [11295, 12295]
 
-print('waiting for ports to close...')
-time.sleep(10)
-
 with open("test_weights.txt", "r") as f:
     lines = f.readlines()
     processes = {}
