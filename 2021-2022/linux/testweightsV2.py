@@ -29,7 +29,7 @@ with open("test_weights.txt", "r") as f:
     time.sleep(5)
 
     completedProcesses = {}
-    while len(processes) > 0:
+    while len(processes) > len(completedProcesses):
         for process in processes:
             if process not in completedProcesses:
                 consecutiveStopCount = 0
