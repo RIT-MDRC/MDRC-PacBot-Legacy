@@ -51,12 +51,13 @@ with open("test_weights.txt", "r") as f:
     while len(processes) > len(completedProcesses):
         for process in processes:
             if process not in completedProcesses:
-                consecutiveStopCount = 0
+                consecutiveStopCount = -1
                 with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
                     pacmantxtlines = pacmantxt.readlines()[1:]
                 for pacmantxtline in pacmantxtlines:
                     if pacmantxtline == 'Stop\n':
-                        consecutiveStopCount += 1
+                        if consecutiveStopCount >= 0:
+                            consecutiveStopCount += 1
                     else:
                         consecutiveStopCount = 0
                 if consecutiveStopCount >= 10:
