@@ -18,8 +18,8 @@ with open("test_weights.txt", "r") as f:
                 with open("../botCode/weights.txt", "w") as f:
                     f.write(' '.join(weights))
 
-                processes[str(ports[0])] = subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])])
-                print('Process #' + str(len(processes.keys())) + ' initialized.')
+                processes[str(ports[0])] = subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])], stdout=subprocess.DEVNULL)
+                print('Process ' + str(len(processes.keys())) + '/' + str(len(lines)) + ' initialized.')
 
                 ports[0] += 1
                 ports[1] += 1
