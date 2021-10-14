@@ -43,8 +43,9 @@ with open("test_weights.txt", "r") as f:
 
                 time.sleep(0.5)
 
-    print('All processes initialized.')
-    time.sleep(5)
+    print('All processes initialized. Waiting for files to be created.')
+    time.sleep(15)
+    print('Assuming files are created. Waiting for results.')
 
     completedProcesses = {}
     while len(processes) > len(completedProcesses):
