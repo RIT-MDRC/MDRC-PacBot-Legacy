@@ -21,7 +21,7 @@ with open("test_weights.txt", "r") as f:
             score = 0
 
             print('Initializing process...')
-            pacbotNoVisToFile = subprocess.Popen(["nohup", "sh", "pacbotNoVisToFile.sh"])
+            pacbotNoVisToFile = subprocess.Popen(["sh", "pacbotNoVisToFile.sh"])
             print('Process initialized.')
 
             time.sleep(5)
@@ -38,7 +38,7 @@ with open("test_weights.txt", "r") as f:
                 time.sleep(10)
 
             print('Terminating process...')
-            pacbotNoVisToFile.kill()
+            pacbotNoVisToFile.terminate()
 
             time.sleep(3)
             print('Process terminated. Retrieving data...')
