@@ -32,14 +32,13 @@ with open("test_weights.txt", "r") as f:
     while len(processes) > 0:
         for process in processes:
             consecutiveStopCount = 0
-            while consecutiveStopCount < 10: # pacman sometimes stops midgame for a second
-                with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
-                    pacmantxtlines = pacmantxt.readlines()[1:]
-                for pacmantxtline in pacmantxtlines:
-                    if pacmantxtline == 'Stop\n':
-                        consecutiveStopCount += 1
-                    else:
-                        consecutiveStopCount = 0
+            with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
+                pacmantxtlines = pacmantxt.readlines()[1:]
+            for pacmantxtline in pacmantxtlines:
+                if pacmantxtline == 'Stop\n':
+                    consecutiveStopCount += 1
+                else:
+                    consecutiveStopCount = 0
             if consecutiveStopCount >= 10:
                 processes[process].terminate()
                 completedProcesses[process] = processes.pop(process)
