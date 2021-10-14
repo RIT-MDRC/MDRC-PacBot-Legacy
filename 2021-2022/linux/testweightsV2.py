@@ -31,18 +31,19 @@ with open("test_weights.txt", "r") as f:
     completedProcesses = {}
     while len(processes) > 0:
         for process in processes:
-            consecutiveStopCount = 0
-            with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
-                pacmantxtlines = pacmantxt.readlines()[1:]
-            for pacmantxtline in pacmantxtlines:
-                if pacmantxtline == 'Stop\n':
-                    consecutiveStopCount += 1
-                else:
-                    consecutiveStopCount = 0
-            if consecutiveStopCount >= 10:
-                processes[process].terminate()
-                completedProcesses[process] = processes.pop(process)
-        print(str(len(completedProcesses)*100/(len(completedProcesses)+len(processes)))+"% complete")
+            if process not in completedProcesses:
+                consecutiveStopCount = 0
+                with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
+                    pacmantxtlines = pacmantxt.readlines()[1:]
+                for pacmantxtline in pacmantxtlines:
+                    if pacmantxtline == 'Stop\n':
+                        consecutiveStopCount += 1
+                    else:
+                        consecutiveStopCount = 0
+                if consecutiveStopCount >= 10:
+                    processes[process].terminate()
+                    completedProcesses[process] = processes[process]
+        print(str(len(completedProcesses)*100/len(processes))+"% complete")
         time.sleep(10)
 
     print('Collecting scores...')
