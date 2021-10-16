@@ -5,3 +5,4 @@ sleep 1
 python3 botCode/pacbotCommsModule.py &
 python3 botCode/highLevelPacman.py &
 python3 gameEngine/gameEngine.py << linux/p.txt
+
