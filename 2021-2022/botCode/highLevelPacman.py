@@ -15,7 +15,7 @@ if len(sys.argv) == 1:
     PORT = os.environ.get("BIND_PORT", 11295)
 else:
     PORT = os.environ.get("BIND_PORT", int(sys.argv[1]))
-
+ 
 FREQUENCY = 8
 FEAR = 10
 PELLET_WEIGHT = 0.65
