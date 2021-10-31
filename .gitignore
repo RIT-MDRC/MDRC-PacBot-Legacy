@@ -9,3 +9,5 @@ __pycache__/
 
 # macOS folder attributes stuff
 .DS_Store
+
+/2021-2022/botCode/weights.txt
