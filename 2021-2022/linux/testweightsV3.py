@@ -57,16 +57,19 @@ def main():
     ports = [11295, 15295]
 
     while 1:
-        values = getRange('Dashboard!A2:A2')
+        # values = getRange('Dashboard!A2:A2')
+        values = [['run']]
         if values[0][0].lower() == 'stop':
             print('The dashboard has indicated that I should stop. Goodbye!')
             break
         elif values[0][0].lower() == 'run':
-            values = getRange('Dashboard!A4:A4')
+            # values = getRange('Dashboard!A4:A4')
+            values = [[1]]
             if len(processes.keys()) >= int(values[0][0]):
                 print('Maximum number of processes (' + str(values[0][0]) + ') already running.')
             else:
-                values = getRange('Dashboard!B:B')
+                # values = getRange('Dashboard!B:B')
+                values = [['2 10 0.65 0.5 0.35 0.3']]
                 if not values:
                     print('No data found.')
                 else:
