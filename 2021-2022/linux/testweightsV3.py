@@ -54,10 +54,15 @@ def main():
     # result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results", valueInputOption="USER_ENTERED", body=({'majorDimension': 'ROWS', 'values': [[1,2,3,4,5,6]+[2]]})).execute()
 
     def getRange(myRange):
-        # Call the Sheets API
-        sheet = service.spreadsheets()
-        result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=myRange).execute()
-        return result.get('values', [])
+        while 1:
+            try:
+                # Call the Sheets API
+                sheet = service.spreadsheets()
+                result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=myRange).execute()
+                return result.get('values', [])
+            except:
+                print('Failed to get range ' + myRange + '. This is likely a Google error, possibly related to rate limiting. Sleeping for 10 seconds and trying again.')
+                time.sleep(10)
 
     processes = {}
     results = 0
@@ -88,32 +93,52 @@ def main():
                     weights = values[rowNum][0].split(' ')
                     if len(weights) == 6:
                         print('Testing weight set: ' + ', '.join(weights))
-    
-                        with open("../botCode/weights.txt", "w") as f:
-                            f.write(' '.join(weights))
-    
-                        processes[str(ports[0])] = [weights, subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])], stdout=subprocess.DEVNULL)]
+
+                        while 1:
+                            try:
+                                with open("../botCode/weights.txt", "w") as f:
+                                    f.write(' '.join(weights))
+                                break
+                            except:
+                                print('Error opening bot/weights.txt file. Sleeping for 5 seconds then trying again.')
+                                time.sleep(5)
+
+                        while 1:
+                            try:
+                                processes[str(ports[0])] = [weights, subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])], stdout=subprocess.DEVNULL)]
+                                break
+                            except:
+                                print('Error opening process. Sleeping for 5 seconds then trying again.')
+                                time.sleep(5)
                         print('Process initializing...')
     
                         ports[0] += 1
                         ports[1] += 1
-    
-                        # find new ports for next time around
-                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                        result = sock.connect_ex(('127.0.0.1', ports[0]))
-                        result1 = sock.connect_ex(('127.0.0.1', ports[1]))
-                        if result != 0 or result1 != 0:
-                            sock.close()
-                            sock1.close()
-                            ports[0] += 1
-                            ports[1] += 1
-                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                            sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                            result = sock.connect_ex(('127.0.0.1', ports[0]))
-                            result1 = sock2.connect_ex(('127.0.0.1', ports[1]))
-                        sock.close()
-                        sock1.close()
+
+                        while 1:
+                            try:
+                                # find new ports for next time around
+                                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                result = sock.connect_ex(('127.0.0.1', ports[0]))
+                                result1 = sock.connect_ex(('127.0.0.1', ports[1]))
+                                if result != 0 or result1 != 0:
+                                    sock.close()
+                                    sock1.close()
+                                    ports[0] += 1
+                                    ports[1] += 1
+                                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                    sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                    result = sock.connect_ex(('127.0.0.1', ports[0]))
+                                    result1 = sock2.connect_ex(('127.0.0.1', ports[1]))
+                                sock.close()
+                                sock1.close()
+                                break
+                            except:
+                                print('Socket port connecting failed. Incrementing ports and trying again in 5 seconds.')
+                                ports[0] += 1
+                                ports[1] += 1
+                                time.sleep(5)
                     else:
                         print('Invalid weight set: ' + str(weights[0]))
         elif values[0][0].lower() == 'pause':
@@ -138,21 +163,34 @@ def main():
                     processes[process][1].terminate()
                     completedProcesses[process] = processes[process]
             except:
+                # game hasn't started yet
                 pass
         for process in completedProcesses:
-            score = 0
-            with open("tests/currenttest_" + process + "/Pacman.txt", "r") as pacmantxt:
-                pacmanLines = pacmantxt.readlines()
-                for processLine in pacmanLines:
-                    if processLine[:7] == 'score: ':
-                        score = str(int(processLine[7:]))
+            while 1:
+                try:
+                    score = 0
+                    with open("tests/currenttest_" + process + "/Pacman.txt", "r") as pacmantxt:
+                        pacmanLines = pacmantxt.readlines()
+                        for processLine in pacmanLines:
+                            if processLine[:7] == 'score: ':
+                                score = str(int(processLine[7:]))
+                    break
+                except:
+                    print('Error reading ' + "tests/currenttest_" + process + "/Pacman.txt" + "; trying again in 5 seconds")
+                    time.sleep(5)
 
             # submit score to google sheets
-            sheet = service.spreadsheets()
-            result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results",
-                                           valueInputOption="USER_ENTERED", body=(
-                {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
-            processes.pop(process)
+            while 1:
+                try:
+                    sheet = service.spreadsheets()
+                    result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results",
+                                                   valueInputOption="USER_ENTERED", body=(
+                        {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
+                    processes.pop(process)
+                    break
+                except:
+                    print('Error submitting results, trying again in 10 seconds.')
+                    time.sleep(10)
 
         time.sleep(1)
 
