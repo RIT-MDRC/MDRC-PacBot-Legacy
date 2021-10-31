@@ -18,6 +18,13 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = '1QDQBckl58-aCvUn4bPmHVkHH8CDi7GZy8oOo-0AxJU4'
 
+spreadsheetInfo = {
+    'last_cached': 0.0,
+    'status': 'run',
+    'max_processes': 1,
+    'weight_sets': [[''], []]
+}
+
 def main():
     """Shows basic usage of the Sheets API.
     Prints values from a sample spreadsheet.
@@ -57,19 +64,23 @@ def main():
     ports = [11295, 15295]
 
     while 1:
-        # values = getRange('Dashboard!A2:A2')
-        values = [['run']]
+
+        if time.time() > spreadsheetInfo['last_cached'] + 30:
+            spreadsheetInfo['last_cached'] = time.time()
+            spreadsheetInfo['status'] = getRange('Dashboard!A2:A2')
+            spreadsheetInfo['max_processes'] = getRange('Dashboard!A4:A4')
+            spreadsheetInfo['weight_sets'] = getRange('Dashboard!B:B')
+
+        values = spreadsheetInfo['status']
         if values[0][0].lower() == 'stop':
             print('The dashboard has indicated that I should stop. Goodbye!')
             break
         elif values[0][0].lower() == 'run':
-            # values = getRange('Dashboard!A4:A4')
-            values = [[1]]
+            values = spreadsheetInfo['max_processes']
             if len(processes.keys()) >= int(values[0][0]):
                 print('Maximum number of processes (' + str(values[0][0]) + ') already running.')
             else:
-                # values = getRange('Dashboard!B:B')
-                values = [[''], ['2 10 0.65 0.5 0.35 0.3']]
+                values = spreadsheetInfo['weight_sets']
                 if not values:
                     print('No data found.')
                 else:
