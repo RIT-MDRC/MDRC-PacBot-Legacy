@@ -80,7 +80,7 @@ def main():
     
                         processes[str(ports[0])] = [weights, subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])], stdout=subprocess.DEVNULL)]
                         print('Process initializing...')
-                        time.sleep(5)
+                        time.sleep(10)
     
                         ports[0] += 1
                         ports[1] += 1
