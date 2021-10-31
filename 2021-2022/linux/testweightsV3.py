@@ -111,34 +111,34 @@ def main():
         completedProcesses = []
         for process in processes:
             consecutiveStopCount = -1
-            with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
-                pacmantxtlines = pacmantxt.readlines()[1:]
-            for pacmantxtline in pacmantxtlines:
-                if pacmantxtline == 'Stop\n':
-                    if consecutiveStopCount >= 0:
-                        consecutiveStopCount += 1
-                else:
-                    consecutiveStopCount = 0
-            if consecutiveStopCount >= 10:
-                processes[process][1].terminate()
-                completedProcesses.append(process)
-        for process in completedProcesses:
             try:
-                score = 0
-                with open("tests/currenttest_" + process + "/Pacman.txt", "r") as pacmantxt:
-                    pacmanLines = pacmantxt.readlines()
-                    for processLine in pacmanLines:
-                        if processLine[:7] == 'score: ':
-                            score = str(int(processLine[7:]))
-
-                # submit score to google sheets
-                sheet = service.spreadsheets()
-                result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results",
-                                               valueInputOption="USER_ENTERED", body=(
-                    {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
-                processes.pop(process)
+                with open("tests/currenttest_"+process+"/Pacman.txt", "r") as pacmantxt:
+                    pacmantxtlines = pacmantxt.readlines()[1:]
+                for pacmantxtline in pacmantxtlines:
+                    if pacmantxtline == 'Stop\n':
+                        if consecutiveStopCount >= 0:
+                            consecutiveStopCount += 1
+                    else:
+                        consecutiveStopCount = 0
+                if consecutiveStopCount >= 10:
+                    processes[process][1].terminate()
+                    completedProcesses.append(process)
             except:
                 pass
+        for process in completedProcesses:
+            score = 0
+            with open("tests/currenttest_" + process + "/Pacman.txt", "r") as pacmantxt:
+                pacmanLines = pacmantxt.readlines()
+                for processLine in pacmanLines:
+                    if processLine[:7] == 'score: ':
+                        score = str(int(processLine[7:]))
+
+            # submit score to google sheets
+            sheet = service.spreadsheets()
+            result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results",
+                                           valueInputOption="USER_ENTERED", body=(
+                {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
+            processes.pop(process)
 
 if __name__ == '__main__':
     main()
