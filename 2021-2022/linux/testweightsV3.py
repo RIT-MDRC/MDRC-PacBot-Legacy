@@ -111,7 +111,7 @@ def main():
             print('Invalid instruction "' + str(values[0][0]) + '" should be either "run" or "stop"')
 
         # check for results
-        completedProcesses = []
+        completedProcesses = {}
         for process in processes:
             consecutiveStopCount = -1
             try:
@@ -125,7 +125,7 @@ def main():
                         consecutiveStopCount = 0
                 if consecutiveStopCount >= 10:
                     processes[process][1].terminate()
-                    completedProcesses.append(process)
+                    completedProcesses[process] = processes[process]
             except:
                 pass
         for process in completedProcesses:
