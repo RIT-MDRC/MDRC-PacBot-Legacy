@@ -69,13 +69,15 @@ def main():
     ports = [11295, 15295]
 
     while 1:
-        print('processes length: ' + str(len(processes.keys())))
+        print('1) processes length: ' + str(len(processes.keys())))
 
         if time.time() > spreadsheetInfo['last_cached'] + 30:
             spreadsheetInfo['last_cached'] = time.time()
             spreadsheetInfo['status'] = getRange('Dashboard!A2:A2')
             spreadsheetInfo['max_processes'] = getRange('Dashboard!A4:A4')
             spreadsheetInfo['weight_sets'] = getRange('Dashboard!B:B')
+
+        print('2) data acquired')
 
         values = spreadsheetInfo['status']
         if values[0][0].lower() == 'stop':
@@ -84,8 +86,9 @@ def main():
         elif values[0][0].lower() == 'run':
             values = spreadsheetInfo['max_processes']
             if len(processes.keys()) >= int(values[0][0]):
-                print('Maximum number of processes (' + str(values[0][0]) + ') already running.')
+                print('3) Maximum number of processes (' + str(values[0][0]) + ') already running.')
             else:
+                print('3) Starting new weight set...')
                 values = spreadsheetInfo['weight_sets']
                 if not values:
                     print('No data found.')
@@ -93,7 +96,7 @@ def main():
                     rowNum = math.floor(random.random()*(len(values)-1)) + 1
                     weights = values[rowNum][0].split(' ')
                     if len(weights) == 6:
-                        print('Testing weight set: ' + ', '.join(weights))
+                        print('5) Testing weight set: ' + ', '.join(weights))
 
                         while 1:
                             try:
@@ -111,7 +114,7 @@ def main():
                             except:
                                 print('Error opening process. Sleeping for 5 seconds then trying again.')
                                 time.sleep(5)
-                        print('Process initializing...')
+                        print('6) Process initializing... locating new sockets')
     
                         ports[0] += 1
                         ports[1] += 1
@@ -140,6 +143,8 @@ def main():
                                 ports[0] += 1
                                 ports[1] += 1
                                 time.sleep(5)
+
+                        print('7) new ports found and saved')
                     else:
                         print('Invalid weight set: ' + str(weights[0]))
         elif values[0][0].lower() == 'pause':
@@ -147,6 +152,7 @@ def main():
         else:
             print('Invalid instruction "' + str(values[0][0]) + '" should be either "run" or "stop"')
 
+        print('8) checking for results...')
         # check for results
         completedProcesses = {}
         for process in processes:
@@ -166,6 +172,7 @@ def main():
             except:
                 # game hasn't started yet
                 pass
+        print('9) terminating completed processes...')
         for process in completedProcesses:
             while 1:
                 try:
@@ -193,6 +200,7 @@ def main():
                     print('Error submitting results, trying again in 10 seconds.')
                     time.sleep(10)
 
+        print('10) done')
         time.sleep(1)
 
 if __name__ == '__main__':
