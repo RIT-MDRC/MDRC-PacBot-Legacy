@@ -69,7 +69,7 @@ def main():
                 print('Maximum number of processes (' + str(values[0][0]) + ') already running.')
             else:
                 # values = getRange('Dashboard!B:B')
-                values = [['', '2 10 0.65 0.5 0.35 0.3']]
+                values = [[''], ['2 10 0.65 0.5 0.35 0.3']]
                 if not values:
                     print('No data found.')
                 else:
