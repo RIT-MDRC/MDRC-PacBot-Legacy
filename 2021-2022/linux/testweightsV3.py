@@ -69,6 +69,7 @@ def main():
     ports = [11295, 15295]
 
     while 1:
+        print('processes length: ' + str(len(processes)))
 
         if time.time() > spreadsheetInfo['last_cached'] + 30:
             spreadsheetInfo['last_cached'] = time.time()
