@@ -82,14 +82,12 @@ def main():
 
         print('2) data acquired')
 
-        values = spreadsheetInfo['status']
-        if values[0][0].lower() == 'stop':
+        if spreadsheetInfo['status'] == 'stop':
             print('The dashboard has indicated that I should stop. Goodbye!')
             break
-        elif values[0][0].lower() == 'run':
-            values = spreadsheetInfo['max_processes']
-            if len(processes.keys()) >= int(values[0][0]):
-                print('3) Maximum number of processes (' + str(values[0][0]) + ') already running.')
+        elif spreadsheetInfo['status'] == 'run':
+            if len(processes.keys()) >= int(spreadsheetInfo['max_processes']):
+                print('3) Maximum number of processes (' + str(spreadsheetInfo['max_processes']) + ') already running.')
             else:
                 print('3) Starting new weight set...')
                 values = spreadsheetInfo['weight_sets']
@@ -97,7 +95,7 @@ def main():
                     print('No data found.')
                 else:
                     rowNum = math.floor(random.random()*(len(values)-1)) + 1
-                    weights = values[rowNum][0].split(' ')
+                    weights = values[rowNum].split(' ')
                     if len(weights) == 6:
                         print('5) Testing weight set: ' + ', '.join(weights))
 
@@ -150,10 +148,10 @@ def main():
                         print('7) new ports found and saved')
                     else:
                         print('Invalid weight set: ' + str(weights[0]))
-        elif values[0][0].lower() == 'pause':
+        elif spreadsheetInfo['status'] == 'pause':
             print('Paused...')
         else:
-            print('Invalid instruction "' + str(values[0][0]) + '" should be either "run" or "stop"')
+            print('Invalid instruction "' + str(spreadsheetInfo['status']) + '" should be either "run" or "stop"')
 
         print('8) checking for results...')
         # check for results
