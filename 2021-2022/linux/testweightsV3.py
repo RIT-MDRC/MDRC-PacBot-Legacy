@@ -80,7 +80,6 @@ def main():
     
                         processes[str(ports[0])] = [weights, subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])], stdout=subprocess.DEVNULL)]
                         print('Process initializing...')
-                        time.sleep(10)
     
                         ports[0] += 1
                         ports[1] += 1
@@ -124,19 +123,22 @@ def main():
                 processes[process][1].terminate()
                 completedProcesses.append(process)
         for process in completedProcesses:
-            score = 0
-            with open("tests/currenttest_" + process + "/Pacman.txt", "r") as pacmantxt:
-                pacmanLines = pacmantxt.readlines()
-                for processLine in pacmanLines:
-                    if processLine[:7] == 'score: ':
-                        score = str(int(processLine[7:]))
+            try:
+                score = 0
+                with open("tests/currenttest_" + process + "/Pacman.txt", "r") as pacmantxt:
+                    pacmanLines = pacmantxt.readlines()
+                    for processLine in pacmanLines:
+                        if processLine[:7] == 'score: ':
+                            score = str(int(processLine[7:]))
 
-            # submit score to google sheets
-            sheet = service.spreadsheets()
-            result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results",
-                                           valueInputOption="USER_ENTERED", body=(
-                {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
-            processes.pop(process)
+                # submit score to google sheets
+                sheet = service.spreadsheets()
+                result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results",
+                                               valueInputOption="USER_ENTERED", body=(
+                    {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
+                processes.pop(process)
+            except:
+                pass
 
 if __name__ == '__main__':
     main()
