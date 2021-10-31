@@ -48,7 +48,7 @@ def main():
             token.write(creds.to_json())
 
     service = build('sheets', 'v4', credentials=creds)
-
+    sheet = service.spreadsheets()
     # appending to sheet test
     # sheet = service.spreadsheets()
     # result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results", valueInputOption="USER_ENTERED", body=({'majorDimension': 'ROWS', 'values': [[1,2,3,4,5,6]+[2]]})).execute()
@@ -57,7 +57,6 @@ def main():
         while 1:
             try:
                 # Call the Sheets API
-                sheet = service.spreadsheets()
                 result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=myRange).execute()
                 return result.get('values', [])
             except:
@@ -73,9 +72,13 @@ def main():
 
         if time.time() > spreadsheetInfo['last_cached'] + 30:
             spreadsheetInfo['last_cached'] = time.time()
-            spreadsheetInfo['status'] = getRange('Dashboard!A2:A2')
-            spreadsheetInfo['max_processes'] = getRange('Dashboard!A4:A4')
-            spreadsheetInfo['weight_sets'] = getRange('Dashboard!B:B')
+            values = getRange('Dashboard!A:B')
+            # spreadsheetInfo['status'] = getRange('Dashboard!A2:A2')
+            # spreadsheetInfo['max_processes'] = getRange('Dashboard!A4:A4')
+            # spreadsheetInfo['weight_sets'] = getRange('Dashboard!B:B')
+            spreadsheetInfo['status'] = values[1][0]
+            spreadsheetInfo['max_processes'] = values[3][0]
+            spreadsheetInfo['weight_sets'] = [v[1] for v in values if len(values) >= 2]
 
         print('2) data acquired')
 
