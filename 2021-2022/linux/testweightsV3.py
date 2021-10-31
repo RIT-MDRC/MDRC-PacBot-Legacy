@@ -143,5 +143,7 @@ def main():
                 {'majorDimension': 'ROWS', 'values': [completedProcesses[process][0] + [score]]})).execute()
             processes.pop(process)
 
+        time.sleep(1)
+
 if __name__ == '__main__':
     main()
