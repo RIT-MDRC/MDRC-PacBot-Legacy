@@ -42,8 +42,9 @@ def main():
 
     service = build('sheets', 'v4', credentials=creds)
 
-    sheet = service.spreadsheets()
-    result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results", valueInputOption="USER_ENTERED", body=({'majorDimension': 'ROWS', 'values': [[1,2,3,4,5,6]+[2]]})).execute()
+    # appending to sheet test
+    # sheet = service.spreadsheets()
+    # result = sheet.values().append(spreadsheetId=SPREADSHEET_ID, range="Results", valueInputOption="USER_ENTERED", body=({'majorDimension': 'ROWS', 'values': [[1,2,3,4,5,6]+[2]]})).execute()
 
     def getRange(myRange):
         # Call the Sheets API
