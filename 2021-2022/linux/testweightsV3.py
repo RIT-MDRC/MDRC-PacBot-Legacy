@@ -51,7 +51,7 @@ class TestWeights:
         if self.max_processes == 0:
             sys.exit(1)
         else:
-            sys.exit(0)
+            subprocess.Popen(['nohup', 'lxterminal', '-e', 'python3', 'testweightsV3.py'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def initGoogle(self):
         credentials = None
