@@ -73,7 +73,7 @@ class TestWeights:
     def getFromGoogle(self):
         self.last_cached = time.time()
         values = self.getRange('Dashboard!A:B')
-        self.max_processes = min(values[3][0], values[5][0])
+        self.max_processes = min(int(values[3][0]), int(values[5][0]))
         self.weight_sets = [v[1] for v in values[1:] if len(values) >= 2]
 
     def getRange(self, my_range):
