@@ -130,13 +130,14 @@ def main():
                                                                  str(ports[0]),
                                                                  str(ports[1]), "<<", "../linux/p.txt"]))
                                 break
-                            except:
+                            except Exception as e:
                                 for i in range(1, len(processes[str(ports[0])]) - 1):
                                     try:
                                         processes[str(ports[0])][i].kill()
                                     except:
                                         pass
                                 print('Error opening process. Sleeping for 5 seconds then trying again.')
+                                print(e)
                                 time.sleep(5)
                         print('6) Process initializing... locating new sockets')
     
