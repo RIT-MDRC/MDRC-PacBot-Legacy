@@ -175,6 +175,8 @@ class TestWeights:
 
 
 def main():
+    print('Waiting for ports to close...')
+    time.sleep(10)
     x = TestWeights()
 
 
