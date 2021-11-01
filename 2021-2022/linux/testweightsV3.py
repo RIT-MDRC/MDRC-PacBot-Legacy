@@ -120,7 +120,7 @@ def main():
                                         sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                                         result = sock.connect_ex(('127.0.0.1', ports[0]))
                                         result1 = sock.connect_ex(('127.0.0.1', ports[1]))
-                                        if result != 0 or result1 != 0:
+                                        while result != 0 or result1 != 0:
                                             sock.close()
                                             sock1.close()
                                             ports[0] += 1
