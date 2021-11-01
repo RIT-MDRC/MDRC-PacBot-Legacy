@@ -121,6 +121,8 @@ def main():
                                         result = sock.connect_ex(('127.0.0.1', ports[0]))
                                         result1 = sock.connect_ex(('127.0.0.1', ports[1]))
                                         while result != 0 or result1 != 0:
+                                            print(result)
+                                            print(result1)
                                             sock.close()
                                             sock1.close()
                                             ports[0] += 1
