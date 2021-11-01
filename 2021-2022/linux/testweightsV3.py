@@ -110,6 +110,7 @@ def main():
 
                         while 1:
                             try:
+                                subprocess.Popen(["ls"], stdout=subprocess.DEVNULL)
                                 processes[str(ports[0])] = [weights,
                                                             subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(ports[0])], stdout=subprocess.DEVNULL),
                                                             subprocess.Popen(["python3", "-u", "gameEngine/server.py", str(ports[0]), str(ports[1])])
