@@ -110,9 +110,32 @@ def main():
 
                         while 1:
                             try:
-                                processes[str(ports[0])] = [weights, subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh", str(ports[0]), str(ports[1])], stdout=subprocess.DEVNULL)]
+                                processes[str(ports[0])] = [weights,
+                                                            subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(ports[0])], stdout=subprocess.DEVNULL),
+                                                            subprocess.Popen(["python3", "-u", "gameEngine/server.py", str(ports[0]), str(ports[1])])
+                                ]
+                                time.sleep(5)
+                                processes[str(ports[0])].append(subprocess.Popen(
+                                                                ["python3", "-u", "botCode/server.py", str(ports[0]),
+                                                                 str(ports[1])]))
+                                processes[str(ports[0])].append(subprocess.Popen(
+                                                                ["python3", "-u", "botCode/pacbotCommsModule.py", str(ports[0]),
+                                                                 str(ports[1])]))
+                                processes[str(ports[0])].append(subprocess.Popen(
+                                                                ["python3", "-u", "botCode/highLevelPacman.py",
+                                                                 str(ports[0]),
+                                                                 str(ports[1]), ">", "linux/tests/currenttest_$1/Pacman.txt"]))
+                                processes[str(ports[0])].append(subprocess.Popen(
+                                                                ["python3", "-u", "gameEngine/gameEngine.py",
+                                                                 str(ports[0]),
+                                                                 str(ports[1]), "<<", "linux/p.txt"]))
                                 break
                             except:
+                                for i in range(1, len(processes[str(ports[0])]) - 1):
+                                    try:
+                                        processes[str(ports[0])][i].kill()
+                                    except:
+                                        pass
                                 print('Error opening process. Sleeping for 5 seconds then trying again.')
                                 time.sleep(5)
                         print('6) Process initializing... locating new sockets')
@@ -168,7 +191,8 @@ def main():
                     else:
                         consecutiveStopCount = 0
                 if consecutiveStopCount >= 10:
-                    processes[process][1].kill()
+                    for i in range(1, len(processes[process]) - 1):
+                        processes[process][i].kill()
                     completedProcesses[process] = processes[process]
             except:
                 # game hasn't started yet
