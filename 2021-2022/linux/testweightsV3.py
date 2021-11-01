@@ -110,6 +110,37 @@ def main():
 
                         while 1:
                             try:
+                                ports[0] += 1
+                                ports[1] += 1
+
+                                while 1:
+                                    try:
+                                        # find new ports for next time around
+                                        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                        result = sock.connect_ex(('127.0.0.1', ports[0]))
+                                        result1 = sock.connect_ex(('127.0.0.1', ports[1]))
+                                        if result != 0 or result1 != 0:
+                                            sock.close()
+                                            sock1.close()
+                                            ports[0] += 1
+                                            ports[1] += 1
+                                            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                            sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                                            result = sock.connect_ex(('127.0.0.1', ports[0]))
+                                            result1 = sock2.connect_ex(('127.0.0.1', ports[1]))
+                                        sock.close()
+                                        sock1.close()
+                                        break
+                                    except:
+                                        print(
+                                            'Socket port connecting failed. Incrementing ports and trying again in 5 seconds.')
+                                        ports[0] += 1
+                                        ports[1] += 1
+                                        time.sleep(5)
+
+                                print('6) new ports found and saved')
+
                                 processes[str(ports[0])] = [weights,
                                                             subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(ports[0])], stdout=subprocess.DEVNULL),
                                                             subprocess.Popen(["python3", "-u", "../gameEngine/server.py", str(ports[0]), str(ports[1])])
@@ -139,37 +170,9 @@ def main():
                                 print('Error opening process. Sleeping for 5 seconds then trying again.')
                                 print(e)
                                 time.sleep(5)
-                        print('6) Process initializing... locating new sockets')
+                        print('7) Process initializing... locating new sockets')
     
-                        ports[0] += 1
-                        ports[1] += 1
 
-                        while 1:
-                            try:
-                                # find new ports for next time around
-                                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                                sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                                result = sock.connect_ex(('127.0.0.1', ports[0]))
-                                result1 = sock.connect_ex(('127.0.0.1', ports[1]))
-                                if result != 0 or result1 != 0:
-                                    sock.close()
-                                    sock1.close()
-                                    ports[0] += 1
-                                    ports[1] += 1
-                                    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                                    sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                                    result = sock.connect_ex(('127.0.0.1', ports[0]))
-                                    result1 = sock2.connect_ex(('127.0.0.1', ports[1]))
-                                sock.close()
-                                sock1.close()
-                                break
-                            except:
-                                print('Socket port connecting failed. Incrementing ports and trying again in 5 seconds.')
-                                ports[0] += 1
-                                ports[1] += 1
-                                time.sleep(5)
-
-                        print('7) new ports found and saved')
                     else:
                         print('Invalid weight set: ' + str(weights[0]))
         elif spreadsheetInfo['status'] == 'pause':
