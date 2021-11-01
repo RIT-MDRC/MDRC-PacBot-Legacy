@@ -99,28 +99,30 @@ class TestWeights:
         self.ports[0] += 1
         self.ports[1] += 1
         # print('6) new ports found and saved')
-        self.processes[str(self.ports[0])] = [weights,
-                                              subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(self.ports[0])],
-                                                               stdout=subprocess.DEVNULL),
-                                              subprocess.Popen(
-                                                  ["python3", "-u", "../gameEngine/server.py", str(self.ports[0]),
-                                                   str(self.ports[1])])
-                                              ]
-        time.sleep(10)
-        self.processes[str(self.ports[0])].append(subprocess.Popen(
-            ["python3", "-u", "../botCode/server.py", str(self.ports[0]),
-             str(self.ports[1])], stdout=subprocess.DEVNULL))
-        self.processes[str(self.ports[0])].append(subprocess.Popen(
-            ["python3", "-u", "../botCode/pacbotCommsModule.py", str(self.ports[0]),
-             str(self.ports[1])], stdout=subprocess.DEVNULL))
-        self.processes[str(self.ports[0])].append(subprocess.Popen(
-            ["python3", "-u", "botCode/highLevelPacman.py",
-             str(self.ports[0]),
-             str(self.ports[1]), ">", "linux/tests/currenttest_$1/Pacman.txt"], cwd="../", stdout=subprocess.DEVNULL))
-        self.processes[str(self.ports[0])].append(subprocess.Popen(
-            ["python3", "-u", "../gameEngine/gameEngine.py",
-             str(self.ports[0]),
-             str(self.ports[1]), "<<", "../linux/p.txt"], stdout=subprocess.DEVNULL))
+        self.processes[str(self.ports[0])] = [weights, subprocess.Popen(["sh", "pacbotNoVisToFileV2.sh",
+                                                                         str(self.ports[0]), str(self.ports[1])], stdout=subprocess.DEVNULL)]
+        # self.processes[str(self.ports[0])] = [weights,
+        #                                       subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(self.ports[0])],
+        #                                                        stdout=subprocess.DEVNULL),
+        #                                       subprocess.Popen(
+        #                                           ["python3", "-u", "../gameEngine/server.py", str(self.ports[0]),
+        #                                            str(self.ports[1])])
+        #                                       ]
+        # time.sleep(10)
+        # self.processes[str(self.ports[0])].append(subprocess.Popen(
+        #     ["python3", "-u", "../botCode/server.py", str(self.ports[0]),
+        #      str(self.ports[1])], stdout=subprocess.DEVNULL))
+        # self.processes[str(self.ports[0])].append(subprocess.Popen(
+        #     ["python3", "-u", "../botCode/pacbotCommsModule.py", str(self.ports[0]),
+        #      str(self.ports[1])], stdout=subprocess.DEVNULL))
+        # self.processes[str(self.ports[0])].append(subprocess.Popen(
+        #     ["python3", "-u", "botCode/highLevelPacman.py",
+        #      str(self.ports[0]),
+        #      str(self.ports[1]), ">", "linux/tests/currenttest_$1/Pacman.txt"], cwd="../", stdout=subprocess.DEVNULL))
+        # self.processes[str(self.ports[0])].append(subprocess.Popen(
+        #     ["python3", "-u", "../gameEngine/gameEngine.py",
+        #      str(self.ports[0]),
+        #      str(self.ports[1]), "<<", "../linux/p.txt"], stdout=subprocess.DEVNULL))
 
     def finishProcesses(self):
         completedProcesses = {}
@@ -144,7 +146,6 @@ class TestWeights:
                 # game hasn't started yet
                 print('Not found: ' + "tests/currenttest_" + process + "/Pacman.txt")
                 pass
-        print('9) submitting scores...')
         for process in completedProcesses:
             while 1:
                 try:
