@@ -34,10 +34,15 @@ class TestWeights:
         self.processes = {}
         self.ports = [11295, 15295]
 
+        print('Initializing processes...')
+
         while len(self.processes) < self.max_processes:
+            print('Process ' + str(len(self.processes)) + ' of ' + str(self.max_processes))
             self.initProcess(self.weight_sets[random.randint(0, len(self.weight_sets))])
 
+        print('Checking for results...')
         while len(self.processes) > 0:
+            print('...')
             self.finishProcesses()
             # if time.time() > self.last_cached + 30:
             #     self.getFromGoogle()
