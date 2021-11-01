@@ -38,7 +38,7 @@ class TestWeights:
 
         while len(self.processes) < self.max_processes:
             print('Process ' + str(len(self.processes)) + ' of ' + str(self.max_processes))
-            self.initProcess(self.weight_sets[random.randint(0, len(self.weight_sets))])
+            self.initProcess(self.weight_sets[random.randint(0, len(self.weight_sets) - 1)])
 
         print('Checking for results...')
         while len(self.processes) > 0:
