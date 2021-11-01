@@ -110,26 +110,25 @@ def main():
 
                         while 1:
                             try:
-                                subprocess.Popen(["ls"], stdout=subprocess.DEVNULL)
                                 processes[str(ports[0])] = [weights,
                                                             subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(ports[0])], stdout=subprocess.DEVNULL),
-                                                            subprocess.Popen(["python3", "-u", "gameEngine/server.py", str(ports[0]), str(ports[1])])
+                                                            subprocess.Popen(["python3", "-u", "../gameEngine/server.py", str(ports[0]), str(ports[1])])
                                 ]
                                 time.sleep(5)
                                 processes[str(ports[0])].append(subprocess.Popen(
-                                                                ["python3", "-u", "botCode/server.py", str(ports[0]),
+                                                                ["python3", "-u", "../botCode/server.py", str(ports[0]),
                                                                  str(ports[1])]))
                                 processes[str(ports[0])].append(subprocess.Popen(
-                                                                ["python3", "-u", "botCode/pacbotCommsModule.py", str(ports[0]),
+                                                                ["python3", "-u", "../botCode/pacbotCommsModule.py", str(ports[0]),
                                                                  str(ports[1])]))
                                 processes[str(ports[0])].append(subprocess.Popen(
-                                                                ["python3", "-u", "botCode/highLevelPacman.py",
+                                                                ["python3", "-u", "../botCode/highLevelPacman.py",
                                                                  str(ports[0]),
-                                                                 str(ports[1]), ">", "linux/tests/currenttest_$1/Pacman.txt"]))
+                                                                 str(ports[1]), ">", "../linux/tests/currenttest_$1/Pacman.txt"]))
                                 processes[str(ports[0])].append(subprocess.Popen(
-                                                                ["python3", "-u", "gameEngine/gameEngine.py",
+                                                                ["python3", "-u", "../gameEngine/gameEngine.py",
                                                                  str(ports[0]),
-                                                                 str(ports[1]), "<<", "linux/p.txt"]))
+                                                                 str(ports[1]), "<<", "../linux/p.txt"]))
                                 break
                             except:
                                 for i in range(1, len(processes[str(ports[0])]) - 1):
