@@ -122,9 +122,9 @@ def main():
                                                                 ["python3", "-u", "../botCode/pacbotCommsModule.py", str(ports[0]),
                                                                  str(ports[1])]))
                                 processes[str(ports[0])].append(subprocess.Popen(
-                                                                ["python3", "-u", "../botCode/highLevelPacman.py",
+                                                                ["(cd", "../;", "python3", "-u", "../botCode/highLevelPacman.py",
                                                                  str(ports[0]),
-                                                                 str(ports[1]), ">", "../linux/tests/currenttest_$1/Pacman.txt"]))
+                                                                 str(ports[1]), ">", "../linux/tests/currenttest_$1/Pacman.txt)"]))
                                 processes[str(ports[0])].append(subprocess.Popen(
                                                                 ["python3", "-u", "../gameEngine/gameEngine.py",
                                                                  str(ports[0]),
