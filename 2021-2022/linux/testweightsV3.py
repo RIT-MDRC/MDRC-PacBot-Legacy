@@ -203,6 +203,7 @@ def main():
                 if consecutiveStopCount >= 10:
                     for i in range(1, len(processes[process]) - 1):
                         processes[process][i].kill()
+                        processes[process][i].wait()
                     completedProcesses[process] = processes[process]
             except:
                 # game hasn't started yet
