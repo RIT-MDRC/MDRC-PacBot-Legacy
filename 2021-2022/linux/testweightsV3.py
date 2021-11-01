@@ -148,7 +148,7 @@ def main():
                                                             subprocess.Popen(["sh", "pacbotNoVisToFileV3.sh", str(ports[0])], stdout=subprocess.DEVNULL),
                                                             subprocess.Popen(["python3", "-u", "../gameEngine/server.py", str(ports[0]), str(ports[1])])
                                 ]
-                                time.sleep(5)
+                                time.sleep(10)
                                 processes[str(ports[0])].append(subprocess.Popen(
                                                                 ["python3", "-u", "../botCode/server.py", str(ports[0]),
                                                                  str(ports[1])], stdout=subprocess.DEVNULL))
