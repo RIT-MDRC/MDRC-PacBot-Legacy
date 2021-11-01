@@ -132,9 +132,10 @@ def main():
                                         sock.close()
                                         sock1.close()
                                         break
-                                    except:
+                                    except Exception as e:
                                         print(
                                             'Socket port connecting failed. Incrementing ports and trying again in 5 seconds.')
+                                        print(e)
                                         ports[0] += 1
                                         ports[1] += 1
                                         time.sleep(5)
