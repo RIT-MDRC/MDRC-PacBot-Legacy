@@ -60,7 +60,7 @@ def main():
                 result = sheet.values().get(spreadsheetId=SPREADSHEET_ID, range=myRange).execute()
                 return result.get('values', [])
             except:
-                print('Failed to get range ' + myRange + '. This is likely a Google error, possibly related to rate limiting. Sleeping for 10 seconds and trying again.')
+                print('Failed to get range ' + myRange + '. This is likely a Google error, possibly related to rate limiting. There might also be a problem with your internet connection. Sleeping for 10 seconds and trying again.')
                 time.sleep(10)
 
     processes = {}
@@ -153,7 +153,7 @@ def main():
         else:
             print('Invalid instruction "' + str(spreadsheetInfo['status']) + '" should be either "run" or "stop"')
 
-        print('8) checking for results...')
+        print('8) checking for results and terminating completed processes...')
         # check for results
         completedProcesses = {}
         for process in processes:
@@ -168,12 +168,12 @@ def main():
                     else:
                         consecutiveStopCount = 0
                 if consecutiveStopCount >= 10:
-                    processes[process][1].terminate()
+                    processes[process][1].kill()
                     completedProcesses[process] = processes[process]
             except:
                 # game hasn't started yet
                 pass
-        print('9) terminating completed processes...')
+        print('9) submitting scores...')
         for process in completedProcesses:
             while 1:
                 try:
