@@ -118,8 +118,8 @@ def main():
                                         # find new ports for next time around
                                         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                                         sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                                        result = sock.connect_ex(('127.0.0.1', ports[0]))
-                                        result1 = sock.connect_ex(('127.0.0.1', ports[1]))
+                                        result = sock.connect_ex(('localhost', ports[0]))
+                                        result1 = sock.connect_ex(('localhost', ports[1]))
                                         while result != 0 or result1 != 0:
                                             print("socket error code: " + str(result))
                                             print("socket error code (111=port taken): " + str(result1))
@@ -129,8 +129,8 @@ def main():
                                             ports[1] += 1
                                             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                                             sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                                            result = sock.connect_ex(('127.0.0.1', ports[0]))
-                                            result1 = sock2.connect_ex(('127.0.0.1', ports[1]))
+                                            result = sock.connect_ex(('localhost', ports[0]))
+                                            result1 = sock2.connect_ex(('localhost', ports[1]))
                                         sock.close()
                                         sock1.close()
                                         break
