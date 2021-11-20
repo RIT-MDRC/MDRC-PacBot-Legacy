@@ -154,7 +154,7 @@ class highLevelPacman(rm.ProtoModule):
             ghost_heuristic = 0 
             #print("pellet dist: " + str(pellet_dist))
             pellet_heuristic = pellet_dist * PELLET_WEIGHT
-            super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT
+            #super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT //commented out to allow super-pellet weight to calculate based on ghosts
 
 
 # self.state.red_ghost.state != LightState.FRIGHTENED or
@@ -169,6 +169,10 @@ class highLevelPacman(rm.ProtoModule):
                 if value[0] < FEAR: 
                     if(value[1] != LightState.FRIGHTENED):
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * GHOST_WEIGHT
+                        if(super_pellet_dist < FEAR):
+                            super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT
+                        else:
+                            super_pellet_heuristic = super_pellet_dist * .1
                     else: 
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * -1 * FRIGHTENED_GHOST_WEIGHT
 
