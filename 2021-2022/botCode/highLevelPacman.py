@@ -17,7 +17,7 @@ else:
     PORT = os.environ.get("BIND_PORT", int(sys.argv[1]))
  
 FREQUENCY = 8
-FEAR = 10
+FEAR = 8
 PELLET_WEIGHT = 0.65
 SUPER_PELLET_WEIGHT = 0.1        #ADDED weight for super pellets
 GHOST_WEIGHT = 0.35
