@@ -165,7 +165,7 @@ class highLevelPacman(rm.ProtoModule):
             for i in ghost_dists: 
                 the_ghosts.append(i[0])
 
-            super_pellet_heuristic = super_pellet_dist * .1
+            super_pellet_heuristic = super_pellet_dist //* .1
             for value in ghost_dists: 
                 if value[0] < FEAR: 
                     if(value[1] != LightState.FRIGHTENED):
