@@ -170,7 +170,7 @@ class highLevelPacman(rm.ProtoModule):
                 if value[0] < FEAR: 
                     if(value[1] != LightState.FRIGHTENED):
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * GHOST_WEIGHT
-                        if(super_pellet_dist < FEAR):
+                        #if(super_pellet_dist < FEAR):
                             #super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT
                     else: 
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * -1 * FRIGHTENED_GHOST_WEIGHT
