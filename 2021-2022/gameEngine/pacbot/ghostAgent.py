@@ -84,7 +84,7 @@ class GhostAgent:
         return self._get_move_based_on_target(self.game_state.pacbot.pos)
 
     def _get_next_orange_chase_move(self):
-        if self._get_euclidian_distance(self.pos["current"], self.game_state.pacbot.pos) > 8:
+        if self._get_euclidian_distance(self.pos["current"], self.game_state.pacbot.pos) < 8:
             return self._get_next_scatter_move()
         return self._get_move_based_on_target(self.game_state.pacbot.pos)
 
