@@ -17,7 +17,7 @@ else:
     PORT = os.environ.get("BIND_PORT", int(sys.argv[1]))
  
 FREQUENCY = 8
-FEAR = 8
+FEAR = 10
 PELLET_WEIGHT = 0.65
 SUPER_PELLET_WEIGHT = 0.1        #ADDED weight for super pellets
 GHOST_WEIGHT = 0.35
@@ -154,7 +154,7 @@ class highLevelPacman(rm.ProtoModule):
             ghost_heuristic = 0 
             #print("pellet dist: " + str(pellet_dist))
             pellet_heuristic = pellet_dist * PELLET_WEIGHT
-            #super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT //commented out to allow super-pellet weight to calculate based on ghosts
+            super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT
 
 
 # self.state.red_ghost.state != LightState.FRIGHTENED or
@@ -165,13 +165,10 @@ class highLevelPacman(rm.ProtoModule):
             for i in ghost_dists: 
                 the_ghosts.append(i[0])
 
-            super_pellet_heuristic = super_pellet_dist * 0
             for value in ghost_dists: 
                 if value[0] < FEAR: 
                     if(value[1] != LightState.FRIGHTENED):
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * GHOST_WEIGHT
-                        #if(super_pellet_dist < FEAR):
-                            #super_pellet_heuristic = super_pellet_dist * SUPER_PELLET_WEIGHT
                     else: 
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * -1 * FRIGHTENED_GHOST_WEIGHT
 
