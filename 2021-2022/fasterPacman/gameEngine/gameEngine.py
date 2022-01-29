@@ -29,7 +29,7 @@ class GameEngine:
         self.loop.call_soon(self.tick)
 
         self.game = GameState()
-        self.highLevelPacman = HighLevelPacman(addr=None, port=None, game=self.game)
+        self.highLevelPacman = HighLevelPacman(addr=None, port=None, game=self)
         self.visualize = Visualize()
 
         self.game.unpause()
@@ -55,8 +55,9 @@ class GameEngine:
             # update_pacbot_pos
             # This will become asynchronous
             self.game.next_step()
-            self.highLevelPacman.msg_received(None, None)
-            self.visualize.visualizer.msg_received(self.game.state, MsgType.FULL_STATE)
+            self.highLevelPacman.msg_received(StateConverter.convert_game_state_to_light(self.game), MsgType.LIGHT_STATE)
+            print('gameEngineTickMesg')
+            self.visualize.visualizer.msg_received(StateConverter.convert_game_state_to_full(self.game), MsgType.FULL_STATE)
         # self._write_state()
 
     def run(self):

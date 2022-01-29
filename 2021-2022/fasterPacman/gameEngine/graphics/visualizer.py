@@ -275,6 +275,7 @@ class Visualizer(rm.ProtoModule):
         
         if self.state:
             state = self.state
+            # exit()
             if self.state.update_ticks < self.last_tick:
                 self._update_dirs()
             ## DRAW STUFF HERE

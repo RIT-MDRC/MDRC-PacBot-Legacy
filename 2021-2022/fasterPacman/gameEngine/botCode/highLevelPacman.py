@@ -190,9 +190,12 @@ class HighLevelPacman(rm.ProtoModule):
 
     #Main FUNCTIONALITY
     def tick(self):
+        print('highlevelpacman tick')
+        # self.loop.call_later(1.0 / FREQUENCY, self.tick)
         if self.state and self.state.mode == LightState.RUNNING:
             print("\nbegin tick")
             start_time = time.perf_counter()
+
             
             # actual code
             self.update_game_state()
@@ -234,12 +237,12 @@ class HighLevelPacman(rm.ProtoModule):
     
     #Gets LIGHT_STATE from local server(Local Server is updated from game Engine)
     def msg_received(self, msg, msg_type):
-        print('received msg')
+        print('received msg pacbot')
         if msg_type == MsgType.LIGHT_STATE:
-            if self.game is not None:
-                pass
-            else:
-                self.state = msg
+            # if self.game is not None:
+            #     pass
+            # else:
+            self.state = msg
             #Get data from lightstate 
             self.previousLocation = (self.state.pacman.x, self.state.pacman.y)
 
