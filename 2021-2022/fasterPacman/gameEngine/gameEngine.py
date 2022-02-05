@@ -4,6 +4,10 @@ import os, sys, logging
 # import robomodules as rm
 import time
 
+import pygame
+
+USING_VISUALIZER = False
+NO_PRINT = True
 
 from messages import *
 from pacbot.variables import game_frequency, ticks_per_update
@@ -12,15 +16,25 @@ from botCode.highLevelPacman import HighLevelPacman
 from visualize import Visualize
 
 ADDRESS = "localhost"
-if len(sys.argv) == 1:
-    PORT = os.environ.get("BIND_PORT", 11297)
-else:
-    PORT = os.environ.get("BIND_PORT", int(sys.argv[2]))
+PORT = os.environ.get("BIND_PORT", 11297)
 
-FREQUENCY = game_frequency * ticks_per_update
+FREQUENCY_MULTIPLIER = 1
+FREQUENCY = game_frequency * ticks_per_update * FREQUENCY_MULTIPLIER
+
+WEIGHT_SET = {
+    'FEAR': 10,
+    'PELLET_WEIGHT': .65,
+    'SUPER_PELLET_WEIGHT': .1,
+    'GHOST_WEIGHT': .35,
+    'FRIGHTENED_GHOST_WEIGHT': .105
+}
 
 class GameEngine:
-    def __init__(self, addr, port):
+    def __init__(self, addr, port, weight_set):
+        global WEIGHT_SET, USING_VISUALIZER
+        WEIGHT_SET = weight_set
+        self.final_state = None
+        self.latestPacbotInfo = None
         self.subscriptions = [MsgType.PACMAN_LOCATION]
         # super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         # self.loop.add_reader(sys.stdin, self.keypress)
@@ -29,8 +43,9 @@ class GameEngine:
         self.loop.call_soon(self.tick)
 
         self.game = GameState()
-        self.highLevelPacman = HighLevelPacman(addr=None, port=None, game=self)
-        self.visualize = Visualize()
+        self.highLevelPacman = HighLevelPacman(addr=None, port=None, game=self, returnInfo=NO_PRINT, frequency_multiplier=FREQUENCY_MULTIPLIER, fear=WEIGHT_SET['FEAR'], pellet_weight=WEIGHT_SET['PELLET_WEIGHT'], super_pellet_weight=WEIGHT_SET['SUPER_PELLET_WEIGHT'], ghost_weight=WEIGHT_SET['GHOST_WEIGHT'], frightened_ghost_weight=WEIGHT_SET['FRIGHTENED_GHOST_WEIGHT'])
+        if USING_VISUALIZER:
+            self.visualize = Visualize()
 
         self.game.unpause()
 
@@ -46,7 +61,7 @@ class GameEngine:
             self.game.pacbot.update((msg.x, msg.y))
 
     def tick(self):
-        print('GameEngine.tick()')
+        # print('GameEngine.tick()')
         # schedule the next tick in the event loop
         self.loop.call_later(1.0 / FREQUENCY, self.tick)
 
@@ -56,8 +71,9 @@ class GameEngine:
             # This will become asynchronous
             self.game.next_step()
             self.highLevelPacman.msg_received(StateConverter.convert_game_state_to_light(self.game), MsgType.LIGHT_STATE)
-            print('gameEngineTickMesg')
-            self.visualize.visualizer.msg_received(StateConverter.convert_game_state_to_full(self.game), MsgType.FULL_STATE)
+            # print('gameEngineTickMesg')
+            if USING_VISUALIZER:
+                self.visualize.visualizer.msg_received(StateConverter.convert_game_state_to_full(self.game), MsgType.FULL_STATE)
         # self._write_state()
 
     def run(self):
@@ -85,17 +101,35 @@ class GameEngine:
             logging.info("Quitting...")
             self.quit() 
 
+    def receivePacbotInfo(self, pacbotInfo):
+        # print('received info')
+        # print(pacbotInfo)
+        if not self.game.play:
+            # print('I think we should stop the thing')
+            self.highLevelPacman.quit()
+            if USING_VISUALIZER:
+                print('quitting pygame')
+                pygame.quit()
+                # self.visualize.visualizer.quit()
+            self.loop.stop()
+            self.final_state = {'score':self.game.score}
+
 def main():
+    global USING_VISUALIZER, NO_PRINT
     # logger automatically adds timestamps
     # I wanted it to print each sequentially but it did not want to
+    USING_VISUALIZER = '--vis' in sys.argv
+    NO_PRINT = '--print' not in sys.argv
+
     logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s',
                         datefmt="%I:%M:%S %p")
     engine = GameEngine(ADDRESS, PORT)
-    print('Game is paused.')
-    print('Controls:')
-    print('    r - restart')
-    print('    p - (un)pause')
-    print('    q - quit')
+    if not NO_PRINT:
+        print('Game is paused.')
+        print('Controls:')
+        print('    r - restart')
+        print('    p - (un)pause')
+        print('    q - quit')
 
     engine.run()
 

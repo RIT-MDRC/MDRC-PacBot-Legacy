@@ -10,12 +10,9 @@ import collections
 from .preprocessing.optimized_search import get_dist_and_dir
 
 ADDRESS = "localhost"
-if len(sys.argv) == 1:
-    PORT = os.environ.get("BIND_PORT", 11295)
-else:
-    PORT = os.environ.get("BIND_PORT", int(sys.argv[1]))
+PORT = os.environ.get("BIND_PORT", 11295)
  
-FREQUENCY = 8
+FREQUENCY = 2
 FEAR = 10
 PELLET_WEIGHT = 0.65
 SUPER_PELLET_WEIGHT = 0.1        #ADDED weight for super pellets
@@ -23,19 +20,27 @@ GHOST_WEIGHT = 0.35
 FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
 
 class HighLevelPacman(rm.ProtoModule):
-    def __init__(self, addr, port, game=None):
-        self.game = game
+    def __init__(self, addr, port, game=None, returnInfo=False, frequency_multiplier=1,
+                 fear=10, pellet_weight=0.65,super_pellet_weight=.1,ghost_weight=.35,frightened_ghost_weight=.105):
         global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT
+        FREQUENCY *= frequency_multiplier
+        self.game = game
+        self.returnInfo = returnInfo
         self.subscriptions = [MsgType.LIGHT_STATE]
-        with open("botCode/weights.txt", "r") as f:
-            lines = f.readlines()
-            values = lines[0].split()
-            FREQUENCY = float(values[0])
-            FEAR = float(values[1])
-            PELLET_WEIGHT = float(values[2])
-            SUPER_PELLET_WEIGHT = float(values[3])
-            GHOST_WEIGHT = float(values[4])
-            FRIGHTENED_GHOST_WEIGHT = float(values[5]) * GHOST_WEIGHT
+        FEAR = fear
+        PELLET_WEIGHT = pellet_weight
+        SUPER_PELLET_WEIGHT = super_pellet_weight
+        GHOST_WEIGHT = ghost_weight
+        FRIGHTENED_GHOST_WEIGHT = frightened_ghost_weight
+        # with open("botCode/weights.txt", "r") as f:
+        #     lines = f.readlines()
+        #     values = lines[0].split()
+        #     FREQUENCY = float(values[0])
+        #     FEAR = float(values[1])
+        #     PELLET_WEIGHT = float(values[2])
+        #     SUPER_PELLET_WEIGHT = float(values[3])
+        #     GHOST_WEIGHT = float(values[4])
+        #     FRIGHTENED_GHOST_WEIGHT = float(values[5]) * GHOST_WEIGHT
 
 
         super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
@@ -79,35 +84,40 @@ class HighLevelPacman(rm.ProtoModule):
     
     def print_direction(self, value):
         if(value == 0): 
-            print("Moving Right")
+            if not self.returnInfo:
+                print("Moving Right")
             # GPIO.output(37, GPIO.LOW)
             # GPIO.output(35, GPIO.HIGH)
             # GPIO.output(33, GPIO.HIGH)
             # GPIO.output(31, GPIO.HIGH)
             # GPIO.output(29, GPIO.HIGH)
-        elif(value == 1): 
-            print("Moving Left")
+        elif(value == 1):
+            if not self.returnInfo:
+                print("Moving Left")
             # GPIO.output(37, GPIO.HIGH)
             # GPIO.output(35, GPIO.LOW)
             # GPIO.output(33, GPIO.HIGH)
             # GPIO.output(31, GPIO.HIGH)
             # GPIO.output(29, GPIO.HIGH)
-        elif(value == 2): 
-            print("Moving Up")
+        elif(value == 2):
+            if not self.returnInfo:
+                print("Moving Up")
             # GPIO.output(37, GPIO.HIGH)
             # GPIO.output(35, GPIO.HIGH)
             # GPIO.output(33, GPIO.LOW)
             # GPIO.output(31, GPIO.HIGH)
             # GPIO.output(29, GPIO.HIGH)
-        elif(value == 3): 
-            print("Moving Down")
+        elif(value == 3):
+            if not self.returnInfo:
+                print("Moving Down")
             # GPIO.output(37, GPIO.HIGH)
             # GPIO.output(35, GPIO.HIGH)
             # GPIO.output(33, GPIO.HIGH)
             # GPIO.output(31, GPIO.LOW)
             # GPIO.output(29, GPIO.HIGH)
-        elif(value == 4): 
-            print("Stop")
+        elif(value == 4):
+            if not self.returnInfo:
+                print("Stop")
             # GPIO.output(37, GPIO.HIGH)
             # GPIO.output(35, GPIO.HIGH)
             # GPIO.output(33, GPIO.HIGH)
@@ -190,19 +200,28 @@ class HighLevelPacman(rm.ProtoModule):
 
     #Main FUNCTIONALITY
     def tick(self):
-        print('highlevelpacman tick')
+        returnInfo = self.returnInfo
         # self.loop.call_later(1.0 / FREQUENCY, self.tick)
         if self.state and self.state.mode == LightState.RUNNING:
-            print("\nbegin tick")
+            returnState = {}
+            if not returnInfo:
+                print("\nbegin tick")
             start_time = time.perf_counter()
 
             
             # actual code
             self.update_game_state()
-            print(f"time after update game state: {(time.perf_counter() - start_time)*1000:.2f}", )
+
+            if not returnInfo:
+                print(f"time after update game state: {(time.perf_counter() - start_time)*1000:.2f}", )
+            else:
+                returnState['t1'] = (time.perf_counter() - start_time)*1000
             bestPath = self.find_best_location(self.previousLocation)
             path = breadth_first_search(self.initializedGrid, self.previousLocation, bestPath) #Found by running an algorithm based on previous location
-            print(f"time after bestPath and BFS: {(time.perf_counter() - start_time)*1000:.2f}", )
+            if not returnInfo:
+                print(f"time after bestPath and BFS: {(time.perf_counter() - start_time)*1000:.2f}", )
+            else:
+                returnState['t2'] = (time.perf_counter() - start_time)*1000
             if path is not None:
                 next_location = path[-1]
                 if(next_location != self.previousLocation):
@@ -211,22 +230,36 @@ class HighLevelPacman(rm.ProtoModule):
                     else:
                         #GET DIRECTION
                         self.print_direction(self.get_direction(next_location, self.previousLocation))
+                        returnState['direction'] = self.get_direction(next_location, self.previousLocation)
                         self.send_data(next_location)
             elif(bestPath == self.previousLocation): 
                 self.print_direction(self.get_direction(bestPath, self.previousLocation))
-            print(f"time after if stack: {(time.perf_counter() - start_time) * 1000:.2f}", )
+            if not returnInfo:
+                print(f"time after if stack: {(time.perf_counter() - start_time) * 1000:.2f}", )
+            else:
+                returnState['t3'] = (time.perf_counter() - start_time) * 1000
             
             # performance tracking
             elapsed_time = time.perf_counter() - start_time
             if not hasattr(self, 'perf_record'):
                 self.perf_record = []
             self.perf_record.append(elapsed_time)
-            print("score:", self.state.score)
-            print("bfs cache_info:", breadth_first_search.cache_info())
-            print(f"tick took {elapsed_time*1000:.2f} ms")
-            print(f"average: {sum(self.perf_record)/len(self.perf_record)*1000:.2f} ms")
+
+            returnState['score'] = self.state.score
+            returnState['bfs_cache_info'] = breadth_first_search.cache_info()
+            returnState['tf'] = elapsed_time*1000
+            returnState['ta'] = sum(self.perf_record)/len(self.perf_record)*1000
+            if not returnInfo:
+                print("score:", self.state.score)
+                print("bfs cache_info:", breadth_first_search.cache_info())
+                print(f"tick took {elapsed_time*1000:.2f} ms")
+                print(f"average: {sum(self.perf_record)/len(self.perf_record)*1000:.2f} ms")
+            else:
+                if self.game is not None:
+                    self.game.receivePacbotInfo(returnState)
         else:
             self.print_direction(4)
+            self.game.receivePacbotInfo({'direction': 4})
 
     #Required to update the GRID, to make sure not to go over the same location
     def update_game_state(self):
@@ -237,7 +270,6 @@ class HighLevelPacman(rm.ProtoModule):
     
     #Gets LIGHT_STATE from local server(Local Server is updated from game Engine)
     def msg_received(self, msg, msg_type):
-        print('received msg pacbot')
         if msg_type == MsgType.LIGHT_STATE:
             # if self.game is not None:
             #     pass

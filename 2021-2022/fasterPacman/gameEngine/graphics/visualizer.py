@@ -261,7 +261,7 @@ class Visualizer(rm.ProtoModule):
 
 
     def msg_received(self, msg, msg_type):
-        print('visualize msg received')
+        # print('visualize msg received')
         # This gets called whenever any message is received
         if msg_type == MsgType.FULL_STATE:
             self.state = msg

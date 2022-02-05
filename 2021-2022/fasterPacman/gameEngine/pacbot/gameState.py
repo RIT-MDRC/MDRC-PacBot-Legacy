@@ -67,8 +67,8 @@ class GameState:
 
     def _end_game(self):
         self.play = False
-        print("Sore: " + str(self.score))
-        print("Time: " + str(self.elapsed_time))
+        # print("Sore: " + str(self.score))
+        # print("Time: " + str(self.elapsed_time))
 
     def _die(self):
         if self.lives > 1:
