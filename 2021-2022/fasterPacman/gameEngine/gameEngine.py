@@ -8,6 +8,7 @@ import pygame
 
 USING_VISUALIZER = False
 NO_PRINT = True
+RUN_ON_CLOCK = True
 
 from messages import *
 from pacbot.variables import game_frequency, ticks_per_update
@@ -30,8 +31,12 @@ WEIGHT_SET = {
 }
 
 class GameEngine:
-    def __init__(self, addr, port, weight_set):
-        global WEIGHT_SET, USING_VISUALIZER
+    def __init__(self, addr, port, weight_set=WEIGHT_SET, run_on_clock=None, using_visualizer=None):
+        global WEIGHT_SET, USING_VISUALIZER, RUN_ON_CLOCK
+        if run_on_clock is not None:
+            RUN_ON_CLOCK = run_on_clock
+        if using_visualizer is not None:
+            USING_VISUALIZER = using_visualizer
         WEIGHT_SET = weight_set
         self.final_state = None
         self.latestPacbotInfo = None
@@ -39,15 +44,40 @@ class GameEngine:
         # super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         # self.loop.add_reader(sys.stdin, self.keypress)
 
-        self.loop = asyncio.get_event_loop()
-        self.loop.call_soon(self.tick)
-
         self.game = GameState()
-        self.highLevelPacman = HighLevelPacman(addr=None, port=None, game=self, returnInfo=NO_PRINT, frequency_multiplier=FREQUENCY_MULTIPLIER, fear=WEIGHT_SET['FEAR'], pellet_weight=WEIGHT_SET['PELLET_WEIGHT'], super_pellet_weight=WEIGHT_SET['SUPER_PELLET_WEIGHT'], ghost_weight=WEIGHT_SET['GHOST_WEIGHT'], frightened_ghost_weight=WEIGHT_SET['FRIGHTENED_GHOST_WEIGHT'])
+        self.highLevelPacman = HighLevelPacman(addr=None, port=None, game=self, returnInfo=NO_PRINT,
+                                               frequency_multiplier=FREQUENCY_MULTIPLIER, fear=WEIGHT_SET['FEAR'],
+                                               pellet_weight=WEIGHT_SET['PELLET_WEIGHT'],
+                                               super_pellet_weight=WEIGHT_SET['SUPER_PELLET_WEIGHT'],
+                                               ghost_weight=WEIGHT_SET['GHOST_WEIGHT'],
+                                               frightened_ghost_weight=WEIGHT_SET['FRIGHTENED_GHOST_WEIGHT'],
+                                               runOnClock=RUN_ON_CLOCK)
         if USING_VISUALIZER:
-            self.visualize = Visualize()
+            self.visualize = Visualize(run_on_clock=run_on_clock)
 
         self.game.unpause()
+
+        if RUN_ON_CLOCK:
+            self.loop = asyncio.get_event_loop()
+            self.loop.call_soon(self.tick)
+        else:
+            while self.game.play:
+                # INCORRECT CALL TIMING, PACBOT MOVES WAY TOO FAST
+                # update_pacbot_pos
+                self.highLevelPacman.tick()
+                # This will become asynchronous
+                for i in range(12):
+                    self.game.next_step()
+                    if USING_VISUALIZER:
+                        self.visualize.visualizer.msg_received(StateConverter.convert_game_state_to_full(self.game),
+                                                               MsgType.FULL_STATE)
+                self.highLevelPacman.msg_received(StateConverter.convert_game_state_to_light(self.game),
+                                                  MsgType.LIGHT_STATE)
+                # print('gameEngineTickMesg')
+                # print('SAVE GAME STATE TO FILE')
+                if USING_VISUALIZER:
+                    pygame.time.wait(50)
+        self.final_state = {'score':self.game.score}
 
     def _write_state(self):
         full_state = StateConverter.convert_game_state_to_full(self.game)
@@ -77,7 +107,8 @@ class GameEngine:
         # self._write_state()
 
     def run(self):
-        self.loop.run_forever()
+        if RUN_ON_CLOCK:
+            self.loop.run_forever()
 
     def keypress(self):
         char = sys.stdin.read(1)
@@ -115,11 +146,12 @@ class GameEngine:
             self.final_state = {'score':self.game.score}
 
 def main():
-    global USING_VISUALIZER, NO_PRINT
+    global USING_VISUALIZER, NO_PRINT, RUN_ON_CLOCK
     # logger automatically adds timestamps
     # I wanted it to print each sequentially but it did not want to
     USING_VISUALIZER = '--vis' in sys.argv
     NO_PRINT = '--print' not in sys.argv
+    RUN_ON_CLOCK = '--clock' in sys.argv
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s',
                         datefmt="%I:%M:%S %p")

@@ -6,7 +6,8 @@ from .variables import *
 from .spriteStripAnim import *
 
 class Visualizer(rm.ProtoModule):
-    def __init__(self, addr, port, print_walls, print_pacman, split=Split.FULL):
+    def __init__(self, addr, port, print_walls, print_pacman, split=Split.FULL, run_on_clock=True):
+        self.run_on_clock = run_on_clock
         self.subscriptions = [MsgType.FULL_STATE]
         super().__init__(addr, port, message_buffers, MsgType, DISPLAY_FREQUENCY, self.subscriptions)
 
@@ -265,6 +266,8 @@ class Visualizer(rm.ProtoModule):
         # This gets called whenever any message is received
         if msg_type == MsgType.FULL_STATE:
             self.state = msg
+            if not self.run_on_clock:
+                self.tick()
 
     def tick(self):
         # this function will get called in a loop with DISPLAY_FREQUENCY frequency

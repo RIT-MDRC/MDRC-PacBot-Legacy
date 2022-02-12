@@ -8,7 +8,7 @@ ADDRESS = "localhost"
 PORT = os.environ.get("SERVER_PORT", 11297)
 
 class Visualize:
-    def __init__(self):
+    def __init__(self, run_on_clock=True):
         walls = ('-w' in sys.argv or os.environ.get("WALLS",False))
         walls = True
         pacman = ('-p' in sys.argv or os.environ.get("PACMAN",False))
@@ -22,7 +22,7 @@ class Visualize:
             split = Split.TOP
         elif bottom:
             split = Split.BOTTOM
-        self.visualizer = Visualizer(ADDRESS, PORT, walls, pacman, split)
+        self.visualizer = Visualizer(ADDRESS, PORT, walls, pacman, split, run_on_clock=run_on_clock)
         self.visualizer.run()
 
 # if __name__ == "__main__":

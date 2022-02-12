@@ -21,7 +21,8 @@ FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
 
 class HighLevelPacman(rm.ProtoModule):
     def __init__(self, addr, port, game=None, returnInfo=False, frequency_multiplier=1,
-                 fear=10, pellet_weight=0.65,super_pellet_weight=.1,ghost_weight=.35,frightened_ghost_weight=.105):
+                 fear=10, pellet_weight=0.65,super_pellet_weight=.1,ghost_weight=.35,frightened_ghost_weight=.105,
+                 runOnClock=True):
         global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT
         FREQUENCY *= frequency_multiplier
         self.game = game
@@ -43,7 +44,8 @@ class HighLevelPacman(rm.ProtoModule):
         #     FRIGHTENED_GHOST_WEIGHT = float(values[5]) * GHOST_WEIGHT
 
 
-        super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
+        if runOnClock:
+            super().__init__(addr, port, message_buffers, MsgType, FREQUENCY, self.subscriptions)
         self.state = None
         # GPIO.setmode(GPIO.BOARD)
         # GPIO.setup(37, GPIO.OUT, initial=GPIO.HIGH)
@@ -257,9 +259,11 @@ class HighLevelPacman(rm.ProtoModule):
             else:
                 if self.game is not None:
                     self.game.receivePacbotInfo(returnState)
+                return returnState
         else:
             self.print_direction(4)
             self.game.receivePacbotInfo({'direction': 4})
+            return {'direction': 4}
 
     #Required to update the GRID, to make sure not to go over the same location
     def update_game_state(self):
