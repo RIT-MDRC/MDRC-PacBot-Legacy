@@ -113,11 +113,11 @@ def find_best_parameters():
 # hyperparam_name: (min_val, max_val, is_integer)
 # names correspond to arguments of test_hyperparams
 HYPERPARAM_RANGES = {
-    'FEAR':                    (1, 15, False),
-    'PELLET_WEIGHT':           (0.01, 1.0, False),
-    'SUPER_PELLET_WEIGHT':     (0.01, 1.0, False),
-    'GHOST_WEIGHT':            (0.01, 1.0, False),
-    'FRIGHTENED_GHOST_WEIGHT': (0.01, 1.0, False),
+    'FEAR':                    (0, 15, False),
+    'PELLET_WEIGHT':           (-1.0, 1.0, False),
+    'SUPER_PELLET_WEIGHT':     (-1.0, 1.0, False),
+    'GHOST_WEIGHT':            (-1.0, 1.0, False),
+    'FRIGHTENED_GHOST_WEIGHT': (-1.0, 1.0, False),
 }
 
 def test_hyperparams(*args):
@@ -169,7 +169,7 @@ def test_hyperparams(*args):
     else:
 
         results = []
-        for i in range(30):
+        for i in range(70):
             game = GameEngine(ADDRESS, PORT, weight_set=weight_set, run_on_clock=USE_CLOCK,
                             using_visualizer=USING_VISUALIZER)
             if PRINT_ALL:
@@ -182,7 +182,7 @@ def test_hyperparams(*args):
 
         mean_score = np.mean(results)
         print(f'average score: {mean_score}')
-        return -mean_score
+        return mean_score
 
 all_results = []
 
