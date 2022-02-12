@@ -29,6 +29,7 @@ WEIGHT_SET = {
     'GHOST_WEIGHT': .35,
     'FRIGHTENED_GHOST_WEIGHT': .105
 }
+WEIGHT_SET = dict(zip(WEIGHT_SET.keys(), [14.999761323524108, 0.6194892162712323, 0.011251072977281056, 0.40740361802529795, 0.6250905337589961]))
 
 class GameEngine:
     def __init__(self, addr, port, weight_set=WEIGHT_SET, run_on_clock=None, using_visualizer=None):

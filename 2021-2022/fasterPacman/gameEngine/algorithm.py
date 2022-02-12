@@ -5,6 +5,8 @@ import dlib
 import math
 import select
 # import termios
+import numpy as np
+from tqdm import tqdm
 
 PRINT_ALL = False
 USE_CLOCK = False
@@ -91,7 +93,7 @@ def find_best_parameters():
         if avg_score > best_score:
             best_score = avg_score
             print('New best score:', best_score)
-            print(f'  Params: {list(next_eval_request.x)}')
+            print(f'  Params: {dict(zip(HYPERPARAM_RANGES.keys(), next_eval_request.x))}')
             print()
 
         # check if stdin has input and stop if so
@@ -166,24 +168,47 @@ def test_hyperparams(*args):
         return avg_score
     else:
 
-        game = GameEngine(ADDRESS, PORT, weight_set=weight_set, run_on_clock=USE_CLOCK,
-                          using_visualizer=USING_VISUALIZER)
-        if PRINT_ALL:
-            print(game.final_state)
-        return game.final_state['score']
+        results = []
+        for i in range(30):
+            game = GameEngine(ADDRESS, PORT, weight_set=weight_set, run_on_clock=USE_CLOCK,
+                            using_visualizer=USING_VISUALIZER)
+            if PRINT_ALL:
+                print(game.final_state)
+            results.append(game.final_state['score'])
+
+        all_results.append(results)
+        with open('data.npy', 'wb') as f:
+            np.save(f, all_results)
+
+        mean_score = np.mean(results)
+        print(f'average score: {mean_score}')
+        return -mean_score
+
+all_results = []
 
 
 def get_data():
-    results = []
-    for i in range(100):
-        game = GameEngine(ADDRESS, PORT, weight_set=WEIGHT_SET, run_on_clock=USE_CLOCK,
-                          using_visualizer=USING_VISUALIZER)
-        results.append(game.final_state['score'])
-    print(results)
+    all_results = []
+    
+    for fear in tqdm(np.linspace(0, 15, num=25)):
+        weight_set = WEIGHT_SET
+        weight_set['FEAR'] = fear
+        
+        results = []
+        for i in range(50):
+            game = GameEngine(ADDRESS, PORT, weight_set=weight_set, run_on_clock=USE_CLOCK,
+                            using_visualizer=USING_VISUALIZER)
+            if PRINT_ALL:
+                print(game.final_state)
+            results.append(game.final_state['score'])
+
+        all_results.append((fear, results))
+        with open('data.npy', 'wb') as f:
+            np.save(f, all_results)
 
 def main():
-    # find_best_parameters()
-    get_data()
+    find_best_parameters()
+    # get_data()
 
 
 if __name__ == "__main__":
