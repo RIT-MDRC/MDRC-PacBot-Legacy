@@ -18,12 +18,15 @@ PELLET_WEIGHT = 0.65
 SUPER_PELLET_WEIGHT = 0.1        #ADDED weight for super pellets
 GHOST_WEIGHT = 0.35
 FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
+PROXIMITY_PELLET_MULTIPLIER = 0.1
+ANTI_CORNER_WEIGHT = 0.1
 
 class HighLevelPacman(rm.ProtoModule):
     def __init__(self, addr, port, game=None, returnInfo=False, frequency_multiplier=1,
                  fear=10, pellet_weight=0.65,super_pellet_weight=.1,ghost_weight=.35,frightened_ghost_weight=.105,
+                 proximity_pellet_multiplier=0.1, anti_corner_weight=0.1,
                  runOnClock=True):
-        global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT
+        global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT, PROXIMITY_PELLET_MULTIPLIER, ANTI_CORNER_WEIGHT
         FREQUENCY *= frequency_multiplier
         self.game = game
         self.returnInfo = returnInfo
@@ -33,6 +36,8 @@ class HighLevelPacman(rm.ProtoModule):
         SUPER_PELLET_WEIGHT = super_pellet_weight
         GHOST_WEIGHT = ghost_weight
         FRIGHTENED_GHOST_WEIGHT = frightened_ghost_weight
+        PROXIMITY_PELLET_MULTIPLIER = proximity_pellet_multiplier
+        ANTI_CORNER_WEIGHT = anti_corner_weight
         # with open("botCode/weights.txt", "r") as f:
         #     lines = f.readlines()
         #     values = lines[0].split()
@@ -180,16 +185,31 @@ class HighLevelPacman(rm.ProtoModule):
             for i in ghost_dists: 
                 the_ghosts.append(i[0])
 
-            for value in ghost_dists: 
-                if value[0] < FEAR: 
+            num_ghost_near_me = 0
+            num_ghosts_frightened = 0
+
+            for value in ghost_dists:
+                if (value[1] == LightState.FRIGHTENED):
+                    num_ghosts_frightened += 1
+                if value[0] < FEAR:
                     if(value[1] != LightState.FRIGHTENED):
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * GHOST_WEIGHT
-                    else: 
+                    else:
+                        num_ghost_near_me += 1
                         ghost_heuristic += pow(FEAR - min(the_ghosts), 2) * -1 * FRIGHTENED_GHOST_WEIGHT
+
+            super_pellet_heuristic += PROXIMITY_PELLET_MULTIPLIER*num_ghost_near_me
+            if num_ghosts_frightened > 0:
+                super_pellet_heuristic = 600
+
+            # don't go to corners if ghosts are near me
+            anti_corner_heuristic = (abs(p_loc[0]) + abs(p_loc[1])) * num_ghost_near_me * ANTI_CORNER_WEIGHT
 
             #print("ghost heuristic: " + str(ghost_heuristic))
             #print("pellet heuristic: " + str(pellet_heuristic))
-            heuristics.append(ghost_heuristic + pellet_heuristic + super_pellet_heuristic)
+            # print("super pellet heuristic: " + str(super_pellet_heuristic))
+            heuristics.append(ghost_heuristic + pellet_heuristic + super_pellet_heuristic + anti_corner_heuristic)
+
 
         min_heuristic = 99999
         min_target = (0,0)

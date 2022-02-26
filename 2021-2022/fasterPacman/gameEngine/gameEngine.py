@@ -27,9 +27,12 @@ WEIGHT_SET = {
     'PELLET_WEIGHT': .65,
     'SUPER_PELLET_WEIGHT': .1,
     'GHOST_WEIGHT': .35,
-    'FRIGHTENED_GHOST_WEIGHT': .105
+    'FRIGHTENED_GHOST_WEIGHT': .105,
+    'PROXIMITY_PELLET_MULTIPLIER': .1,
+    'ANTI_CORNER_WEIGHT': .1
 }
-WEIGHT_SET = dict(zip(WEIGHT_SET.keys(), [14.999761323524108, 0.6194892162712323, 0.011251072977281056, 0.40740361802529795, 0.6250905337589961]))
+# WEIGHT_SET = dict(zip(WEIGHT_SET.keys(), [14.999761323524108, 0.6194892162712323, 0.011251072977281056, 0.40740361802529795, 0.6250905337589961]))
+WEIGHT_SET = {'FEAR': 3.2543280421284333, 'PELLET_WEIGHT': 2.3070606203090285, 'SUPER_PELLET_WEIGHT': 13.27715231981747, 'GHOST_WEIGHT': 13.22475001399991, 'FRIGHTENED_GHOST_WEIGHT': 14.99999999830702, 'PROXIMITY_PELLET_MULTIPLIER': 11.57810588870234, 'ANTI_CORNER_WEIGHT': -14.968433445107918}
 
 class GameEngine:
     def __init__(self, addr, port, weight_set=WEIGHT_SET, run_on_clock=None, using_visualizer=None):
@@ -52,6 +55,8 @@ class GameEngine:
                                                super_pellet_weight=WEIGHT_SET['SUPER_PELLET_WEIGHT'],
                                                ghost_weight=WEIGHT_SET['GHOST_WEIGHT'],
                                                frightened_ghost_weight=WEIGHT_SET['FRIGHTENED_GHOST_WEIGHT'],
+                                               proximity_pellet_multiplier=WEIGHT_SET['PROXIMITY_PELLET_MULTIPLIER'],
+                                               anti_corner_weight=WEIGHT_SET['ANTI_CORNER_WEIGHT'],
                                                runOnClock=RUN_ON_CLOCK)
         if USING_VISUALIZER:
             self.visualize = Visualize(run_on_clock=run_on_clock)
@@ -67,7 +72,7 @@ class GameEngine:
                 # update_pacbot_pos
                 self.highLevelPacman.tick()
                 # This will become asynchronous
-                for i in range(12):
+                for i in range(8):
                     self.game.next_step()
                     if USING_VISUALIZER:
                         self.visualize.visualizer.msg_received(StateConverter.convert_game_state_to_full(self.game),
@@ -164,7 +169,10 @@ def main():
         print('    p - (un)pause')
         print('    q - quit')
 
-    engine.run()
+    if RUN_ON_CLOCK:
+        engine.run()
+    else:
+        print(engine.game.score)
 
 
 if __name__ == "__main__":

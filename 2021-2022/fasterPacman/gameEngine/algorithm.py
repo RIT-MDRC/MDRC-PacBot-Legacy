@@ -25,7 +25,9 @@ WEIGHT_SET = {
     'PELLET_WEIGHT': .65,
     'SUPER_PELLET_WEIGHT': .1,
     'GHOST_WEIGHT': .35,
-    'FRIGHTENED_GHOST_WEIGHT': .105
+    'FRIGHTENED_GHOST_WEIGHT': .105,
+    'PROXIMITY_PELLET_MULTIPLIER': .1,
+    'ANTI_CORNER_WEIGHT': .1
 }
 
 
@@ -114,10 +116,12 @@ def find_best_parameters():
 # names correspond to arguments of test_hyperparams
 HYPERPARAM_RANGES = {
     'FEAR':                    (0, 15, False),
-    'PELLET_WEIGHT':           (-1.0, 1.0, False),
-    'SUPER_PELLET_WEIGHT':     (-1.0, 1.0, False),
-    'GHOST_WEIGHT':            (-1.0, 1.0, False),
-    'FRIGHTENED_GHOST_WEIGHT': (-1.0, 1.0, False),
+    'PELLET_WEIGHT':           (-15.0, 15.0, False),
+    'SUPER_PELLET_WEIGHT':     (-15.0, 15.0, False),
+    'GHOST_WEIGHT':            (-15.0, 15.0, False),
+    'FRIGHTENED_GHOST_WEIGHT': (-15.0, 15.0, False),
+    'PROXIMITY_PELLET_MULTIPLIER': (-15.0, 15.0, False),
+    'ANTI_CORNER_WEIGHT': (-15.0, 15.0, False)
 }
 
 def test_hyperparams(*args):
@@ -169,12 +173,16 @@ def test_hyperparams(*args):
     else:
 
         results = []
-        for i in range(70):
+        numGamesFinished = 0
+        totalNumGames = 70
+        for i in range(totalNumGames):
             game = GameEngine(ADDRESS, PORT, weight_set=weight_set, run_on_clock=USE_CLOCK,
                             using_visualizer=USING_VISUALIZER)
             if PRINT_ALL:
                 print(game.final_state)
             results.append(game.final_state['score'])
+            if True:
+                numGamesFinished += 1
 
         all_results.append(results)
         with open('data.npy', 'wb') as f:
@@ -182,6 +190,7 @@ def test_hyperparams(*args):
 
         mean_score = np.mean(results)
         print(f'average score: {mean_score}')
+        print(f'number of games finished: {numGamesFinished} / {totalNumGames}')
         return mean_score
 
 all_results = []
