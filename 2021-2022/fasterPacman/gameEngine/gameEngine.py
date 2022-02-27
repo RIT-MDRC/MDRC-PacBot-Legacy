@@ -3,12 +3,15 @@ import asyncio
 import os, sys, logging
 # import robomodules as rm
 import time
+import numpy as np
+import pickle
 
 import pygame
 
 USING_VISUALIZER = False
 NO_PRINT = True
 RUN_ON_CLOCK = True
+VALUE_DEBUG = False
 
 from messages import *
 from pacbot.variables import game_frequency, ticks_per_update
@@ -67,7 +70,13 @@ class GameEngine:
             self.loop = asyncio.get_event_loop()
             self.loop.call_soon(self.tick)
         else:
+            turn_num = 0
             while self.game.play:
+                turn_num += 1
+                if VALUE_DEBUG:
+                    # export data to debug/visualize the heuristic values
+                    self.export_heuristic_debug(f'data/data{turn_num:05}.pkl')
+
                 # INCORRECT CALL TIMING, PACBOT MOVES WAY TOO FAST
                 # update_pacbot_pos
                 self.highLevelPacman.tick()
@@ -84,6 +93,40 @@ class GameEngine:
                 if USING_VISUALIZER:
                     pygame.time.wait(50)
         self.final_state = {'score':self.game.score}
+
+    def export_heuristic_debug(self, filename):
+        import botCode.variables as variables
+
+        # compute the heuristic values for the entire grid
+        grid = self.highLevelPacman.grid
+        value_grid = np.zeros((len(grid[0]), len(grid)))
+        pellet_locs = []
+        super_pellet_locs = []
+        for x in range(0, len(grid)):
+            for y in range(0, len(grid[0])):
+                try:
+                    value = self.highLevelPacman.get_heuristic_value((x, y))
+                except:
+                    value = None
+                value_grid[y][x] = value
+
+                if grid[x][y] == variables.o:
+                    pellet_locs.append((x, y))
+                elif grid[x][y] == variables.O:
+                    super_pellet_locs.append((x, y))
+
+        # collect other game state
+        ghost_locs = [
+            self.game.red.pos['current'],
+            self.game.pink.pos['current'],
+            self.game.orange.pos['current'],
+            self.game.blue.pos['current'],
+        ]
+        pacbot_loc = self.game.pacbot.pos
+
+        # write all the data to file
+        with open(filename, 'wb') as f:
+            pickle.dump((value_grid, pellet_locs, super_pellet_locs, ghost_locs, pacbot_loc), f)
 
     def _write_state(self):
         full_state = StateConverter.convert_game_state_to_full(self.game)
@@ -136,7 +179,7 @@ class GameEngine:
                 self.game.unpause()
         elif char == "q":
             logging.info("Quitting...")
-            self.quit() 
+            self.quit()
 
     def receivePacbotInfo(self, pacbotInfo):
         # print('received info')
@@ -152,12 +195,13 @@ class GameEngine:
             self.final_state = {'score':self.game.score}
 
 def main():
-    global USING_VISUALIZER, NO_PRINT, RUN_ON_CLOCK
+    global USING_VISUALIZER, NO_PRINT, RUN_ON_CLOCK, VALUE_DEBUG
     # logger automatically adds timestamps
     # I wanted it to print each sequentially but it did not want to
     USING_VISUALIZER = '--vis' in sys.argv
     NO_PRINT = '--print' not in sys.argv
     RUN_ON_CLOCK = '--clock' in sys.argv
+    VALUE_DEBUG = '--value-debug' in sys.argv
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s: %(message)s',
                         datefmt="%I:%M:%S %p")
