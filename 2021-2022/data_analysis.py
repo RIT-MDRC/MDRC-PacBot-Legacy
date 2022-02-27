@@ -22,8 +22,9 @@ if not args.parameter:
     ]
 
     plt.scatter(*zip(*scatter_data), alpha=0.2, edgecolors='none')
-    plt.plot(np.mean(all_results, axis=1))
-    plt.plot(np.median(all_results, axis=1))
+    plt.plot(np.mean(all_results, axis=1), label='Mean')
+    plt.plot(np.median(all_results, axis=1), label='Median')
+    plt.legend()
     plt.tight_layout()
     plt.show()
 
@@ -39,7 +40,8 @@ else:
 
     plt.scatter(*zip(*scatter_data), alpha=0.2, edgecolors='none')
     param_vals, results = zip(*all_results)
-    plt.plot(param_vals, np.mean(results, axis=1))
-    plt.plot(param_vals, np.median(results, axis=1))
+    plt.plot(param_vals, np.mean(results, axis=1), label='Mean')
+    plt.plot(param_vals, np.median(results, axis=1), label='Median')
+    plt.legend()
     plt.tight_layout()
     plt.show()
