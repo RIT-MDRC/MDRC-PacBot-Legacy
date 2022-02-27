@@ -27,7 +27,7 @@ WEIGHT_SET = {
     'GHOST_WEIGHT': .35,
     'FRIGHTENED_GHOST_WEIGHT': .105,
     'PROXIMITY_PELLET_MULTIPLIER': .1,
-    'ANTI_CORNER_WEIGHT': .1
+    'ANTI_CORNER_WEIGHT': .1,
 }
 
 
@@ -89,12 +89,12 @@ def find_best_parameters():
             print(list(next_eval_request.x))
             for name, value in zip(HYPERPARAM_RANGES.keys(), next_eval_request.x):
                 print(f'  {name}: {value}')
-        avg_score = test_hyperparams(*next_eval_request.x)
-        next_eval_request.set(avg_score)
+        median_score = test_hyperparams(*next_eval_request.x)
+        next_eval_request.set(median_score)
 
-        if avg_score > best_score:
-            best_score = avg_score
-            print('New best score:', best_score)
+        if median_score > best_score:
+            best_score = median_score
+            print('New best median score:', best_score)
             print(f'  Params: {dict(zip(HYPERPARAM_RANGES.keys(), next_eval_request.x))}')
             print()
 
@@ -115,13 +115,13 @@ def find_best_parameters():
 # hyperparam_name: (min_val, max_val, is_integer)
 # names correspond to arguments of test_hyperparams
 HYPERPARAM_RANGES = {
-    'FEAR':                    (0, 15, False),
-    'PELLET_WEIGHT':           (-15.0, 15.0, False),
-    'SUPER_PELLET_WEIGHT':     (-15.0, 15.0, False),
-    'GHOST_WEIGHT':            (-15.0, 15.0, False),
-    'FRIGHTENED_GHOST_WEIGHT': (-15.0, 15.0, False),
-    'PROXIMITY_PELLET_MULTIPLIER': (-15.0, 15.0, False),
-    'ANTI_CORNER_WEIGHT': (-15.0, 15.0, False)
+    'FEAR':                    (0, 30, False),
+    'PELLET_WEIGHT':           (1.0, 1.0000001, False),
+    'SUPER_PELLET_WEIGHT':     (-15.0, 30.0, False),
+    'GHOST_WEIGHT':            (-15.0, 30.0, False),
+    'FRIGHTENED_GHOST_WEIGHT': (-15.0, 30.0, False),
+    'PROXIMITY_PELLET_MULTIPLIER': (-15.0, 30.0, False),
+    'ANTI_CORNER_WEIGHT':      (-15.0, 30.0, False),
 }
 
 def test_hyperparams(*args):
@@ -188,10 +188,10 @@ def test_hyperparams(*args):
         with open('data.npy', 'wb') as f:
             np.save(f, all_results)
 
-        mean_score = np.mean(results)
-        print(f'average score: {mean_score}')
+        median_score = np.median(results)
+        print(f'median score: {median_score}')
         print(f'number of games finished: {numGamesFinished} / {totalNumGames}')
-        return mean_score
+        return median_score
 
 all_results = []
 
