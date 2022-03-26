@@ -1,5 +1,8 @@
 import os, sys, curses, random, copy
 import time
+
+import serial
+
 import robomodules as rm
 from messages import *
 from .grid import grid
@@ -21,12 +24,16 @@ FRIGHTENED_GHOST_WEIGHT = 0.3 * GHOST_WEIGHT
 PROXIMITY_PELLET_MULTIPLIER = 0.1
 ANTI_CORNER_WEIGHT = 0.1
 
+USE_SERIAL = False
+USE_SERIAL_PORT = "/dev/ttyACM0"
+SERIAL_BAUD_RATE = 9600
+
 class HighLevelPacman(rm.ProtoModule):
     def __init__(self, addr, port, game=None, returnInfo=False, frequency_multiplier=1,
                  fear=10, pellet_weight=0.65,super_pellet_weight=.1,ghost_weight=.35,frightened_ghost_weight=.105,
                  proximity_pellet_multiplier=0.1, anti_corner_weight=0.1,
-                 runOnClock=True):
-        global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT, PROXIMITY_PELLET_MULTIPLIER, ANTI_CORNER_WEIGHT
+                 runOnClock=True, useSerial=False, serialPort="/dev/ttyACM0", serialBaud=9600):
+        global PELLET_WEIGHT, FEAR, FREQUENCY, SUPER_PELLET_WEIGHT, GHOST_WEIGHT, FRIGHTENED_GHOST_WEIGHT, PROXIMITY_PELLET_MULTIPLIER, ANTI_CORNER_WEIGHT, USE_SERIAL, USE_SERIAL_PORT, SERIAL_BAUD_RATE
         FREQUENCY *= frequency_multiplier
         self.game = game
         self.returnInfo = returnInfo
@@ -38,6 +45,9 @@ class HighLevelPacman(rm.ProtoModule):
         FRIGHTENED_GHOST_WEIGHT = frightened_ghost_weight
         PROXIMITY_PELLET_MULTIPLIER = proximity_pellet_multiplier
         ANTI_CORNER_WEIGHT = anti_corner_weight
+        USE_SERIAL = useSerial
+        USE_SERIAL_PORT = serialPort
+        SERIAL_BAUD_RATE = serialBaud
         # with open("botCode/weights.txt", "r") as f:
         #     lines = f.readlines()
         #     values = lines[0].split()
@@ -47,6 +57,9 @@ class HighLevelPacman(rm.ProtoModule):
         #     SUPER_PELLET_WEIGHT = float(values[3])
         #     GHOST_WEIGHT = float(values[4])
         #     FRIGHTENED_GHOST_WEIGHT = float(values[5]) * GHOST_WEIGHT
+
+        if USE_SERIAL:
+            self.serial = serial.Serial(USE_SERIAL_PORT, SERIAL_BAUD_RATE, timeout=1)
 
 
         if runOnClock:
@@ -62,6 +75,8 @@ class HighLevelPacman(rm.ProtoModule):
         self.previousLocation = None
         self.grid = copy.deepcopy(grid)
         self.initializedGrid = initialize_grid(self.grid)
+
+        self.current_direction = 0
 
     #Sends pacman data to local server which then communicates with game engine
     def send_data(self, pacmanLocation):
@@ -88,6 +103,20 @@ class HighLevelPacman(rm.ProtoModule):
                 return up
             elif(newLocation[1] < previousLocation[1]):
                 return down
+
+    def motorMove(self, direction):
+        if direction == "forward":
+            self.serial.write(b'0155\n1155\n')
+        elif direction == "backward":
+            self.serial.write(b'0-155\n1-155\n')
+        elif direction == "left":
+            self.serial.write(b'0155\n0-155\n')
+            time.sleep(0.5)
+            self.serial.write(b'0155\n1155\n')
+        elif direction == "right":
+            self.serial.write(b'0-155\n0155\n')
+            time.sleep(0.5)
+            self.serial.write(b'0155\n1155\n')
 
     def print_direction(self, value):
         if(value == 0):
@@ -130,6 +159,20 @@ class HighLevelPacman(rm.ProtoModule):
             # GPIO.output(33, GPIO.HIGH)
             # GPIO.output(31, GPIO.HIGH)
             # GPIO.output(29, GPIO.LOW)
+        if USE_SERIAL:
+            if value == self.current_direction:
+                self.motorMove("forward")
+            elif value == self.current_direction + 1 or value == self.current_direction - 3:
+                self.motorMove("left")
+                self.motorMove("forward")
+            elif value == self.current_direction - 1 or value == self.current_direction + 3:
+                self.motorMove("right")
+                self.motorMove("forward")
+            elif value == self.current_direction + 2 or value == self.current_direction - 2:
+                self.motorMove("left")
+                self.motorMove("left")
+                self.motorMove("forward")
+
 
     def print_grid_enum(self, value):
         if(value == 1):
