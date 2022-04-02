@@ -32,10 +32,11 @@ void loop() {
     String motorNumberStr = data.substring(0, 1);
     String motorSpeedStr = data.substring(1, 4);
 
-    Serial.print("you want to turn motor: ");
+    Serial.print("   you want to turn motor: ");
     Serial.print(motorNumberStr);
     Serial.print(" at speed ");
     Serial.print(motorSpeedStr);
+    Serial.print("\n");
 
     int motorNumber = motorNumberStr.toInt();
     int motorSpeed = motorSpeedStr.toInt();

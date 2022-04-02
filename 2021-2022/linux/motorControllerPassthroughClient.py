@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 ip = args.ip
 
-print("forward, backward, left, right, or stop")
+print("forward, backward, left, right, stop, or quit")
 
 async def main():
 
@@ -33,7 +33,11 @@ async def main():
         elif direction == "stop":
             await websocket.send("stop")
             print(await websocket.recv())
+        elif direction == "quit":
+            break
         else:
             print("invalid input")
+
+    await websocket.close()
 
 asyncio.run(main())
