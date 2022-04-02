@@ -32,6 +32,7 @@ def motorMove(direction):
     elif direction == "stop":
         serialPort.write(b'0000\n1000\n')
     print(serialPort.readline())
+    print(serialPort.readline())
 
 
 serialPort = serial.Serial(serialPort, serialBaud, timeout=1)

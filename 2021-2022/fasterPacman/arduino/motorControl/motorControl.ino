@@ -27,7 +27,8 @@ void loop() {
   if (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
     Serial.print("echo: ");
-    Serial.println(data);
+    Serial.print(data);
+    Serial.print(";");
 
     String motorNumberStr = data.substring(0, 1);
     String motorSpeedStr = data.substring(1, 4);
