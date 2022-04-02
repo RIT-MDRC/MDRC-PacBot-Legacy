@@ -10,7 +10,7 @@ args = parser.parse_args()
 
 ip = args.ip
 
-print("forward, backward, left, or right")
+print("forward, backward, left, right, or stop")
 
 async def main():
 
