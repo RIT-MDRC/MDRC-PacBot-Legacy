@@ -12,7 +12,7 @@ parser.add_argument('serialPort', help='The serial port to use', default='/dev/t
 args = parser.parse_args()
 
 useSerial = False
-serialPort = "/dev/ttyACM0"
+serialPort = args.serialPort
 serialBaud = 9600
 
 
