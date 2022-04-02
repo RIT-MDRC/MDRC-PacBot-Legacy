@@ -37,12 +37,13 @@ serialPort = serial.Serial(serialPort, serialBaud, timeout=1)
 
 
 async def hello(websocket, path):
-    direction = await websocket.recv()
-    print(f"< {direction}")
-    motorMove(direction)
+    while True:
+        direction = await websocket.recv()
+        print(f"< {direction}")
+        motorMove(direction)
 
-    greeting = "You said {}!".format(direction)
-    await websocket.send(greeting)
+        greeting = "You said {}!".format(direction)
+        await websocket.send(greeting)
 
 start_server = websockets.serve(hello, port=8765)
 
