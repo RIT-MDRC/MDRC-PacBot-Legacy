@@ -1,7 +1,13 @@
+from argparse import ArgumentParser
 
 import websockets
 
-ip = "ws://mdrcpi4.student.rit.edu:8765"
+# get command-line arguments
+parser = ArgumentParser()
+parser.add_argument('ip', help='The ip to use', default='ws://mdrcpi4.student.rit.edu:8765')
+args = parser.parse_args()
+
+ip = args.ip
 
 print("forward, backward, left, or right")
 
