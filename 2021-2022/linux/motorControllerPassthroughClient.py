@@ -1,3 +1,4 @@
+import asyncio
 from argparse import ArgumentParser
 
 import websockets
@@ -11,18 +12,28 @@ ip = args.ip
 
 print("forward, backward, left, or right")
 
-with websockets.connect(ip) as websocket:
+async def main():
+
+    websocket = await websockets.connect(ip)
+
     while True:
         direction = input()
         if direction == "forward":
-            websocket.send("forward")
+            await websocket.send("forward")
+            print(await websocket.recv())
         elif direction == "backward":
-            websocket.send("backward")
+            await websocket.send("backward")
+            print(await websocket.recv())
         elif direction == "left":
-            websocket.send("left")
+            await websocket.send("left")
+            print(await websocket.recv())
         elif direction == "right":
-            websocket.send("right")
+            await websocket.send("right")
+            print(await websocket.recv())
         elif direction == "stop":
-            websocket.send("stop")
+            await websocket.send("stop")
+            print(await websocket.recv())
         else:
             print("invalid input")
+
+asyncio.run(main())
