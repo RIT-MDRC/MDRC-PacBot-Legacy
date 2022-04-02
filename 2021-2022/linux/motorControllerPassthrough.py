@@ -1,8 +1,15 @@
+from argparse import ArgumentParser
+
 import serial
 import time
 
 import asyncio
 import websockets
+
+# get command-line arguments
+parser = ArgumentParser()
+parser.add_argument('serialPort', help='The serial port to use', default='/dev/ttyACM0')
+args = parser.parse_args()
 
 useSerial = False
 serialPort = "/dev/ttyACM0"
