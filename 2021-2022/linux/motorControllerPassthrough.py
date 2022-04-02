@@ -19,20 +19,32 @@ serialBaud = 9600
 def motorMove(direction):
     if direction == "forward":
         serialPort.write(b'0155\n1155\n')
+        print(serialPort.readline())
+        print(serialPort.readline())
     elif direction == "backward":
         serialPort.write(b'0-155\n1-155\n')
+        print(serialPort.readline())
+        print(serialPort.readline())
     elif direction == "left":
         serialPort.write(b'0155\n0-155\n')
+        print(serialPort.readline())
+        print(serialPort.readline())
         time.sleep(0.5)
         serialPort.write(b'0155\n1155\n')
+        print(serialPort.readline())
+        print(serialPort.readline())
     elif direction == "right":
         serialPort.write(b'0-155\n0155\n')
+        print(serialPort.readline())
+        print(serialPort.readline())
         time.sleep(0.5)
         serialPort.write(b'0155\n1155\n')
+        print(serialPort.readline())
+        print(serialPort.readline())
     elif direction == "stop":
         serialPort.write(b'0000\n1000\n')
-    print(serialPort.readline())
-    print(serialPort.readline())
+        print(serialPort.readline())
+        print(serialPort.readline())
 
 
 serialPort = serial.Serial(serialPort, serialBaud, timeout=1)

@@ -33,14 +33,14 @@ void loop() {
     String motorNumberStr = data.substring(0, 1);
     String motorSpeedStr = data.substring(1, 4);
 
-    Serial.print("   you want to turn motor: ");
-    Serial.print(motorNumberStr);
-    Serial.print(" at speed ");
-    Serial.print(motorSpeedStr);
-    Serial.print("\n");
-
     int motorNumber = motorNumberStr.toInt();
     int motorSpeed = motorSpeedStr.toInt();
+
+    Serial.print("   you want to turn motor: ");
+    Serial.print(motorNumber);
+    Serial.print(" at speed ");
+    Serial.print(motorSpeed);
+    Serial.print("\n");
     
     if (motorSpeed == 0) {
       digitalWrite(13, LOW);

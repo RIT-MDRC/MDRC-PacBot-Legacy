@@ -18,22 +18,22 @@ async def main():
 
     while True:
         direction = input()
-        if direction == "forward":
+        if direction == "forward" or direction == "f":
             await websocket.send("forward")
             print(await websocket.recv())
-        elif direction == "backward":
+        elif direction == "backward" or direction == "b":
             await websocket.send("backward")
             print(await websocket.recv())
-        elif direction == "left":
+        elif direction == "left" or direction == "l":
             await websocket.send("left")
             print(await websocket.recv())
-        elif direction == "right":
+        elif direction == "right" or direction == "r":
             await websocket.send("right")
             print(await websocket.recv())
-        elif direction == "stop":
+        elif direction == "stop" or direction == "s":
             await websocket.send("stop")
             print(await websocket.recv())
-        elif direction == "quit":
+        elif direction == "quit" or direction == "q":
             break
         else:
             print("invalid input")
