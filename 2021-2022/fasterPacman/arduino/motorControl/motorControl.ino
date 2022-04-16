@@ -24,6 +24,11 @@ void setup() {
 
 void loop() {
 
+  // read the input on analog pin 0:
+  int sensorValue = analogRead(A0);
+  // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+  float voltage = sensorValue * (5.0 / 1023.0);
+
   if (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
     Serial.print("echo: ");
@@ -31,15 +36,22 @@ void loop() {
     Serial.print(";");
 
     String motorNumberStr = data.substring(0, 1);
-    String motorSpeedStr = data.substring(1, 4);
+    String motorSpeedStr = data.substring(1, 5);
 
     int motorNumber = motorNumberStr.toInt();
     int motorSpeed = motorSpeedStr.toInt();
+
+    // read the input on analog pin 0:
+    int sensorValue = analogRead(A0);
+    // Convert the analog reading (which goes from 0 - 1023) to a voltage (0 - 5V):
+    float voltage = sensorValue * (5.0 / 1023.0);
 
     Serial.print("   you want to turn motor: ");
     Serial.print(motorNumber);
     Serial.print(" at speed ");
     Serial.print(motorSpeed);
+    Serial.print("; voltage = ");
+    Serial.print(voltage);
     Serial.print("\n");
     
     if (motorSpeed == 0) {
