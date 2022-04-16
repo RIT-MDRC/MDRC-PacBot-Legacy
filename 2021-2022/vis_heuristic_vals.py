@@ -77,7 +77,7 @@ def update_anim(frame_index):
     return aximg, ghost_sca, pacbot_sca, pellet_sca, super_pellet_sca
 
 num_frames = len(frame_data)
-fps = 20
+fps = 10
 print(f'{num_frames=}')
 progress = tqdm(total=num_frames)
 ani = FuncAnimation(fig, update_anim, frames=num_frames, interval=1000/fps, blit=True)
@@ -85,4 +85,14 @@ ani = FuncAnimation(fig, update_anim, frames=num_frames, interval=1000/fps, blit
 if args.save is not None:
     ani.save(args.save, writer='ffmpeg', fps=fps)
 else:
+    paused = False
+    def toggle_pause(event):
+        global paused
+        if event.key == ' ':
+            if paused:
+                ani.event_source.start()
+            else:
+                ani.event_source.stop()
+            paused = not paused
+    fig.canvas.mpl_connect('key_press_event', toggle_pause)
     plt.show()

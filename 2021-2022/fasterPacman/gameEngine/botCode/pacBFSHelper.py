@@ -46,13 +46,17 @@ def breadth_first_search(graph, start, goal):
                 visited[i] = current
     return None
 
-def bfs_find_pellet(graph, grid, start, goal):
+def bfs_find_pellet(graph, grid, start, goal, avoid_locs):
     theQueue = collections.deque()
     theQueue.append(start)
     visited = {}
     visited[start] = None
     while theQueue:
         current = theQueue.popleft()
+
+        if current in avoid_locs:
+            continue
+
         #stops and returns the best path
         if grid[current[0]][current[1]] == goal:
             return makePathList(current, visited)

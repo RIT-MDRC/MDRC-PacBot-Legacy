@@ -1,3 +1,4 @@
+import math
 import os, sys, curses, random, copy
 import time
 import robomodules as rm
@@ -152,18 +153,30 @@ class HighLevelPacman(rm.ProtoModule):
         return results
 
     #can change into BFS
-    def find_closest_pellets(self, grid, loc, n):
-        paths = bfs_find_pellet(self.initializedGrid, grid, loc, n)
+    def find_closest_pellets(self, grid, loc, n, avoid_locs):
+        paths = bfs_find_pellet(self.initializedGrid, grid, loc, n, avoid_locs)
         if(paths != None):
             return len(paths)
         else:
-            return 0
+            return 0  # TODO: signal that there are no pellets reachable from this location
 
     def get_heuristic_value(self, target):
         if(self.grid[target[0]][target[1]] in [I, n]):
             return None
-        pellet_dist = self.find_closest_pellets(self.grid, target, o)
-        super_pellet_dist = self.find_closest_pellets(self.grid, target, O)
+
+        # get the locations of non-frightened ghosts (if we're avoiding them)
+        AVOID_NFGS = bool(int(ANTI_CORNER_WEIGHT))
+        if AVOID_NFGS:
+            nfg_locs = frozenset(
+                (ghost.x, ghost.y)
+                for ghost in [self.state.red_ghost, self.state.pink_ghost, self.state.orange_ghost, self.state.blue_ghost]
+                if ghost.state != LightState.FRIGHTENED
+            )
+        else:
+            nfg_locs = frozenset()
+
+        pellet_dist = self.find_closest_pellets(self.grid, target, o, nfg_locs)
+        super_pellet_dist = self.find_closest_pellets(self.grid, target, O, nfg_locs)
         ghost_dists = self.find_closest_ghosts(self.grid, target)
 
         ghost_heuristic = 0
@@ -183,23 +196,29 @@ class HighLevelPacman(rm.ProtoModule):
         num_ghost_near_me = 0
         num_ghosts_frightened = 0
 
+        # add value for frightened ghosts
+        HUNT = PROXIMITY_PELLET_MULTIPLIER
+        # HUNT = FEAR
         for dist, state in ghost_dists:
             if state == LightState.FRIGHTENED:
                 num_ghosts_frightened += 1
-                if dist < FEAR:
-                    num_ghost_near_me += 1
-                    ghost_heuristic += (FEAR - dist)**2 * -1 * FRIGHTENED_GHOST_WEIGHT
-            else: # not frightened
-                if dist < FEAR:
-                    num_ghost_near_me += 1
-                    ghost_heuristic += (FEAR - dist)**2 * GHOST_WEIGHT
+                exp_val = math.exp(-dist / HUNT) if HUNT > 0 else 0
+                ghost_heuristic += -exp_val * FRIGHTENED_GHOST_WEIGHT
 
-        super_pellet_heuristic += PROXIMITY_PELLET_MULTIPLIER*num_ghost_near_me
-        if num_ghosts_frightened > 0:
-            super_pellet_heuristic = 600
+        # add value for the closest non-frightened ghost
+        min_nfg_dist = min(
+            (dist for dist, state in ghost_dists if state != LightState.FRIGHTENED),
+            default=math.inf,
+        )
+        exp_val = math.exp(-min_nfg_dist / FEAR) if FEAR > 0 else 0
+        ghost_heuristic += exp_val * GHOST_WEIGHT
+
+        # super_pellet_heuristic += PROXIMITY_PELLET_MULTIPLIER*num_ghost_near_me
+        # if num_ghosts_frightened > 0:
+        #     super_pellet_heuristic = 600
 
         # don't go to corners if ghosts are near me
-        anti_corner_heuristic = (abs(target[0]) + abs(target[1])) * num_ghost_near_me * ANTI_CORNER_WEIGHT
+        anti_corner_heuristic = 0#(abs(target[0]) + abs(target[1])) * num_ghost_near_me * ANTI_CORNER_WEIGHT
 
         #print("ghost heuristic: " + str(ghost_heuristic))
         #print("pellet heuristic: " + str(pellet_heuristic))

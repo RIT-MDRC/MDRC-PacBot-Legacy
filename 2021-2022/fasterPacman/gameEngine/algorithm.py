@@ -94,8 +94,11 @@ def find_best_parameters():
 
         if median_score > best_score:
             best_score = median_score
+            # green text
+            print('\x1b[32m', end='')
             print('New best median score:', best_score)
             print(f'  Params: {dict(zip(HYPERPARAM_RANGES.keys(), next_eval_request.x))}')
+            print('\x1b[0m', end='')
             print()
 
         # check if stdin has input and stop if so
@@ -115,13 +118,13 @@ def find_best_parameters():
 # hyperparam_name: (min_val, max_val, is_integer)
 # names correspond to arguments of test_hyperparams
 HYPERPARAM_RANGES = {
-    'FEAR':                    (0, 30, False),
-    'PELLET_WEIGHT':           (1.0, 1.0000001, False),
-    'SUPER_PELLET_WEIGHT':     (-15.0, 30.0, False),
-    'GHOST_WEIGHT':            (-15.0, 30.0, False),
-    'FRIGHTENED_GHOST_WEIGHT': (-15.0, 30.0, False),
-    'PROXIMITY_PELLET_MULTIPLIER': (-15.0, 30.0, False),
-    'ANTI_CORNER_WEIGHT':      (-15.0, 30.0, False),
+    'FEAR':                    (0, 50, False),
+    'PELLET_WEIGHT':           (-5.0, 10.0, False),
+    'SUPER_PELLET_WEIGHT':     (1.0, 1.0000001, False),
+    'GHOST_WEIGHT':            (-10.0, 200.0, False),
+    'FRIGHTENED_GHOST_WEIGHT': (-10.0, 200.0, False),
+    'PROXIMITY_PELLET_MULTIPLIER': (0, 50, False), # actually HUNT distance
+    'ANTI_CORNER_WEIGHT':      (0, 1, True), # actually whether to avoid n.f. ghosts when pathfinding for pellets
 }
 
 def test_hyperparams(*args):
@@ -171,6 +174,7 @@ def test_hyperparams(*args):
             print('average score: ' + str(avg_score))
         return avg_score
     else:
+        print(f'Testing params: {weight_set}')
 
         results = []
         numGamesFinished = 0
