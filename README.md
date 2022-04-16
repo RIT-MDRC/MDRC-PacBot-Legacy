@@ -34,3 +34,5 @@ RIT MDRC's robot competing in Harvard's Pacbot Competition.
 13. Locate motorControllerPassthrough.py and run it on the Raspberry Pi with the argument of /dev/tty/USB0 (replace with serial port).
 14. On your computer, locate motorControllerPassthrough.py and run it
 15. Type "f", "b", "l", "r", or "s" (stop) to control the robot, or "q" to quit the program.
+
+To learn more about the software, see the doc in the MDRC google drive https://docs.google.com/document/d/10UM2JkGd73kfUx4oTEAEH53nK31bbPSw4fjkly4F9ZI/edit
