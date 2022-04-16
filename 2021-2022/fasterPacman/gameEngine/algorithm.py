@@ -76,7 +76,7 @@ def find_best_parameters():
     )
     # if the optimizer expects that refining the current best solution won't result
     # in an improvement of at least this amount, then it will explore elsewhere
-    optimizer.set_solver_epsilon(100) # in score units
+    optimizer.set_solver_epsilon(50) # in score units
 
     # main eval/solver loop
     best_score = -math.inf
@@ -122,7 +122,7 @@ HYPERPARAM_RANGES = {
     'PELLET_WEIGHT':           (-5.0, 10.0, False),
     'SUPER_PELLET_WEIGHT':     (1.0, 1.0000001, False),
     'GHOST_WEIGHT':            (-10.0, 200.0, False),
-    'FRIGHTENED_GHOST_WEIGHT': (-10.0, 200.0, False),
+    'FRIGHTENED_GHOST_WEIGHT': (-10.0, 300.0, False),
     'PROXIMITY_PELLET_MULTIPLIER': (0, 50, False), # actually HUNT distance
     'ANTI_CORNER_WEIGHT':      (0, 1, True), # actually whether to avoid n.f. ghosts when pathfinding for pellets
 }

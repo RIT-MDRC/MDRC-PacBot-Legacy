@@ -22,8 +22,9 @@ if not args.parameter:
     ]
 
     plt.scatter(*zip(*scatter_data), alpha=0.2, edgecolors='none')
-    plt.plot(np.mean(all_results, axis=1), label='Mean')
-    plt.plot(np.median(all_results, axis=1), label='Median')
+    plt.plot(np.mean(all_results, axis=1), 'X', markersize=10, label='Mean')
+    plt.plot(np.median(all_results, axis=1), 'X', markersize=10, label='Median')
+    plt.plot(np.percentile(all_results, 10, axis=1), 'X', markersize=10, label='10th percentile')
     plt.legend()
     plt.tight_layout()
     plt.show()

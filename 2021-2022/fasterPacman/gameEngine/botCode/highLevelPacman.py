@@ -155,10 +155,10 @@ class HighLevelPacman(rm.ProtoModule):
     #can change into BFS
     def find_closest_pellets(self, grid, loc, n, avoid_locs):
         paths = bfs_find_pellet(self.initializedGrid, grid, loc, n, avoid_locs)
-        if(paths != None):
+        if paths is not None:
             return len(paths)
         else:
-            return 0  # TODO: signal that there are no pellets reachable from this location
+            return 100  # TODO: signal that there are no pellets reachable from this location
 
     def get_heuristic_value(self, target):
         if(self.grid[target[0]][target[1]] in [I, n]):
@@ -176,6 +176,7 @@ class HighLevelPacman(rm.ProtoModule):
             nfg_locs = frozenset()
 
         pellet_dist = self.find_closest_pellets(self.grid, target, o, nfg_locs)
+        # return pellet_dist
         super_pellet_dist = self.find_closest_pellets(self.grid, target, O, nfg_locs)
         ghost_dists = self.find_closest_ghosts(self.grid, target)
 
@@ -267,7 +268,7 @@ class HighLevelPacman(rm.ProtoModule):
             else:
                 returnState['t2'] = (time.perf_counter() - start_time)*1000
             if path is not None:
-                next_location = path[-1]
+                next_location = path[-1] if len(path) > 0 else self.previousLocation
                 if(next_location != self.previousLocation):
                     if(next_location == None):
                         return

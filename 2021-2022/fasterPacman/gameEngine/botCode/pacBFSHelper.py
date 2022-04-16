@@ -25,7 +25,7 @@ def makePathList(node, previousNodes):
     while previousNodes[node] is not None:
         path.append(node)
         node = previousNodes[node]
-    return path or None
+    return path
 
 @lru_cache(maxsize=200)
 def breadth_first_search(graph, start, goal):

@@ -51,6 +51,7 @@ aximg = ax.matshow(np.zeros_like(all_value_grids[0]), vmin=value_min, vmax=value
 fig.colorbar(aximg)
 
 ghost_sca = ax.scatter([], [], color='red', edgecolors='none', marker='s')
+# fr_ghost_sca = ax.scatter([], [], color='red', edgecolors='none', marker='D')
 pacbot_sca = ax.scatter([], [], color='red', edgecolors='none', marker='x')
 pellet_sca = ax.scatter([], [], color='white', edgecolors='none', marker='.')
 super_pellet_sca = ax.scatter([], [], color='white', edgecolors='none', marker='o')
@@ -68,6 +69,7 @@ def update_anim(frame_index):
     data = frame_data[frame_index]
 
     aximg.set_data(data.value_grid)
+    # aximg.set_clim(value_min, value_max)
 
     ghost_sca.set_offsets(data.ghost_locs)
     pacbot_sca.set_offsets(data.pacbot_loc)
