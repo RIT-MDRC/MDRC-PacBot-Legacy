@@ -29,10 +29,10 @@ RIT MDRC's robot competing in Harvard's Pacbot Competition.
 8. Plug the data wire (white) into the analog input of the motor shield.
 9. Put the wheels on the motor axles.
 10. Plug the 9V battery into the motor shield using the 5-12V wire slots.
-11. SSH into the raspberry pi at mdrcpi4.rit.edu
+11. SSH into the raspberry pi: `ssh pi@mdrcpi4.student.rit.edu`
 12. Run ls /dev/tty* to find the serial port of the Arduino (similar to "USB0").
 13. Locate motorControllerPassthrough.py and run it on the Raspberry Pi with the argument of /dev/tty/USB0 (replace with serial port).
-14. On your computer, locate motorControllerPassthrough.py and run it
+14. On your computer, locate motorControllerPassthroughClient.py and run it: `python3 motorControllerPassthroughClient.py ws://mdrcpi4.student.rit.edu:8765`
 15. Type "f", "b", "l", "r", or "s" (stop) to control the robot, or "q" to quit the program.
 
 To learn more about the software, see the doc in the MDRC google drive https://docs.google.com/document/d/10UM2JkGd73kfUx4oTEAEH53nK31bbPSw4fjkly4F9ZI/edit
