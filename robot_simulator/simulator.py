@@ -1,21 +1,76 @@
 import pygame as pg
 import random
 import math
-from typing import NamedTuple
+import itertools
+from typing import NamedTuple, Optional
 
 from grid import *
 
 
+EPSILON = 1e-5  # small value used to avoid division by zero, etc.
+
+
 class HorizontalSegment(NamedTuple):
-    x_start: int
-    x_end: int
+    x_min: int
+    x_max: int
     y: int
+
+    def raycast(self, x0: float, y0: float, vx: float, vy: float) -> Optional[float]:
+        """
+        Returns the distance to this line segment along the ray starting at (x0, y0) with
+        normalized direction (vx, vy), or None if the ray does not intersect this line segment.
+        """
+        if abs(vy) < EPSILON:
+            return None
+        distance = (self.y - y0) / vy
+        if distance < 0 or not (self.x_min <= x0 + vx * distance <= self.x_max):
+            return None
+        else:
+            return distance
 
 
 class VerticalSegment(NamedTuple):
-    y_start: int
-    y_end: int
+    y_min: int
+    y_max: int
     x: int
+
+    def raycast(self, x0: float, y0: float, vx: float, vy: float) -> Optional[float]:
+        """
+        Returns the distance to this line segment along the ray starting at (x0, y0) with
+        normalized direction (vx, vy), or None if the ray does not intersect this line segment.
+        """
+        if abs(vx) < EPSILON:
+            return None
+        distance = (self.x - x0) / vx
+        if distance < 0 or not (self.y_min <= y0 + vy * distance <= self.y_max):
+            return None
+        else:
+            return distance
+
+
+def raycast(start_pos: tuple[float, float], angle: float) -> float:
+    """
+    Returns the distance along the given ray where it first intersects a line segment
+    on the map.
+    """
+    x0, y0 = start_pos
+    vx = math.cos(angle)
+    vy = math.sin(angle)
+
+    # return the minimum distance to a line segment
+    distances = (
+        seg.raycast(x0, y0, vx, vy) for seg in itertools.chain(x_segments, y_segments)
+    )
+    return min(filter(None, distances))
+
+
+def draw_ray(surface: pg.Surface, start_pos: tuple[float, float], angle: float):
+    x0, y0 = start_pos
+    vx = math.cos(angle)
+    vy = math.sin(angle)
+    d = raycast(start_pos, angle)
+    end_pos = (x0 + vx * d, y0 + vy * d)
+    pg.draw.aaline(surface, COLOR_RAY, world2screen(start_pos), world2screen(end_pos))
 
 
 def get_alt_grid():
@@ -33,7 +88,7 @@ GRID_WIDTH = len(GRID)
 GRID_HEIGHT = len(GRID[0])
 
 
-def get_map_segments(grid) -> list[HorizontalSegment]:
+def get_map_segments(grid) -> tuple[list[HorizontalSegment], list[VerticalSegment]]:
     """Returns the X and Y line segments in the map."""
     grid_width = len(grid)
     grid_height = len(grid[0])
@@ -82,6 +137,7 @@ COLOR_BG = (255, 255, 255)
 COLOR_LINE = (0, 0, 0)
 COLOR_WALL_FILL = (192, 192, 192)
 COLOR_ROBOT = (0, 0, 255)
+COLOR_RAY = (255, 0, 0)
 
 
 class Robot:
@@ -99,10 +155,6 @@ class Robot:
             center[1] + math.sin(self.angle) * radius,
         )
         pg.draw.line(surface, COLOR_ROBOT, center, end_pos)
-
-
-def raycast(start_pos: tuple[float, float], angle: float) -> float:
-    ...  # TODO
 
 
 def main():
@@ -129,17 +181,18 @@ def main():
 
     # draw all the line segments
     for x_seg in x_segments:
-        start_pos = world2screen((x_seg.x_start, x_seg.y))
-        end_pos = world2screen((x_seg.x_end, x_seg.y))
+        start_pos = world2screen((x_seg.x_min, x_seg.y))
+        end_pos = world2screen((x_seg.x_max, x_seg.y))
         pg.draw.line(background_image, COLOR_LINE, start_pos, end_pos)
     for y_seg in y_segments:
-        start_pos = world2screen((y_seg.x, y_seg.y_start))
-        end_pos = world2screen((y_seg.x, y_seg.y_end))
+        start_pos = world2screen((y_seg.x, y_seg.y_min))
+        end_pos = world2screen((y_seg.x, y_seg.y_max))
         pg.draw.line(background_image, COLOR_LINE, start_pos, end_pos)
 
     pg.display.flip()
 
     robot = Robot()
+    robot.x += 4
 
     while True:
         for event in pg.event.get():
@@ -155,7 +208,10 @@ def main():
         display.blit(background_image, bg_rect)
 
         # draw the robot
+        robot.angle += 0.0002
         robot.draw(display)
+        for da in [-math.pi / 2, -math.pi / 6, 0, +math.pi / 6, +math.pi / 2]:
+            draw_ray(display, (robot.x, robot.y), robot.angle + da)
 
         pg.display.update()
 
