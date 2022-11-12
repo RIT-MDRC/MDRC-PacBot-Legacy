@@ -3,6 +3,7 @@ import random
 import math
 import itertools
 from typing import NamedTuple, Optional
+from abc import ABC, abstractmethod
 
 from grid import *
 
@@ -64,13 +65,28 @@ def raycast(start_pos: tuple[float, float], angle: float) -> float:
     return min(filter(None, distances))
 
 
+MAX_DISTANCE_CM = 15
+MAX_DISTANCE_IN = MAX_DISTANCE_CM * (5.91 / 15)
+MAX_DISTANCE = MAX_DISTANCE_IN / 3.5 + (3 / 3.5)
+
+# robot configuration
+SENSOR_ANGLES = [-math.pi / 2, -math.pi / 4, 0, +math.pi / 4, +math.pi / 2]
+DIST_BETWEEN_WHEELS = 4.0 / 3.5
+MAX_WHEEL_SPEED = 8.0 / 3.5
+
+
 def draw_ray(surface: pg.Surface, start_pos: tuple[float, float], angle: float):
     x0, y0 = start_pos
     vx = math.cos(angle)
     vy = math.sin(angle)
     d = raycast(start_pos, angle)
+    if d > MAX_DISTANCE:
+        d = MAX_DISTANCE
+        color = COLOR_RAY_MAXED
+    else:
+        color = COLOR_RAY
     end_pos = (x0 + vx * d, y0 + vy * d)
-    pg.draw.aaline(surface, COLOR_RAY, world2screen(start_pos), world2screen(end_pos))
+    pg.draw.aaline(surface, color, world2screen(start_pos), world2screen(end_pos))
 
 
 def get_alt_grid():
@@ -138,6 +154,9 @@ COLOR_LINE = (0, 0, 0)
 COLOR_WALL_FILL = (192, 192, 192)
 COLOR_ROBOT = (0, 0, 255)
 COLOR_RAY = (255, 0, 0)
+COLOR_RAY_MAXED = (0, 200, 0)
+
+FPS = 30
 
 
 class Robot:
@@ -155,6 +174,12 @@ class Robot:
             center[1] + math.sin(self.angle) * radius,
         )
         pg.draw.line(surface, COLOR_ROBOT, center, end_pos)
+
+
+class Controller(ABC):
+    @abstractmethod
+    def step(self, dt, sensor_values) -> tuple[float, float]:
+        raise NotImplementedError()
 
 
 def main():
@@ -192,9 +217,18 @@ def main():
     pg.display.flip()
 
     robot = Robot()
-    robot.x += 4
+    robot.x -= 1.5
+    robot.angle = random.uniform(-1.0, +1.0)
 
+    import pd_controller
+
+    controller = pd_controller.PDController()
+
+    clock = pg.time.Clock()
     while True:
+        dt = clock.tick(FPS) / 1000  # time since last frame, in seconds
+        dt *= 0.2
+
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 return
@@ -204,13 +238,29 @@ def main():
                 elif event.key == pg.K_f:
                     pass  # ...
 
+        # compute sensor readings
+        sensor_distances = [
+            min(raycast((robot.x, robot.y), robot.angle + da), MAX_DISTANCE)
+            for da in SENSOR_ANGLES
+        ]
+
+        # update the controller and robot pose
+        left_motor, right_motor = controller.step(dt, sensor_distances)
+        left_wheel = min(max(left_motor, -1.0), +1.0) * MAX_WHEEL_SPEED
+        right_wheel = min(max(right_motor, -1.0), +1.0) * MAX_WHEEL_SPEED
+        linear_speed = (left_wheel + right_wheel) / 2
+        angular_speed = (left_wheel - right_wheel) / DIST_BETWEEN_WHEELS
+
+        robot.angle += angular_speed * dt
+        robot.x += linear_speed * dt * math.cos(robot.angle)
+        robot.y += linear_speed * dt * math.sin(robot.angle)
+
         # clear / draw the background
         display.blit(background_image, bg_rect)
 
         # draw the robot
-        robot.angle += 0.0002
         robot.draw(display)
-        for da in [-math.pi / 2, -math.pi / 6, 0, +math.pi / 6, +math.pi / 2]:
+        for da in SENSOR_ANGLES:
             draw_ray(display, (robot.x, robot.y), robot.angle + da)
 
         pg.display.update()
