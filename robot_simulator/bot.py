@@ -1,7 +1,7 @@
 from grid import *
 
 
-def high_level_strategy(pos: tuple[int, int], direction: int, grid: list[int, int]) -> tuple[int, int]:
+def high_level_strategy(pos: tuple[int, int], direction: int) -> tuple[int, int]:
     """
     Determines the target location based on the current position, direction, and grid state.
 
@@ -14,7 +14,7 @@ def high_level_strategy(pos: tuple[int, int], direction: int, grid: list[int, in
     pass
 
 
-def path_finding(pos: tuple[int, int], target: tuple[int, int], grid: list[int, int]) -> list[tuple[int, int]]:
+def path_finding(pos: tuple[int, int], target: tuple[int, int]) -> list[tuple[int, int]]:
     """
     Determines the path to the target location based on the current position, target location, and grid state.
 
@@ -27,7 +27,7 @@ def path_finding(pos: tuple[int, int], target: tuple[int, int], grid: list[int, 
     pass
 
 
-def determine_heading(pos: tuple[float, float], angle: float, target: tuple[int, int], grid: list[int, int]) \
+def determine_heading(pos: tuple[float, float], angle: float, target: tuple[int, int]) \
         -> tuple[float, float]:
     """
     Determines the heading of the robot based on the current position, direction, target location, and grid state.
