@@ -54,12 +54,12 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
         robot_pos_projection = (first_point[0], pos[1])
         # work out look ahead position
         if first_point[1] < second_point[1]: # up
-            look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] + LOOK_AHEAD_DISTANCE)
+            look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] + PURE_PURSUIT_LOOKAHEAD)
             look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
                                                    look_ahead_pos[1] - pos[1])
             correction_angle = (look_ahead_to_robot_angle + (90-angle))
         else: # down
-            look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] - LOOK_AHEAD_DISTANCE)
+            look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] - PURE_PURSUIT_LOOKAHEAD)
             look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
                                                    pos[1] - look_ahead_pos[1])
             correction_angle = -(look_ahead_to_robot_angle + (90+angle))
