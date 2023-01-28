@@ -1,4 +1,7 @@
 from grid import *
+import math
+
+PURE_PURSUIT_LOOKAHEAD = 0.5 # grid units
 
 
 def high_level_strategy(pos: tuple[int, int], direction: int, grid: list[int, int]) -> tuple[int, int]:
@@ -27,10 +30,10 @@ def path_finding(pos: tuple[int, int], target: tuple[int, int], grid: list[int, 
     pass
 
 
-def determine_heading(pos: tuple[float, float], angle: float, path: list[tuple[int, int]], grid: list[int, int]) \
+def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, int]], grid: list[int, int]) \
         -> tuple[float, float]:
     """
-    Determines the heading of the robot based on the current position, direction, path to follow, and grid state.
+    Follow a path with the pure pursuit algorithm using current position, direction, path to follow, and grid state.
     Utilizes localization via particle filter and acceleration control via PID controller / trapezoid function.
 
     @param pos: The current position of the robot.
@@ -41,9 +44,46 @@ def determine_heading(pos: tuple[float, float], angle: float, path: list[tuple[i
     @return: (speed, angle)  The speed and angle of the robot.
     """
     
+    # grab first line segment
+    first_point = path[0]
+    second_point = path[1]
     
-    
-    pass
+    # work out if this line is vertical or horizontal
+    if first_point[0] == second_point[0]: # vertical
+        # work out where on the line the robot is
+        robot_pos_projection = (first_point[0], pos[1])
+        # work out look ahead position
+        if first_point[1] < second_point[1]: # up
+            look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] + LOOK_AHEAD_DISTANCE)
+            look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
+                                                   look_ahead_pos[1] - pos[1])
+            correction_angle = (look_ahead_to_robot_angle + (90-angle))
+        else: # down
+            look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] - LOOK_AHEAD_DISTANCE)
+            look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
+                                                   pos[1] - look_ahead_pos[1])
+            correction_angle = -(look_ahead_to_robot_angle + (90+angle))
+    else: # horizontal
+        # work out where on the line the robot is
+        robot_pos_projection = (pos[0], first_point[1])
+        # work out look ahead position
+        if first_point[0] < second_point[0]: # right
+            look_ahead_pos = (robot_pos_projection[0] + PURE_PURSUIT_LOOKAHEAD, robot_pos_projection[1])
+            look_ahead_to_robot_angle = math.atan2(pos[1] - look_ahead_pos[1],
+                                                   look_ahead_pos[0] - pos[0])
+            correction_angle = -(look_ahead_to_robot_angle + angle)
+        else: # left
+            look_ahead_pos = (robot_pos_projection[0] - PURE_PURSUIT_LOOKAHEAD, robot_pos_projection[1])
+            look_ahead_to_robot_angle = math.atan2(pos[1] - look_ahead_pos[1],
+                                                   pos[0] - look_ahead_pos[0])
+            # edge case
+            if angle > 0:
+                correction_angle = -(look_ahead_to_robot_angle + (180-angle))
+            else:
+                correction_angle = -(look_ahead_to_robot_angle + (-180-angle))
+            
+            
+    return (1, correction_angle)
 
 
 def wheel_control(heading: tuple[float, float]):
