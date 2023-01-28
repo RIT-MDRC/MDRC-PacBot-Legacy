@@ -63,7 +63,7 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
             correction_angle = (look_ahead_to_robot_angle + (90-angle))
             
             # check if we are at the end of the line
-            if look_ahead_pos[1] > second_point[1]:
+            if pos[1] > second_point[1]:
                 # remove the first line segment
                 path.pop(0)
             
@@ -74,7 +74,7 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
             correction_angle = -(look_ahead_to_robot_angle + (90+angle))
             
             # check if we are at the end of the line
-            if look_ahead_pos[1] < second_point[1]:
+            if pos[1] < second_point[1]:
                 # remove the first line segment
                 path.pop(0)
                 
@@ -89,7 +89,7 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
             correction_angle = -(look_ahead_to_robot_angle + angle)
             
             # check if we are at the end of the line
-            if look_ahead_pos[0] > second_point[0]:
+            if pos[0] > second_point[0]:
                 # remove the first line segment
                 path.pop(0)
             
@@ -104,7 +104,7 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
                 correction_angle = -(look_ahead_to_robot_angle + (-180-angle))
                 
             # check if we are at the end of the line
-            if look_ahead_pos[0] < second_point[0]:
+            if pos[0] < second_point[0]:
                 # remove the first line segment
                 path.pop(0)
             

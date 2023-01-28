@@ -174,6 +174,20 @@ class Robot:
             center[1] + math.sin(self.angle) * radius,
         )
         pg.draw.line(surface, COLOR_ROBOT, center, end_pos)
+        
+    def step(self, left_motor, right_motor, dt):
+        """
+        left_motor and right_motor are in the range [-1.0, +1.0].
+        dt is the time step in seconds.
+        """
+        left_wheel = min(max(left_motor, -1.0), +1.0) * MAX_WHEEL_SPEED
+        right_wheel = min(max(right_motor, -1.0), +1.0) * MAX_WHEEL_SPEED
+        linear_speed = (left_wheel + right_wheel) / 2
+        angular_speed = (left_wheel - right_wheel) / DIST_BETWEEN_WHEELS
+
+        self.angle += angular_speed * dt
+        self.x += linear_speed * dt * math.cos(self.angle)
+        self.y += linear_speed * dt * math.sin(self.angle)
 
 
 class Controller(ABC):
@@ -246,14 +260,7 @@ def main():
 
         # update the controller and robot pose
         left_motor, right_motor = controller.step(dt, sensor_distances)
-        left_wheel = min(max(left_motor, -1.0), +1.0) * MAX_WHEEL_SPEED
-        right_wheel = min(max(right_motor, -1.0), +1.0) * MAX_WHEEL_SPEED
-        linear_speed = (left_wheel + right_wheel) / 2
-        angular_speed = (left_wheel - right_wheel) / DIST_BETWEEN_WHEELS
-
-        robot.angle += angular_speed * dt
-        robot.x += linear_speed * dt * math.cos(robot.angle)
-        robot.y += linear_speed * dt * math.sin(robot.angle)
+        robot.step(left_motor, right_motor, dt)
 
         # clear / draw the background
         display.blit(background_image, bg_rect)
