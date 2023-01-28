@@ -35,3 +35,9 @@ GRID = [[W,W,W,W,W,W,W,W,W,W,W,W,U,U,U,U,U,U,U,U,U,W,W,W,W,W,W,W,W,W,W][::-1], #
 
 GRID_WIDTH = len(GRID)
 GRID_HEIGHT = len(GRID[0])
+
+GRID_OPEN_SPACES = []
+for x in range(GRID_WIDTH):
+    for y in range(GRID_HEIGHT):
+        if GRID[x][y] == o:
+            GRID_OPEN_SPACES.append((x, y))
