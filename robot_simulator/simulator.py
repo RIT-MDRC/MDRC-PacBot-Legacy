@@ -6,15 +6,16 @@ from typing import NamedTuple, Optional
 from abc import ABC, abstractmethod
 
 from grid import *
+from bot_math import *
 
 
 EPSILON = 1e-5  # small value used to avoid division by zero, etc.
 
 
 class HorizontalSegment(NamedTuple):
-    x_min: int
-    x_max: int
-    y: int
+    x_min: float
+    x_max: float
+    y: float
 
     def raycast(self, x0: float, y0: float, vx: float, vy: float) -> Optional[float]:
         """
@@ -31,9 +32,9 @@ class HorizontalSegment(NamedTuple):
 
 
 class VerticalSegment(NamedTuple):
-    y_min: int
-    y_max: int
-    x: int
+    y_min: float
+    y_max: float
+    x: float
 
     def raycast(self, x0: float, y0: float, vx: float, vy: float) -> Optional[float]:
         """
@@ -115,9 +116,9 @@ def get_map_segments(grid) -> tuple[list[HorizontalSegment], list[VerticalSegmen
         for x in range(0, grid_width):
             is_wall_here = grid[x][y] != grid[x][y + 1]
             if is_wall_here and seg_start_x is None:
-                seg_start_x = x
+                seg_start_x = x - 1
             if not is_wall_here and seg_start_x is not None:
-                x_segments.append(HorizontalSegment(seg_start_x, x, y + 1))
+                x_segments.append(HorizontalSegment(seg_start_x, x - 1, y))
                 seg_start_x = None
 
     y_segments = []
@@ -126,9 +127,9 @@ def get_map_segments(grid) -> tuple[list[HorizontalSegment], list[VerticalSegmen
         for y in range(0, grid_height):
             is_wall_here = grid[x][y] != grid[x + 1][y]
             if is_wall_here and seg_start_y is None:
-                seg_start_y = y
+                seg_start_y = y - 1
             if not is_wall_here and seg_start_y is not None:
-                y_segments.append(VerticalSegment(seg_start_y, y, x + 1))
+                y_segments.append(VerticalSegment(seg_start_y, y - 1, x))
                 seg_start_y = None
 
     return x_segments, y_segments
@@ -158,20 +159,22 @@ COLOR_RAY_MAXED = (0, 200, 0)
 
 FPS = 30
 
+ROBOT_RADIUS = DRAW_SCALE * (6 / 3.5) / 2
+
 
 class Robot:
     def __init__(self):
-        self.x = 14.5
-        self.y = 18.0
+        self.x = 14
+        self.y = 17
         self.angle = 0.0  # radians
 
     def draw(self, surface):
         center = world2screen((self.x, self.y))
-        radius = DRAW_SCALE * (6 / 3.5) / 2
-        pg.draw.circle(surface, COLOR_ROBOT, center, radius, width=2)
+
+        pg.draw.circle(surface, COLOR_ROBOT, center, ROBOT_RADIUS, width=2)
         end_pos = (
-            center[0] + math.cos(self.angle) * radius,
-            center[1] + math.sin(self.angle) * radius,
+            center[0] + math.cos(self.angle) * ROBOT_RADIUS,
+            center[1] + math.sin(self.angle) * ROBOT_RADIUS,
         )
         pg.draw.line(surface, COLOR_ROBOT, center, end_pos)
 
@@ -201,7 +204,7 @@ def main():
     for x in range(GRID_WIDTH):
         for y in range(GRID_HEIGHT):
             if GRID[x][y]:
-                rect = pg.Rect(*world2screen((x, y)), DRAW_SCALE, DRAW_SCALE)
+                rect = pg.Rect(*world2screen((x - 1, y - 1)), DRAW_SCALE, DRAW_SCALE)
                 pg.draw.rect(background_image, COLOR_WALL_FILL, rect)
 
     # draw all the line segments

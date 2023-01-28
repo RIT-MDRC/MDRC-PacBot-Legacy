@@ -1,9 +1,11 @@
 import math
 import random
 
+from grid import *
 
-def _pf_random_point(pos: [float, float], angle: float, pos_range: int, angle_range: float, robot_radius: float,
-                     grid: list[int, int]) -> tuple[float, float]:
+
+def pf_random_point(pos: [float, float], angle: float, pos_range: int, angle_range: float, robot_radius: float) \
+        -> tuple[float, float]:
     """
     Returns a random valid point given the grid.
 
@@ -11,10 +13,23 @@ def _pf_random_point(pos: [float, float], angle: float, pos_range: int, angle_ra
 
     @return: A random point within the grid.
     """
+
+    # shuffle GRID_OPEN_SPACES array
+    random.shuffle(GRID_OPEN_SPACES)
+
+    # select the first point (x, y) in GRID_OPEN_SPACES that is within pos_range of pos
+    for x, y in GRID_OPEN_SPACES:
+        if dist(pos, (x, y)) <= pos_range:
+            # return a point within 0.5 units of the selected point, preferring closer points
+            return x + random.uniform(-0.5, 0.5), y + random.uniform(-0.5, 0.5)
+
+    print('it seems we have left the grid')
     return 0, 0
 
 
-def particle_filter(last_pos: tuple[float, float], last_angle: float, grid: list[int, int]) -> tuple[float, float]:
+
+
+def particle_filter(last_pos: tuple[float, float], last_angle: float) -> tuple[float, float]:
     """
     Determines the current position and direction of the robot based on the last known position and angle.
 
