@@ -44,6 +44,9 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
     @return: (speed, angle)  The speed and angle of the robot.
     """
     
+    if len(path) < 2:
+        return (0, 0)
+    
     # grab first line segment
     first_point = path[0]
     second_point = path[1]
@@ -58,11 +61,23 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
             look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
                                                    look_ahead_pos[1] - pos[1])
             correction_angle = (look_ahead_to_robot_angle + (90-angle))
+            
+            # check if we are at the end of the line
+            if look_ahead_pos[1] > second_point[1]:
+                # remove the first line segment
+                path.pop(0)
+            
         else: # down
             look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] - PURE_PURSUIT_LOOKAHEAD)
             look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
                                                    pos[1] - look_ahead_pos[1])
             correction_angle = -(look_ahead_to_robot_angle + (90+angle))
+            
+            # check if we are at the end of the line
+            if look_ahead_pos[1] < second_point[1]:
+                # remove the first line segment
+                path.pop(0)
+                
     else: # horizontal
         # work out where on the line the robot is
         robot_pos_projection = (pos[0], first_point[1])
@@ -72,6 +87,12 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
             look_ahead_to_robot_angle = math.atan2(pos[1] - look_ahead_pos[1],
                                                    look_ahead_pos[0] - pos[0])
             correction_angle = -(look_ahead_to_robot_angle + angle)
+            
+            # check if we are at the end of the line
+            if look_ahead_pos[0] > second_point[0]:
+                # remove the first line segment
+                path.pop(0)
+            
         else: # left
             look_ahead_pos = (robot_pos_projection[0] - PURE_PURSUIT_LOOKAHEAD, robot_pos_projection[1])
             look_ahead_to_robot_angle = math.atan2(pos[1] - look_ahead_pos[1],
@@ -81,7 +102,11 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
                 correction_angle = -(look_ahead_to_robot_angle + (180-angle))
             else:
                 correction_angle = -(look_ahead_to_robot_angle + (-180-angle))
-            
+                
+            # check if we are at the end of the line
+            if look_ahead_pos[0] < second_point[0]:
+                # remove the first line segment
+                path.pop(0)
             
     return (1, correction_angle)
 
