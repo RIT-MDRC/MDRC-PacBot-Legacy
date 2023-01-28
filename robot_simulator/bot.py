@@ -27,19 +27,22 @@ def path_finding(pos: tuple[int, int], target: tuple[int, int], grid: list[int, 
     pass
 
 
-def determine_heading(pos: tuple[float, float], angle: float, target: tuple[int, int], grid: list[int, int]) \
+def determine_heading(pos: tuple[float, float], angle: float, path: list[tuple[int, int]], grid: list[int, int]) \
         -> tuple[float, float]:
     """
-    Determines the heading of the robot based on the current position, direction, target location, and grid state.
+    Determines the heading of the robot based on the current position, direction, path to follow, and grid state.
     Utilizes localization via particle filter and acceleration control via PID controller / trapezoid function.
 
     @param pos: The current position of the robot.
     @param angle: The current direction of the robot.
-    @param target: The target location.
+    @param path: The path to follow.
     @param grid: The current shape of the grid.
 
-    @return: The heading of the robot; the magnitude of the values determines the speed, the ratio determines the angle.
+    @return: (speed, angle)  The speed and angle of the robot.
     """
+    
+    
+    
     pass
 
 
