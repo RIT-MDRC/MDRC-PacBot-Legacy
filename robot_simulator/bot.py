@@ -108,6 +108,8 @@ def pure_pursuit(pos: tuple[float, float], angle: float, path: list[tuple[int, i
                 # remove the first line segment
                 path.pop(0)
             
+    # TODO: slow down when approaching the end of the line, and speed up at the start
+            
     return (1, correction_angle)
 
 
