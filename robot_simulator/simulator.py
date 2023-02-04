@@ -4,10 +4,12 @@ import math
 import itertools
 from typing import NamedTuple, Optional
 from abc import ABC, abstractmethod
-
+import pd_controller
+    
 from grid import *
 from bot_math import *
 
+from path_tracker import *
 
 EPSILON = 1e-5  # small value used to avoid division by zero, etc.
 
@@ -237,14 +239,22 @@ def main():
     robot.x -= 1.5
     robot.angle = random.uniform(-1.0, +1.0)
 
-    import pd_controller
+    test_path = [
+        (13.0, 20.0),
+        (23.0, 20.0),
+        (23.0, 28.0),
+        (13.0, 28.0),
+        (13.0, 20.0),
+    ]
+    
+    tracker = PathTracker(2, 0, 0)
 
     controller = pd_controller.PDController()
 
     clock = pg.time.Clock()
     while True:
         dt = clock.tick(FPS) / 1000  # time since last frame, in seconds
-        dt *= 0.2
+        #dt *= 0.2
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -262,7 +272,11 @@ def main():
         ]
 
         # update the controller and robot pose
-        left_motor, right_motor = controller.step(dt, sensor_distances)
+        #left_motor, right_motor = controller.step(dt, sensor_distances)
+        speed, angle = tracker.pure_pursuit((robot.x, robot.y), robot.angle, test_path, dt)
+        # calculate left and right motor speeds
+        left_motor = max(min(speed + angle, 1.0), -1.0)
+        right_motor = max(min(speed - angle, 1.0), -1.0)
         robot.step(left_motor, right_motor, dt)
 
         # clear / draw the background
@@ -272,6 +286,12 @@ def main():
         robot.draw(display)
         for da in SENSOR_ANGLES:
             draw_ray(display, (robot.x, robot.y), robot.angle + da)
+
+        # draw the path
+        # convert to screen coordinates with world2screen(tuple)
+        path = [world2screen(p) for p in test_path]
+        if len(path) > 1:
+            pg.draw.lines(display, pg.Color("red"), False, path, 2)
 
         pg.display.update()
 

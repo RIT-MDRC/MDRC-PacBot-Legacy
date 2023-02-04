@@ -37,6 +37,10 @@ class Pose(NamedTuple):
         return self
 
 
+def normalize_angle(angle: float) -> float:
+    """Normalizes an angle to be between -pi and pi radians."""
+    return (angle + math.pi) % (2 * math.pi) - math.pi
+
 def pf_random_point(angle: float, pos_range: int, angle_range: float, robot_radius: float = 0.4) \
         -> Pose:
     """
