@@ -6,6 +6,10 @@ from grid import *
 sorted_spaces = GRID_OPEN_SPACES
 
 
+def normalize_angle(angle: float) -> float:
+    """Normalizes an angle to be between -pi and pi radians."""
+    return (angle + math.pi) % (2 * math.pi) - math.pi
+
 def pf_random_point(pos: [float, float], angle: float, pos_range: int, angle_range: float, robot_radius: float) \
         -> tuple[float, float]:
     """
@@ -21,7 +25,7 @@ def pf_random_point(pos: [float, float], angle: float, pos_range: int, angle_ran
     return x + random.normalvariate(0, 0.4), y + random.normalvariate(0, 0.4)
 
 
-def pf_change_position(pos: [float, float]):
+def pf_change_position(pos: tuple[float, float]):
     global sorted_spaces
     # sort GRID_OPEN_SPACES array by distance to robot
     sorted_spaces = sorted(sorted_spaces, key=lambda x: dist(pos, x))
