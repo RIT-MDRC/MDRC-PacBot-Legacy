@@ -15,16 +15,26 @@ class Position(NamedTuple):
     x: float  # to the right
     y: float  # up
 
-    def dist(self, pos: "Position"):
+    def dist(self, pos: "Position") -> float:
         return math.hypot(self.x - pos.x, self.y - pos.y)
+
+    def apply_change(self, other: "Position") -> "Position":
+        self.x += other.x
+        self.y += other.y
+        return self
 
 
 class Pose(NamedTuple):
     pos: Position
     angle: float  # radians, with 0 to the right
 
-    def dist(self, other: "Pose"):
+    def dist(self, other: "Pose") -> float:
         return self.pos.dist(other.pos)
+
+    def apply_change(self, other: "Pose") -> "Pose":
+        self.pos.apply_change(other.pos)
+        self.angle += other.angle
+        return self
 
 
 def pf_random_point(angle: float, pos_range: int, angle_range: float, robot_radius: float = 0.4) \
@@ -47,22 +57,32 @@ def pf_random_point(angle: float, pos_range: int, angle_range: float, robot_radi
 
 
 def pf_change_position(pos: Position):
+    """
+    Should be called whenever the robot's position changes and before generating new points
+
+    @param pos: The updated best guess of the robot's position, can be very rough
+    """
     global sorted_spaces
     # sort GRID_OPEN_SPACES array by distance to robot
     sorted_spaces = sorted(sorted_spaces, key=lambda x: pos.dist(Position(x[0], x[1])))
 
 
-PF_POINTS = []
+PF_POINTS: list[Pose] = []
 
 
 def particle_filter_setup(pos_initial: Pose) -> None:
+    """
+    Should be called once before particle_filter is ever called
+
+    @param pos_initial: The initial position of the robot
+    """
     global PF_POINTS
 
     pf_change_position(pos_initial.pos)
     PF_POINTS = [pf_random_point(pos_initial.angle, 5, math.pi) for _ in range(NUM_PF_POINTS)]
 
 
-def particle_filter(pos_change: Pose) -> Pose:
+def particle_filter(pos_change: Pose, sensor_values: tuple[float, float, float, float, float]) -> Pose:
     """
     Determines the current position and direction of the robot based on the last known position and angle.
 
@@ -72,13 +92,18 @@ def particle_filter(pos_change: Pose) -> Pose:
     """
     global PF_POINTS
 
-    if len(PF_POINTS) == 0:
-        # this is the first time particle_filter has been called
-        # this part may be split into a separate setup function for efficiency in the future
+    # apply the change in position to each Pose in PF_POINTS
+    for p in PF_POINTS:
+        p.apply_change(pos_change)
 
-        # generate a bunch of random points
-        for i in range(1000):
-            PF_POINTS.append(pf_random_point(0, 1000, 2 * math.pi))
+    # TODO calculate the accuracy of each PF_POINT based on sensor values
+
+    # TODO cull worst points
+
+    # TODO generate new points
+
+    # TODO find best guess position
+
     pass
 
 
