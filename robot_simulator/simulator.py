@@ -259,7 +259,6 @@ def main():
         #dt *= 0.2
 
         if len(test_path) < 2:
-            print('new path?')
             test_path = [[p.pos.x, p.pos.y] for p in
                          path_finding(Pose(Position(round(robot.x), round(robot.y)), 0), random.choice(get_grid_open_spaces()))]
 
