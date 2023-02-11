@@ -18,22 +18,22 @@ def high_level_strategy(pos: tuple[int, int], direction: int) -> tuple[int, int]
     pass
 
 
-def path_finding(pos: Pose, target: Position) -> list[Position]:
+def path_finding(pose: Pose, target: Position) -> list[Position]:
     """
     Determines the path to the target location based on the current position, target location, and grid state.
 
-    @param pos: The current position of the robot.
+    @param pose: The current position of the robot.
     @param target: The target location.
     @param grid: The current shape of the grid.
 
     @return: The path to the target location. Only includes endpoints of lines.
     """
 
-    if pos.pos == target:
+    if pose.pos == target:
         return [target]
 
     # BFS
-    bfs_nodes: list[tuple[int, Pose]] = [(-1, pos)]
+    bfs_nodes: list[tuple[int, Pose]] = [(-1, pose)]
     # represent the index where all indices <= this index were added in the last iteration
     last_added_indices = 0
 
