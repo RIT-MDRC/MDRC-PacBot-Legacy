@@ -56,7 +56,7 @@ def pf_change_position(pos: Position):
     """
     global sorted_spaces
     # sort GRID_OPEN_SPACES array by distance to robot
-    sorted_spaces = sorted(sorted_spaces, key=lambda x: pos.dist(Position(x[0], x[1])))
+    sorted_spaces = sorted(get_grid_open_spaces(), key=lambda x: pos.dist(Position(x[0], x[1])))
 
 
 PF_POINTS: list[Pose] = []

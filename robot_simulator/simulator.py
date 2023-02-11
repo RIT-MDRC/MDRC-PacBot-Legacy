@@ -247,7 +247,8 @@ def main():
     #     (14.0, 17.0),
     # ]
 
-    test_path = [[p.pos.x, p.pos.y] for p in path_finding(Pose(Position(14, 17), 0), Position(23, 29))]
+    # test_path = [[p.pos.x, p.pos.y] for p in path_finding(Pose(Position(14, 17), 0), Position(23, 29))]
+    test_path = [[p.pos.x, p.pos.y] for p in path_finding(Pose(Position(14, 17), 0), random.choice(get_grid_open_spaces()))]
     tracker = PathTracker()
 
     controller = pd_controller.PDController()
@@ -256,6 +257,11 @@ def main():
     while True:
         dt = clock.tick(FPS) / 1000  # time since last frame, in seconds
         #dt *= 0.2
+
+        if len(test_path) < 2:
+            print('new path?')
+            test_path = [[p.pos.x, p.pos.y] for p in
+                         path_finding(Pose(Position(round(robot.x), round(robot.y)), 0), random.choice(get_grid_open_spaces()))]
 
         for event in pg.event.get():
             if event.type == pg.QUIT:
