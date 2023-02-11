@@ -293,7 +293,7 @@ def main():
         path = [world2screen(p) for p in test_path]
         if len(path) > 1:
             pg.draw.lines(display, pg.Color("red"), False, path, 2)
-
+        display.blit(pg.transform.flip(display, False, True), (0, 0))
         pg.display.update()
 
 
