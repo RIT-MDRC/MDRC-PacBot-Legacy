@@ -57,7 +57,7 @@ def path_finding(pose: Pose, target: Position) -> list[Position]:
                     continue
                 if new_pose.pos == target:
                     # success, return path
-                    path = [new_pose]
+                    path = [pose, new_pose]
                     while prev_i > 0:
                         path = [bfs_nodes[prev_i][1]] + path
                         prev_i = bfs_nodes[prev_i][0]
