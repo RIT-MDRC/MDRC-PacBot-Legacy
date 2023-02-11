@@ -251,7 +251,7 @@ def main():
     #     (15.0, 20.0),
     # ]
 
-    test_path = path_finding(Pose(Position(14, 17), 0), Position(15, 17))
+    test_path = [[p.pos.x, p.pos.y] for p in path_finding(Pose(Position(14, 17), 0), Position(20, 20))]
     tracker = PathTracker()
 
     controller = pd_controller.PDController()
