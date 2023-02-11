@@ -4,7 +4,7 @@ import random
 from typing import NamedTuple
 from grid import *
 
-sorted_spaces = GRID_OPEN_SPACES
+sorted_spaces = get_grid_open_spaces()
 NUM_PF_POINTS = 1_000
 
 POS_ESTIMATE_VARIABILITY = 5
