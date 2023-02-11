@@ -8,6 +8,8 @@ import pd_controller
     
 from grid import *
 from bot_math import *
+from Position import Position
+from bot import *
 
 from path_tracker import *
 
@@ -239,15 +241,18 @@ def main():
     robot.x -= 1.5
     robot.angle = random.uniform(-1.0, +1.0)
 
-    test_path = [
-        (13.0, 20.0),
-        (23.0, 20.0),
-        (23.0, 28.0),
-        (13.0, 28.0),
-        (13.0, 20.0),
-    ]
-    
-    tracker = PathTracker(2, 0, 0)
+    # test_path = [
+    #     (15.0, 20.0),
+    #     (21.0, 20.0),
+    #     (21.0, 26.0),
+    #     (26.0, 26.0),
+    #     (26.0, 29.0),
+    #     (15.0, 29.0),
+    #     (15.0, 20.0),
+    # ]
+
+    test_path = path_finding(Pose(Position(14, 17), 0), Position(15, 17))
+    tracker = PathTracker()
 
     controller = pd_controller.PDController()
 

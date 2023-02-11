@@ -1,7 +1,8 @@
 from grid import *
 import math
 
-from bot_math import Pose, Position
+from bot_math import Pose
+from Position import Position
 from grid import *
 
 

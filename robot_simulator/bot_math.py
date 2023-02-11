@@ -2,26 +2,14 @@ import math
 import random
 
 from typing import NamedTuple
-from grid import *
+from grid import get_grid_open_spaces
+from Position import Position
 
 sorted_spaces = get_grid_open_spaces()
 NUM_PF_POINTS = 1_000
 
 POS_ESTIMATE_VARIABILITY = 5
 ANGLE_ESTIMATE_VARIABILITY = math.pi
-
-
-class Position(NamedTuple):
-    x: float  # to the right
-    y: float  # up
-
-    def dist(self, pos: "Position") -> float:
-        return math.hypot(self.x - pos.x, self.y - pos.y)
-
-    def apply_change(self, other: "Position") -> "Position":
-        self.x += other.x
-        self.y += other.y
-        return self
 
 
 class Pose(NamedTuple):
