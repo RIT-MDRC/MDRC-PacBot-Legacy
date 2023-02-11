@@ -46,9 +46,9 @@ def path_finding(pose: Pose, target: Position) -> list[Position]:
                 [-1, 0, 0],
                 [0, 1, 0],
                 [0, -1, 0],
-                [0, 0, math.pi/2],
-                [0, 0, math.pi],
-                [0, 0, 3*math.pi/2],
+                # [0, 0, math.pi/2],
+                # [0, 0, math.pi],
+                # [0, 0, 3*math.pi/2],
             ]:
             for pose_i in range(last_added_indices, len(bfs_nodes)):
                 prev_i, pose = bfs_nodes[pose_i]
@@ -61,6 +61,7 @@ def path_finding(pose: Pose, target: Position) -> list[Position]:
                     while prev_i > 0:
                         path = [bfs_nodes[prev_i][1]] + path
                         prev_i = bfs_nodes[prev_i][0]
+                    # clean up path by removing points that aren't at turning points
                     return path
                 already_found = False
                 for prev_i, bfs_pose in bfs_nodes:

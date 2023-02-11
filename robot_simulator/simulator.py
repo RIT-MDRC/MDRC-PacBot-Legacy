@@ -242,16 +242,12 @@ def main():
     robot.angle = random.uniform(-1.0, +1.0)
 
     # test_path = [
-    #     (15.0, 20.0),
-    #     (21.0, 20.0),
-    #     (21.0, 26.0),
-    #     (26.0, 26.0),
-    #     (26.0, 29.0),
-    #     (15.0, 29.0),
-    #     (15.0, 20.0),
+    #     (14.0, 17.0),
+    #     (22.0, 17.0),
+    #     (14.0, 17.0),
     # ]
 
-    test_path = [[p.pos.x, p.pos.y] for p in path_finding(Pose(Position(14, 17), 0), Position(20, 20))]
+    test_path = [[p.pos.x, p.pos.y] for p in path_finding(Pose(Position(14, 17), 0), Position(23, 29))]
     tracker = PathTracker()
 
     controller = pd_controller.PDController()
