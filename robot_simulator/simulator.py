@@ -77,7 +77,8 @@ MAX_DISTANCE = MAX_DISTANCE_IN / 3.5 + (3 / 3.5)
 # robot configuration
 SENSOR_ANGLES = [-math.pi / 2, -math.pi / 4, 0, +math.pi / 4, +math.pi / 2]
 DIST_BETWEEN_WHEELS = 4.0 / 3.5
-MAX_WHEEL_SPEED = 8.0 / 3.5
+# MAX_WHEEL_SPEED = 8.0 / 3.5
+MAX_WHEEL_SPEED = 10
 
 
 def draw_ray(surface: pg.Surface, start_pos: tuple[float, float], angle: float):
@@ -161,7 +162,7 @@ COLOR_ROBOT = (0, 0, 255)
 COLOR_RAY = (255, 0, 0)
 COLOR_RAY_MAXED = (0, 200, 0)
 
-FPS = 30
+FPS = 60
 
 ROBOT_RADIUS = DRAW_SCALE * (6 / 3.5) / 2
 
