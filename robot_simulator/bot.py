@@ -34,52 +34,7 @@ def path_finding(pose: Pose, target: Position) -> list[Position]:
         return [target]
 
     # BFS
-    bfs_nodes: list[tuple[int, Pose]] = [(-1, pose)]
-    # represent the index where all indices <= this index were added in the last iteration
-    last_added_indices = 0
-
-    while 1:
-        new_last_added_indices = len(bfs_nodes)
-        # add new nodes to list
-        for pose_change in [
-                [1, 0, 0],
-                [-1, 0, 0],
-                [0, 1, 0],
-                [0, -1, 0],
-                # [0, 0, math.pi/2],
-                # [0, 0, math.pi],
-                # [0, 0, 3*math.pi/2],
-            ]:
-            for pose_i in range(last_added_indices, len(bfs_nodes)):
-                prev_i, pose = bfs_nodes[pose_i]
-                new_pose = Pose(Position(pose.pos.x + pose_change[0], pose.pos.y + pose_change[1]), pose.angle + pose_change[2])
-                if new_pose.pos not in get_grid_open_spaces():
-                    continue
-                if new_pose.pos == target:
-                    # success, return path
-                    path = [pose, new_pose]
-                    while prev_i >= 0:
-                        path = [bfs_nodes[prev_i][1]] + path
-                        prev_i = bfs_nodes[prev_i][0]
-                    # clean up path by removing points that aren't at turning points
-                    new_path = [path[0]]
-                    direction = [path[1].pos.x - path[0].pos.x, path[1].pos.y - path[0].pos.y]
-                    for i in range(2, len(path)):
-                        new_direction = [path[i].pos.x - path[i-1].pos.x, path[i].pos.y - path[i-1].pos.y]
-                        if new_direction != direction:
-                            new_path.append(path[i-1])
-                            direction = new_direction
-                    return new_path
-                already_found = False
-                for prev_i, bfs_pose in bfs_nodes:
-                    if bfs_pose == new_pose:
-                        already_found = True
-                        break
-                if not already_found:
-                    bfs_nodes.append((pose_i, new_pose))
-        if new_last_added_indices == len(bfs_nodes):
-            return []
-        last_added_indices = new_last_added_indices
+    return grid_bfs_path(pose.pos, target)
 
 
 def wheel_control(heading: tuple[float, float]):
