@@ -83,6 +83,81 @@ class AutoRobo:
             self.LOGS_PATH = logs_path
 
         self.start_process('server')
+        self.input_loop()
+
+    def input_loop(self):
+        while 1:
+            help_msg = "\n[Q]uit\nPlay[b]ack"
+
+            if self.processes['gameEngine']['running']:
+                help_msg += "\n[K]eyboard Input\n[P]lay/pause\n[R]estart"
+                help_msg += "\n\n[ On  ] Game [E]ngine"
+            else:
+                help_msg += "\n\n[ Off ] Game [E]ngine"
+
+            if self.processes['visualize']['running']:
+                help_msg += "\n[ On  ] [V]isualization"
+            else:
+                help_msg += "\n[ Off ] [V]isualization"
+
+            if self.processes['recorder']['running']:
+                help_msg += "\n[ On  ] Re[c]order"
+            else:
+                help_msg += "\n[ Off ] Re[c]order"
+
+            print(help_msg)
+            user_choices = input('\n> ').lower()
+
+            for user_choice in user_choices:
+                match user_choice:
+                    case 'q':
+                        self.stop_process('server')
+                        break
+                    case 'k':
+                        self.start_process('keyboardInput')
+                    case 'b':
+                        self.start_process('playback')
+                        # playback menu
+                        last_choice = 'p'
+                        while last_choice != 'q':
+                            print('\n'
+                                  'q) Stop Playback\n'
+                                  'p) Pause/Unpause Game\n'
+                                  'r) Restart Game\n'
+                                  ',) Previous Frame\n'
+                                  '.) Next Frame\n'
+                                  '< ) Decrease Playback Speed\n'
+                                  '> ) Increase Playback Speed\n')
+                            playback_choice = input('> ')
+                            if playback_choice == '':
+                                playback_choice = last_choice
+                            else:
+                                last_choice = playback_choice
+                            self.send_input('playback', playback_choice)
+                        server.stop_process('playback')
+                    case 'p':
+                        if self.processes['gameEngine']['running']:
+                            self.send_input('gameEngine', 'p')
+                    case 'r':
+                        if self.processes['gameEngine']['running']:
+                            self.send_input('gameEngine', 'r')
+                    case 'e':
+                        if self.processes['gameEngine']['running']:
+                            self.stop_process('gameEngine')
+                        else:
+                            self.start_process('gameEngine')
+                    case 'v':
+                        if self.processes['visualize']['running']:
+                            self.stop_process('visualize')
+                        else:
+                            self.start_process('visualize')
+                    case 'c':
+                        if self.processes['recorder']['running']:
+                            self.stop_process('recorder')
+                        else:
+                            self.start_process('recorder')
+                    case _:
+                        pass
 
     def start_process(self, process_name):
         """
@@ -479,67 +554,3 @@ if __name__ == "__main__":
     else:
         # Create the server
         server = AutoRobo(args.address, args.port, args.game_engine_path, args.logs_path)
-
-        # User menu
-        while True:
-            print('''
-q) Stop Server
-1) Start Game Engine
-2) Stop Game Engine
-3) Start Visualization
-4) Stop Visualization
-5) Start Keyboard Input
-6) Start Recording
-7) Stop Recording
-8) Start Playback
-p) Pause/Unpause Game
-r) Restart Game
-''')
-
-            choices = input('Enter your choice: ')
-
-            for choice in choices:
-                match choice:
-                    case 'q':
-                        server.stop_process('server')
-                    case '1':
-                        server.start_process('gameEngine')
-                    case '2':
-                        server.stop_process('gameEngine')
-                    case '3':
-                        server.start_process('visualize')
-                    case '4':
-                        server.stop_process('visualize')
-                    case '5':
-                        server.start_process('keyboardInput')
-                    case '6':
-                        server.start_process('recorder')
-                    case '7':
-                        server.stop_process('recorder')
-                    case '8':
-                        server.start_process('playback')
-                        # playback menu
-                        last_choice = 'p'
-                        while last_choice != 'q':
-                            print('''
-q) Stop Playback
-p) Pause/Unpause Game
-r) Restart Game
-,) Previous Frame
-.) Next Frame
-< ) Decrease Playback Speed
-> ) Increase Playback Speed
-''')
-                            playback_choice = input('Enter your choice: ')
-                            if playback_choice == '':
-                                playback_choice = last_choice
-                            else:
-                                last_choice = playback_choice
-                            server.send_input('playback', playback_choice)
-                        server.stop_process('playback')
-                    case 'p':
-                        server.send_input('gameEngine', 'p')
-                    case 'r':
-                        server.send_input('gameEngine', 'r')
-                    case _:
-                        print('Invalid choice')
