@@ -4,12 +4,12 @@
 import os
 import subprocess
 import sys
-import threading
 import robomodules as rm
 import argparse as ap
 import tty
 import termios
 import pty
+import json
 
 from Pacbot.src.gameEngine.messages import *
 
@@ -54,6 +54,16 @@ class AutoRobo:
             'file': 'keyboardInput.py',
             'running': False,
             'process': None
+        },
+        'recorder': {
+            'file': '',
+            'running': False,
+            'process': None
+        },
+        'playback': {
+            'file': '',
+            'running': False,
+            'process': None
         }
     }
 
@@ -86,6 +96,26 @@ class AutoRobo:
 
         execute = [sys.executable, self.processes[process_name]['file']]
 
+        working_path = self.GAME_ENGINE_PATH
+
+        if process_name == 'recorder':
+            record_file = input('Enter the name of the file to record to: ')
+
+            execute[1] = os.path.basename(__file__)
+            execute.append('-r')
+            execute.append(record_file)
+
+            working_path = os.getcwd()
+
+        if process_name == 'playback':
+            playback_file = input('Enter the name of the file to playback: ')
+
+            execute[1] = os.path.basename(__file__)
+            execute.append('-b')
+            execute.append(playback_file)
+
+            working_path = os.getcwd()
+
         if process_name == 'visualize':
             execute.append('-w')
             execute.append('-p')
@@ -102,7 +132,7 @@ class AutoRobo:
                             stderr=g,
                             text=True,
                             env=env,
-                            cwd=self.GAME_ENGINE_PATH)
+                            cwd=working_path)
             else:
                 self.processes[process_name]['process'] = subprocess.Popen(
                     execute,
@@ -111,7 +141,7 @@ class AutoRobo:
                     stderr=subprocess.PIPE,
                     text=True,
                     env=env,
-                    cwd=self.GAME_ENGINE_PATH)
+                    cwd=working_path)
 
             print(f'{process_name} started')
 
@@ -200,6 +230,165 @@ class AutoRobo:
         self.processes[process_name]['process'].stdin.flush()
 
 
+class AutoRoboRecorder(rm.ProtoModule):
+    """
+    This class provides functionality to record games
+    """
+
+    ADDRESS = 'localhost'
+    PORT = 11297
+
+    # times per second that tick() and custom_tick() are called
+    FREQUENCY = 10
+
+    states: list[MsgType.FULL_STATE] = []
+
+    SAVE_FILE = None
+
+    def __init__(self, addr, port, save_file):
+        """
+        Builds a new AutoRoboRecorder object.
+        @param addr: The address of the server
+        @param port: The port of the server
+        """
+        self.ADDRESS = addr
+        self.PORT = port
+        self.SAVE_FILE = save_file
+
+        print('Recording game to ' + self.SAVE_FILE)
+
+        self.subscriptions = [MsgType.FULL_STATE]
+        super().__init__(addr, port, message_buffers, MsgType, self.FREQUENCY, self.subscriptions)
+
+    def tick(self):
+        """
+        Called every tick.
+        """
+        pass
+
+    def msg_received(self, msg, msg_type):
+        """
+        This method is called whenever a message is received from the server.
+        """
+        if msg_type == MsgType.FULL_STATE:
+            msg_serialized = msg.SerializeToString()
+            if len(self.states) == 0 or msg_serialized != self.states[-1]:
+                self.states.append(msg_serialized)
+                self.save()
+
+    def save(self):
+        """
+        Saves the recorded states to a json file.
+        """
+        with open(self.SAVE_FILE, 'wb') as f:
+            for state in self.states:
+                f.write(state)
+                f.write(b'\n\n\n')
+
+
+class AutoRoboPlayback(rm.ProtoModule):
+    """
+    This class provides functionality to record games
+    """
+
+    ADDRESS = 'localhost'
+    PORT = 11297
+
+    # times per second that tick() and custom_tick() are called
+    FREQUENCY = 24
+    BACKWARDS = False
+
+    PAUSED = False
+
+    states: list[MsgType.FULL_STATE] = []
+    SAVE_FILE = None
+    frame = 0
+
+    def __init__(self, addr, port, save_file):
+        """
+        Builds a new AutoRoboRecorder object.
+        @param addr: The address of the server
+        @param port: The port of the server
+        """
+        self.ADDRESS = addr
+        self.PORT = port
+        self.SAVE_FILE = save_file
+
+        print('Playback game from ' + self.SAVE_FILE)
+
+        self.load()
+
+        self.subscriptions = []
+        super().__init__(addr, port, message_buffers, MsgType, self.FREQUENCY, self.subscriptions)
+        self.loop.add_reader(sys.stdin, self.keypress)
+
+    def tick(self):
+        """
+        Called every tick.
+        """
+        print('Tick = ' + str(self.frame))
+        self.write(self.states[self.frame], MsgType.FULL_STATE)
+        if self.BACKWARDS:
+            self.frame -= 1
+        else:
+            self.frame += 1
+        if self.frame >= len(self.states):
+            self.frame = 0
+
+    def msg_received(self, msg, msg_type):
+        """
+        This method is called whenever a message is received from the server.
+        """
+        pass
+
+    def load(self):
+        """
+        Saves the recorded states to a json file.
+        """
+        with open(self.SAVE_FILE, 'rb') as file:
+            content = file.read()
+            self.states = content.split(b'\n\n\n')[:-1]
+
+    def keypress(self):
+        char = sys.stdin.read(1)
+        # For some reason I couldn't quite get this to do what I wanted
+        # Still it's a bit cleaner than otherwise
+        # sys.stdout.write("\033[F")
+        # sys.stdout.write("\033[K")
+        # sys.stdout.flush()
+        match char:
+            case 'p':
+                self.FREQUENCY = 0
+                self.set_frequency(self.FREQUENCY)
+            case 'r':
+                self.frame = 0
+                self.write(self.states[self.frame], MsgType.FULL_STATE)
+            case ',':
+                self.frame -= 1
+                self.write(self.states[self.frame], MsgType.FULL_STATE)
+            case '.':
+                self.frame += 1
+                self.write(self.states[self.frame], MsgType.FULL_STATE)
+            case '<':
+                if self.FREQUENCY == 0:
+                    self.FREQUENCY = 6
+                    self.BACKWARDS = True
+                elif self.BACKWARDS:
+                    self.FREQUENCY += 6
+                else:
+                    self.FREQUENCY -= 6
+                self.set_frequency(self.FREQUENCY)
+            case '>':
+                if self.FREQUENCY == 0:
+                    self.FREQUENCY = 6
+                    self.BACKWARDS = False
+                elif self.BACKWARDS:
+                    self.FREQUENCY -= 6
+                else:
+                    self.FREQUENCY += 6
+                self.set_frequency(self.FREQUENCY)
+
+
 class AutoRoboClient(rm.ProtoModule):
     """
     This class acts as a client to the AutoRobo class.
@@ -272,43 +461,85 @@ if __name__ == "__main__":
     parser.add_argument('--game-engine-path', '-g', type=str, default=None, help='The path to the game engine folder')
     parser.add_argument('--logs-path', '-l', type=str, default=None, help='The path to the logs folder')
 
+    parser.add_argument('--record', '-r', type=str, default=None, help='If this is set, this process will record the game to the given json file')
+    parser.add_argument('--playback', '-b', type=str, default=None, help='If this is set, this process will playback the game from the given json file')
+
     args = parser.parse_args()
 
-    # Create the server
-    server = AutoRobo(args.address, args.port, args.game_engine_path, args.logs_path)
+    if args.record is not None:
+        # Create the recorder
+        recorder = AutoRoboRecorder(args.address, args.port, args.record)
+        recorder.run()
 
-    # User menu
-    while True:
-        print('''
-x) Stop Server
+    elif args.playback is not None:
+        # Create the playback
+        playback = AutoRoboPlayback(args.address, args.port, args.playback)
+        playback.run()
+
+    else:
+        # Create the server
+        server = AutoRobo(args.address, args.port, args.game_engine_path, args.logs_path)
+
+        # User menu
+        while True:
+            print('''
+q) Stop Server
 1) Start Game Engine
 2) Stop Game Engine
 3) Start Visualization
 4) Stop Visualization
 5) Start Keyboard Input
+6) Start Recording
+7) Stop Recording
+8) Start Playback
 p) Pause/Unpause Game
 r) Restart Game
 ''')
 
-        choices = input('Enter your choice: ')
+            choices = input('Enter your choice: ')
 
-        for choice in choices:
-            match choice:
-                case 'x':
-                    server.stop_process('server')
-                case '1':
-                    server.start_process('gameEngine')
-                case '2':
-                    server.stop_process('gameEngine')
-                case '3':
-                    server.start_process('visualize')
-                case '4':
-                    server.stop_process('visualize')
-                case '5':
-                    server.start_process('keyboardInput')
-                case 'p':
-                    server.send_input('gameEngine', 'p')
-                case 'r':
-                    server.send_input('gameEngine', 'r')
-                case _:
-                    print('Invalid choice')
+            for choice in choices:
+                match choice:
+                    case 'q':
+                        server.stop_process('server')
+                    case '1':
+                        server.start_process('gameEngine')
+                    case '2':
+                        server.stop_process('gameEngine')
+                    case '3':
+                        server.start_process('visualize')
+                    case '4':
+                        server.stop_process('visualize')
+                    case '5':
+                        server.start_process('keyboardInput')
+                    case '6':
+                        server.start_process('recorder')
+                    case '7':
+                        server.stop_process('recorder')
+                    case '8':
+                        server.start_process('playback')
+                        # playback menu
+                        last_choice = 'p'
+                        while last_choice != 'q':
+                            print('''
+q) Stop Playback
+p) Pause/Unpause Game
+r) Restart Game
+,) Previous Frame
+.) Next Frame
+< ) Decrease Playback Speed
+> ) Increase Playback Speed
+''')
+                            playback_choice = input('Enter your choice: ')
+                            if playback_choice == '':
+                                playback_choice = last_choice
+                            else:
+                                last_choice = playback_choice
+                            server.send_input('playback', playback_choice)
+                        server.stop_process('playback')
+                    case 'p':
+                        server.send_input('gameEngine', 'p')
+                    case 'r':
+                        server.send_input('gameEngine', 'r')
+                    case _:
+                        print('Invalid choice')
