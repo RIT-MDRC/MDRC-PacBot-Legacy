@@ -16,7 +16,7 @@ from Pacbot.src.gameEngine.messages import *
 from typing import Callable
 
 
-class AutoRobo:
+class AutoRobo(rm.ProtoModule):
     """
     This class facilitates running and communication with the services provided by the HarvardURC_Pacbot repo.
 
@@ -25,6 +25,16 @@ class AutoRobo:
 
     ADDRESS = 'localhost'
     PORT = 11297
+
+    do_record = False
+
+    do_playback = False
+    playback_frequency = 24
+    playback_backwards = False
+    playback_frame = 0
+
+    states: list[MsgType.FULL_STATE] = []
+    states_file = None
 
     GAME_ENGINE_PATH = os.path.join('Pacbot', 'src', 'gameEngine')
     LOGS_PATH = None
@@ -56,18 +66,18 @@ class AutoRobo:
             'process': None
         },
         'recorder': {
-            'file': '',
+            'file': os.path.basename(__file__),
             'running': False,
             'process': None
         },
         'playback': {
-            'file': '',
+            'file': os.path.basename(__file__),
             'running': False,
             'process': None
         }
     }
 
-    def __init__(self, addr, port, game_engine_path=None, logs_path=None):
+    def __init__(self, addr, port, game_engine_path=None, logs_path=None, only_record_file=None, only_playback_file=None):
         """
         Builds a new AutoRobo object.
         @param addr: The address of the server
@@ -82,8 +92,23 @@ class AutoRobo:
         if logs_path is not None:
             self.LOGS_PATH = logs_path
 
-        self.start_process('server')
-        self.input_loop()
+        # this class may start another version of itself dedicated to recording or playback
+        if only_record_file is not None or only_playback_file is not None:
+            self.subscriptions = [MsgType.FULL_STATE] if only_record_file is not None else []
+            super().__init__(addr, port, message_buffers, MsgType, self.playback_frequency, self.subscriptions)
+            if only_playback_file is not None:
+                self.do_playback = True
+                with open(only_playback_file, 'rb') as file:
+                    content = file.read()
+                    self.states = content.split(b'\n\n\n')[:-1]
+                self.loop.add_reader(sys.stdin, self.keypress)
+            if only_record_file is not None:
+                self.do_record = True
+                self.states_file = only_record_file
+            self.run()
+        else:
+            self.start_process('server')
+            self.input_loop()
 
     def input_loop(self):
         while 1:
@@ -119,7 +144,7 @@ class AutoRobo:
                         self.start_process('playback')
                         # playback menu
                         last_choice = 'p'
-                        while last_choice != 'q':
+                        while 1:
                             print('\n'
                                   'q) Stop Playback\n'
                                   'p) Pause/Unpause Game\n'
@@ -133,8 +158,10 @@ class AutoRobo:
                                 playback_choice = last_choice
                             else:
                                 last_choice = playback_choice
+                            if playback_choice == 'q':
+                                break
                             self.send_input('playback', playback_choice)
-                        server.stop_process('playback')
+                        self.stop_process('playback')
                     case 'p':
                         if self.processes['gameEngine']['running']:
                             self.send_input('gameEngine', 'p')
@@ -185,7 +212,6 @@ class AutoRobo:
         if process_name == 'playback':
             playback_file = input('Enter the name of the file to playback: ')
 
-            execute[1] = os.path.basename(__file__)
             execute.append('-b')
             execute.append(playback_file)
 
@@ -281,6 +307,7 @@ class AutoRobo:
         if process_name == 'server':
             exit()
 
+    # playback only
     def get_key(self):
         try:
             old_settings = termios.tcgetattr(sys.stdin)
@@ -304,164 +331,65 @@ class AutoRobo:
         self.processes[process_name]['process'].stdin.write(text)
         self.processes[process_name]['process'].stdin.flush()
 
-
-class AutoRoboRecorder(rm.ProtoModule):
-    """
-    This class provides functionality to record games
-    """
-
-    ADDRESS = 'localhost'
-    PORT = 11297
-
-    # times per second that tick() and custom_tick() are called
-    FREQUENCY = 10
-
-    states: list[MsgType.FULL_STATE] = []
-
-    SAVE_FILE = None
-
-    def __init__(self, addr, port, save_file):
-        """
-        Builds a new AutoRoboRecorder object.
-        @param addr: The address of the server
-        @param port: The port of the server
-        """
-        self.ADDRESS = addr
-        self.PORT = port
-        self.SAVE_FILE = save_file
-
-        print('Recording game to ' + self.SAVE_FILE)
-
-        self.subscriptions = [MsgType.FULL_STATE]
-        super().__init__(addr, port, message_buffers, MsgType, self.FREQUENCY, self.subscriptions)
-
+    # playback only
     def tick(self):
         """
         Called every tick.
         """
-        pass
+        if self.do_playback:
+            self.write(self.states[self.playback_frame], MsgType.FULL_STATE)
+            if self.playback_backwards:
+                self.playback_frame -= 1
+            else:
+                self.playback_frame += 1
+            if self.playback_frame >= len(self.states):
+                self.playback_frame = 0
 
+    # playback only
+    def keypress(self):
+        char = sys.stdin.read(1)
+        match char:
+            case 'p':
+                self.playback_frequency = 0
+                self.set_frequency(self.playback_frequency)
+            case 'r':
+                self.playback_frame = 0
+                self.write(self.states[self.playback_frame], MsgType.FULL_STATE)
+            case ',':
+                self.playback_frame -= 1
+                self.write(self.states[self.playback_frame], MsgType.FULL_STATE)
+            case '.':
+                self.playback_frame += 1
+                self.write(self.states[self.playback_frame], MsgType.FULL_STATE)
+            case '<':
+                if self.playback_frequency == 0:
+                    self.playback_frequency = 6
+                    self.playback_backwards = True
+                elif self.playback_backwards:
+                    self.playback_frequency += 6
+                else:
+                    self.playback_frequency -= 6
+                self.set_frequency(self.playback_frequency)
+            case '>':
+                if self.playback_frequency == 0:
+                    self.playback_frequency = 6
+                    self.playback_backwards = False
+                elif self.playback_backwards:
+                    self.playback_frequency -= 6
+                else:
+                    self.playback_frequency += 6
+                self.set_frequency(self.playback_frequency)
+
+    # recording only
     def msg_received(self, msg, msg_type):
-        """
-        This method is called whenever a message is received from the server.
-        """
-        if msg_type == MsgType.FULL_STATE:
+        if self.do_record and msg_type == MsgType.FULL_STATE:
             msg_serialized = msg.SerializeToString()
             if len(self.states) == 0 or msg_serialized != self.states[-1]:
                 self.states.append(msg_serialized)
-                self.save()
-
-    def save(self):
-        """
-        Saves the recorded states to a json file.
-        """
-        with open(self.SAVE_FILE, 'wb') as f:
-            for state in self.states:
-                f.write(state)
-                f.write(b'\n\n\n')
-
-
-class AutoRoboPlayback(rm.ProtoModule):
-    """
-    This class provides functionality to record games
-    """
-
-    ADDRESS = 'localhost'
-    PORT = 11297
-
-    # times per second that tick() and custom_tick() are called
-    FREQUENCY = 24
-    BACKWARDS = False
-
-    PAUSED = False
-
-    states: list[MsgType.FULL_STATE] = []
-    SAVE_FILE = None
-    frame = 0
-
-    def __init__(self, addr, port, save_file):
-        """
-        Builds a new AutoRoboRecorder object.
-        @param addr: The address of the server
-        @param port: The port of the server
-        """
-        self.ADDRESS = addr
-        self.PORT = port
-        self.SAVE_FILE = save_file
-
-        print('Playback game from ' + self.SAVE_FILE)
-
-        self.load()
-
-        self.subscriptions = []
-        super().__init__(addr, port, message_buffers, MsgType, self.FREQUENCY, self.subscriptions)
-        self.loop.add_reader(sys.stdin, self.keypress)
-
-    def tick(self):
-        """
-        Called every tick.
-        """
-        print('Tick = ' + str(self.frame))
-        self.write(self.states[self.frame], MsgType.FULL_STATE)
-        if self.BACKWARDS:
-            self.frame -= 1
-        else:
-            self.frame += 1
-        if self.frame >= len(self.states):
-            self.frame = 0
-
-    def msg_received(self, msg, msg_type):
-        """
-        This method is called whenever a message is received from the server.
-        """
-        pass
-
-    def load(self):
-        """
-        Saves the recorded states to a json file.
-        """
-        with open(self.SAVE_FILE, 'rb') as file:
-            content = file.read()
-            self.states = content.split(b'\n\n\n')[:-1]
-
-    def keypress(self):
-        char = sys.stdin.read(1)
-        # For some reason I couldn't quite get this to do what I wanted
-        # Still it's a bit cleaner than otherwise
-        # sys.stdout.write("\033[F")
-        # sys.stdout.write("\033[K")
-        # sys.stdout.flush()
-        match char:
-            case 'p':
-                self.FREQUENCY = 0
-                self.set_frequency(self.FREQUENCY)
-            case 'r':
-                self.frame = 0
-                self.write(self.states[self.frame], MsgType.FULL_STATE)
-            case ',':
-                self.frame -= 1
-                self.write(self.states[self.frame], MsgType.FULL_STATE)
-            case '.':
-                self.frame += 1
-                self.write(self.states[self.frame], MsgType.FULL_STATE)
-            case '<':
-                if self.FREQUENCY == 0:
-                    self.FREQUENCY = 6
-                    self.BACKWARDS = True
-                elif self.BACKWARDS:
-                    self.FREQUENCY += 6
-                else:
-                    self.FREQUENCY -= 6
-                self.set_frequency(self.FREQUENCY)
-            case '>':
-                if self.FREQUENCY == 0:
-                    self.FREQUENCY = 6
-                    self.BACKWARDS = False
-                elif self.BACKWARDS:
-                    self.FREQUENCY -= 6
-                else:
-                    self.FREQUENCY += 6
-                self.set_frequency(self.FREQUENCY)
+                with open(self.states_file, 'wb') as f:
+                    for state in self.states:
+                        f.write(state)
+                        f.write(b'\n\n\n')
 
 
 class AutoRoboClient(rm.ProtoModule):
@@ -536,21 +464,19 @@ if __name__ == "__main__":
     parser.add_argument('--game-engine-path', '-g', type=str, default=None, help='The path to the game engine folder')
     parser.add_argument('--logs-path', '-l', type=str, default=None, help='The path to the logs folder')
 
-    parser.add_argument('--record', '-r', type=str, default=None, help='If this is set, this process will record the game to the given json file')
-    parser.add_argument('--playback', '-b', type=str, default=None, help='If this is set, this process will playback the game from the given json file')
+    parser.add_argument('--record', '-r', type=str, default=None,
+                        help='[internal use only] If this is set, this process will record the game to the given json '
+                             'file')
+    parser.add_argument('--playback', '-b', type=str, default=None,
+                        help='[internal use only] If this is set, this process will playback the game from the given json '
+                             'file')
 
     args = parser.parse_args()
 
-    if args.record is not None:
-        # Create the recorder
-        recorder = AutoRoboRecorder(args.address, args.port, args.record)
-        recorder.run()
-
-    elif args.playback is not None:
-        # Create the playback
-        playback = AutoRoboPlayback(args.address, args.port, args.playback)
-        playback.run()
-
-    else:
-        # Create the server
-        server = AutoRobo(args.address, args.port, args.game_engine_path, args.logs_path)
+    # Create the server
+    server = AutoRobo(args.address,
+                      args.port,
+                      args.game_engine_path,
+                      args.logs_path,
+                      only_record_file=args.record,
+                      only_playback_file=args.playback)
