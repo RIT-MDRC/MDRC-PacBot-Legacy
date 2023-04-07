@@ -7,6 +7,9 @@ import sys
 import threading
 import robomodules as rm
 import argparse as ap
+import tty
+import termios
+import pty
 
 from Pacbot.src.gameEngine.messages import *
 
@@ -81,27 +84,75 @@ class AutoRobo:
         env = os.environ.copy()
         env.update({'BIND_ADDRESS': self.ADDRESS, 'BIND_PORT': str(self.PORT)})
 
-        self.processes[process_name]['running'] = True
-        if self.LOGS_PATH is not None:
-            with open(os.path.join(self.LOGS_PATH, f'{process_name}_stdout.log'), 'w') as f:
-                with open(os.path.join(self.LOGS_PATH, f'{process_name}_stderr.log'), 'w') as g:
-                    self.processes[process_name]['process'] = subprocess.Popen(
-                        [sys.executable, os.path.join(self.GAME_ENGINE_PATH, self.processes[process_name]['file'])],
-                        stdin=subprocess.PIPE,
-                        stdout=f,
-                        stderr=g,
-                        text=True,
-                        env=env)
-        else:
-            self.processes[process_name]['process'] = subprocess.Popen(
-                [sys.executable, self.processes[process_name]['file']],
-                stdin=subprocess.PIPE,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env={'BIND_ADDRESS': self.ADDRESS, 'BIND_PORT': str(self.PORT)})
+        execute = [sys.executable, self.processes[process_name]['file']]
 
-        print(f'{process_name} started')
+        if process_name == 'visualize':
+            execute.append('-w')
+            execute.append('-p')
+
+        if process_name != 'keyboardInput':
+            self.processes[process_name]['running'] = True
+            if self.LOGS_PATH is not None:
+                with open(os.path.join(self.LOGS_PATH, f'{process_name}_stdout.log'), 'w') as f:
+                    with open(os.path.join(self.LOGS_PATH, f'{process_name}_stderr.log'), 'w') as g:
+                        self.processes[process_name]['process'] = subprocess.Popen(
+                            execute,
+                            stdin=subprocess.PIPE,
+                            stdout=f,
+                            stderr=g,
+                            text=True,
+                            env=env,
+                            cwd=self.GAME_ENGINE_PATH)
+            else:
+                self.processes[process_name]['process'] = subprocess.Popen(
+                    execute,
+                    stdin=subprocess.PIPE,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    env=env,
+                    cwd=self.GAME_ENGINE_PATH)
+
+            print(f'{process_name} started')
+
+        elif process_name == 'keyboardInput':
+            print('Redirecting input to keyboardInput.py; press q to quit')
+
+            # Create a pseudoterminal master and slave pair
+            master_fd, slave_fd = pty.openpty()
+
+            # Launch the external module with the slave pseudoterminal for communication
+            process = subprocess.Popen(
+                [sys.executable, self.processes[process_name]['file']],
+                stdin=slave_fd,
+                stdout=slave_fd,
+                stderr=subprocess.PIPE,
+                env=env,
+                cwd=self.GAME_ENGINE_PATH
+            )
+
+            try:
+                while True:
+                    # Get keypress from the user
+                    key = self.get_key()
+
+                    if key is None:
+                        break
+
+                    # Send the keypress to the external module via the master pseudoterminal
+                    os.write(master_fd, key.encode())
+
+                    # If the user pressed 'q', exit the loop
+                    if key == 'q':
+                        break
+
+            finally:
+                # Close the pseudoterminal file descriptors
+                os.close(master_fd)
+                os.close(slave_fd)
+
+                # Terminate the process
+                process.terminate()
 
     def stop_process(self, process_name):
         """
@@ -124,6 +175,29 @@ class AutoRobo:
 
         if process_name == 'server':
             exit()
+
+    def get_key(self):
+        try:
+            old_settings = termios.tcgetattr(sys.stdin)
+        except:
+            print('Please only run keyboard input in a terminal.')
+            return None
+        try:
+            tty.setraw(sys.stdin.fileno())
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+        return ch
+
+    def send_input(self, process_name, text):
+        """
+        Sends input to a process.
+        """
+        if not self.processes[process_name]['running']:
+            return
+
+        self.processes[process_name]['process'].stdin.write(text)
+        self.processes[process_name]['process'].stdin.flush()
 
 
 class AutoRoboClient(rm.ProtoModule):
@@ -206,31 +280,35 @@ if __name__ == "__main__":
     # User menu
     while True:
         print('''
-0) Stop Server
+x) Stop Server
 1) Start Game Engine
 2) Stop Game Engine
 3) Start Visualization
 4) Stop Visualization
-5) Start Terminal Printer
-6) Start Keyboard Input
+5) Start Keyboard Input
+p) Pause/Unpause Game
+r) Restart Game
 ''')
 
-        choice = input('Enter your choice: ')
+        choices = input('Enter your choice: ')
 
-        match choice:
-            case '0':
-                server.stop_process('server')
-            case '1':
-                server.start_process('gameEngine')
-            case '2':
-                server.stop_process('gameEngine')
-            case '3':
-                server.start_process('visualize')
-            case '4':
-                server.stop_process('visualize')
-            case '5':
-                server.start_process('terminalPrinter')
-            case '6':
-                server.start_process('keyboardInput')
-            case _:
-                print('Invalid choice')
+        for choice in choices:
+            match choice:
+                case 'x':
+                    server.stop_process('server')
+                case '1':
+                    server.start_process('gameEngine')
+                case '2':
+                    server.stop_process('gameEngine')
+                case '3':
+                    server.start_process('visualize')
+                case '4':
+                    server.stop_process('visualize')
+                case '5':
+                    server.start_process('keyboardInput')
+                case 'p':
+                    server.send_input('gameEngine', 'p')
+                case 'r':
+                    server.send_input('gameEngine', 'r')
+                case _:
+                    print('Invalid choice')

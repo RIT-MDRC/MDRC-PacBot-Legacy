@@ -8,7 +8,7 @@ Facilitates running the Pacbot server and client code provided by HarvardURC.
 
 ## Setup
 
-- You must have Python 3 installed
+- You must have Python 3.10 or later installed
 - In order to properly set up the git submodules in this folder, you must run `git submodule update --init --recursive` from the root of the repository
 
 If pygame complains about no display device:
@@ -18,3 +18,4 @@ If pygame complains about no display device:
   - Start no client
   - Default display 0
 - Set the DISPLAY environment variable to `<<your local IP>>:0`
+
