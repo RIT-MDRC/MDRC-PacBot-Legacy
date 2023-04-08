@@ -1,0 +1,6 @@
+[submodule "2022-2023/auto_robo/Pacbot"]
+	path = 2022-2023/auto_robo/Pacbot
+	url = https://github.com/HarvardURC/Pacbot.git
+[submodule "2022-2023/auto_robo/robomodules"]
+	path = 2022-2023/auto_robo/robomodules
+	url = https://github.com/HarvardURC/robomodules.git
