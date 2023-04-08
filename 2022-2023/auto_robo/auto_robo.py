@@ -402,14 +402,18 @@ class AutoRoboClient(rm.ProtoModule):
 
     # times per second that tick() and custom_tick() are called
     FREQUENCY = 10
-    custom_tick: Callable[[MsgType.LIGHT_STATE], None] = None
+    custom_tick_light: Callable[[MsgType.LIGHT_STATE], None] = None
+    custom_tick_full: Callable[[MsgType.FULL_STATE], None] = None
 
-    state: MsgType.LIGHT_STATE = None
+    light_state: MsgType.LIGHT_STATE = None
+    full_state: MsgType.FULL_STATE = None
 
     # The location of the pacman in the maze, as given by the bot code when in simulation
     pacman_fake_location: tuple[2] = (1, 1)
 
-    def __init__(self, addr, port, freq=10, tick: Callable[[MsgType.LIGHT_STATE], None] = None):
+    def __init__(self, addr, port, freq=10,
+                 tick_light: Callable[[MsgType.LIGHT_STATE], None] = None,
+                 tick_full: Callable[[MsgType.FULL_STATE], None] = None):
         """
         Builds a new AutoRoboClient object.
         @param addr: The address of the server
@@ -420,9 +424,10 @@ class AutoRoboClient(rm.ProtoModule):
         self.ADDRESS = addr
         self.PORT = port
         self.FREQUENCY = freq
-        self.custom_tick = tick
+        self.custom_tick_light = tick_light
+        self.custom_tick_full = tick_full
 
-        self.subscriptions = [MsgType.LIGHT_STATE]
+        self.subscriptions = [MsgType.LIGHT_STATE, MsgType.FULL_STATE]
         super().__init__(addr, port, message_buffers, MsgType, self.FREQUENCY, self.subscriptions)
         self.state = None
 
@@ -431,14 +436,18 @@ class AutoRoboClient(rm.ProtoModule):
         This method is called whenever a message is received from the server.
         """
         if msg_type == MsgType.LIGHT_STATE:
-            self.state = msg
+            self.light_state = msg
+        elif msg_type == MsgType.FULL_STATE:
+            self.full_state = msg
 
     def tick(self):
         """
         This method is called every tick.
         """
-        if self.custom_tick is not None and self.state is not None:
-            self.custom_tick(self.state)
+        if self.custom_tick_light is not None and self.light_state is not None:
+            self.custom_tick_light(self.light_state)
+        if self.custom_tick_full is not None and self.full_state is not None:
+            self.custom_tick_full(self.full_state)
 
     def update_fake_location(self, location: tuple[2]):
         """
@@ -471,12 +480,21 @@ if __name__ == "__main__":
                         help='[internal use only] If this is set, this process will playback the game from the given json '
                              'file')
 
+    # client flag, present or not present
+    parser.add_argument('--client', '-c', type=bool, default=False,
+                        help='If this is set, this process will act as a client ')
+
     args = parser.parse_args()
 
-    # Create the server
-    server = AutoRobo(args.address,
-                      args.port,
-                      args.game_engine_path,
-                      args.logs_path,
-                      only_record_file=args.record,
-                      only_playback_file=args.playback)
+    if args.client:
+        # Create the client
+        client = AutoRoboClient(args.address, args.port)
+        client.run()
+    else:
+        # Create the server
+        server = AutoRobo(args.address,
+                          args.port,
+                          args.game_engine_path,
+                          args.logs_path,
+                          only_record_file=args.record,
+                          only_playback_file=args.playback)
