@@ -4,3 +4,6 @@
 [submodule "2022-2023/auto_robo/robomodules"]
 	path = 2022-2023/auto_robo/robomodules
 	url = https://github.com/HarvardURC/robomodules.git
+[submodule "2022-2023/pacbot_rpi/robomodules"]
+	path = 2022-2023/pacbot_rpi/robomodules
+	url = https://github.com/HarvardURC/robomodules.git

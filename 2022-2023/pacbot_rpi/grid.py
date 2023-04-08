@@ -1,4 +1,4 @@
-from Position import Position
+from bot_math import Position
 
 W = True  # wall
 U = True  # unreachable, basically wall
