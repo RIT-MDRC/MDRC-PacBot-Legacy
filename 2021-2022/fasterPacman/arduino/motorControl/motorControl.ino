@@ -5,6 +5,12 @@
 
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
+#if defined(__AVR__) || defined(TEENSYDUINO)
+#define REGTYPE unsigned char
+#else
+#define REGTYPE unsigned long
+#endif
+
 // uncomment for debugging information to be printed to serial
 // #define DEBUG
 
@@ -13,8 +19,12 @@ Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *myMotor1 = AFMS.getMotor(1);
 Adafruit_DCMotor *myMotor2 = AFMS.getMotor(2);
 // Encoder setup
-Encoder encoder1(2, 1);
-Encoder encoder2(3, 4);
+// Encoder encoder1(2, 1);
+// Encoder encoder2(3, 4);
+#define enc1PinA 2
+#define enc1PinB 5
+#define enc2PinA 3
+#define enc2PinB 4
 
 // Sensor averaging value
 float movingAverages[5];
@@ -29,24 +39,28 @@ int motor2_targetVel;
 int motor1_inputVel; //value to send to motors
 int motor2_inputVel;
 //counters for amount of rising edges on pins 2 and 3 from encoders.
-volatile unsigned long enc1_count = 0;
-volatile unsigned long enc2_count = 0;
+volatile long enc1_count = 0;
+volatile long enc2_count = 0;
 void setup() {
   // put your setup code here, to run once:
   // motor setup
   AFMS.begin();
 
   // flashing light setup
-  pinMode(13, OUTPUT);
+  pinMode(LED_BUILTIN, OUTPUT);
 
   // serial setup
   Serial.begin(115200);
 
-  pinMode(2,INPUT_PULLUP);
-  attachInterrupt(0, isr_enc1_count, RISING); //interrupt signal to pin 2
+  pinMode(enc1PinA, INPUT_PULLUP);
+  pinMode(enc2PinA, INPUT_PULLUP);
+  pinMode(enc2PinB, INPUT_PULLUP);
+  pinMode(enc1PinB, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(enc1PinA), isr_enc1_count, RISING); //interrupt signal to pin 2
+  attachInterrupt(digitalPinToInterrupt(enc2PinA), isr_enc2_count, RISING); //interrupt signal to pin 2
 
-  pinMode(3,INPUT_PULLUP);
-  attachInterrupt(0, isr_enc2_count, RISING); //interrupt signal to pin 2
+//   pinMode(3,INPUT_PULLUP);
+//   attachInterrupt(0, isr_enc2_count, RISING); //interrupt signal to pin 2
 
   //read IR sensors initial value
   read_ir_init(); 
@@ -60,7 +74,13 @@ void loop() {
   read_ir_update();
 
   //run velocity control on motors
-  velocity_control();
+  // velocity_control();
+
+  // get encoder counts
+  // volatile REGTYPE *reg = portOutputRegister(digitalPinToPort(outputPin));
+  // REGTYPE mask = digitalPinToBitMask(outputPin);
+  // enc1_count = encoder1.read();
+  // enc2_count = encoder2.read();
 
   myMotor1->setSpeed(abs(motor1_inputVel));
   if(motor1_targetVel == 0)
@@ -117,14 +137,14 @@ void loop() {
     #endif
     
     if (motorSpeed == 0) {
-      digitalWrite(13, LOW);
+      digitalWrite(LED_BUILTIN, LOW);
       if (motorNumber == 1) {
         myMotor1->run(RELEASE);
       } else if (motorNumber == 2) {
         myMotor2->run(RELEASE);
       }
     } else {
-      digitalWrite(13, HIGH);
+      digitalWrite(LED_BUILTIN, HIGH);
       if (motorNumber == 1) {
         motor1_targetVel = motorSpeed;
         if (motorSpeed < 0) {
@@ -168,14 +188,28 @@ void send_update_packet()
 //increment counter everytime an edge occurs on pin 2 (Enc1)
 void isr_enc1_count()
 {
-  enc1_count++;
+   // add 1 to count for CW
+  if (!digitalRead(enc1PinB)) {
+    enc1_count--;
+  }
+  // subtract 1 from count for CCW
+  if (digitalRead(enc1PinB)) {
+    enc1_count++;
+  }
 }
 
 
 //increment counter everytime an edge occurs on pin 3 (Enc2)
 void isr_enc2_count()
 {
-  enc2_count++;
+   // add 1 to count for CW
+  if (!digitalRead(enc2PinB)) {
+    enc2_count += 2; // 2 because this encoder has half the resolution of the other
+  }
+  // subtract 1 from count for CCW
+  if (digitalRead(enc2PinB)) {
+    enc2_count -= 2;
+  }
 }
 
 void read_ir_init()
@@ -228,8 +262,8 @@ void velocity_control()
   unsigned int motor1_ticks = enc1_count;
   unsigned int motor2_ticks = enc2_count;
 
-  enc1_count = 0;
-  enc2_count = 0;
+  // enc1_count = 0;
+  // enc2_count = 0;
   unsigned int rpm_convert = 1;
   float motor1_calcVel = (float) motor1_ticks / rpm_convert; //10ms ideally passes
   float motor2_calcVel = (float) motor2_ticks / rpm_convert; //10ms ideally passes, will need to  tune
