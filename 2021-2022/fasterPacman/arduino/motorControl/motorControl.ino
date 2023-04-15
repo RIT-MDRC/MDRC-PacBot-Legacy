@@ -6,7 +6,7 @@
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
 // uncomment for debugging information to be printed to serial
-#define DEBUG
+// #define DEBUG
 
 // motor setup
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
@@ -18,6 +18,9 @@ Encoder encoder2(3, 4);
 
 // Sensor averaging value
 float movingAverages[5];
+
+// sensor pins array
+static const uint8_t analog_pins[] = {A0,A1,A2,A3,A4};
 
 //Motor1 = Left, Motor2 = right
 int motor1_targetVel; //target velocity for feedback control
@@ -46,7 +49,7 @@ void setup() {
   attachInterrupt(0, isr_enc2_count, RISING); //interrupt signal to pin 2
 
   //read IR sensors initial value
-  read_ir_init();
+  read_ir_init(); 
 }
 
 void loop() {
@@ -159,6 +162,7 @@ void send_update_packet()
     if (i < 4)
       Serial.print(",");
   }
+  Serial.println();
 }
 
 //increment counter everytime an edge occurs on pin 2 (Enc1)
@@ -177,7 +181,6 @@ void isr_enc2_count()
 void read_ir_init()
 {
   int sensorValue;
-  static const uint8_t analog_pins[] = {A0,A1,A2,A3,A4};
   for(int i = 0; i < 5; i++)
   {
     sensorValue = analogRead(analog_pins[i]);
@@ -189,7 +192,6 @@ void read_ir_update()
 {
   int sensorValue;
   float new_voltage;
-  static const uint8_t analog_pins[] = {A0,A1,A2,A3,A4};
   for(int i = 0; i < 5; i++)
   {
     sensorValue = analogRead(analog_pins[i]);
