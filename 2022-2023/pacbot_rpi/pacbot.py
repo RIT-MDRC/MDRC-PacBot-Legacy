@@ -2,6 +2,8 @@ from pacbot_arduino_manager import PacbotArduinoManager
 from pacbot_comms import AutoRoboClient
 from definitions import *
 
+import pacbot_rs
+
 from robot import Robot, DIST_BETWEEN_WHEELS
 from bot_math import *
 from grid import *
@@ -75,7 +77,9 @@ def movement_loop():
         delta_x = average_distance * math.cos(new_angle)
         delta_y = average_distance * math.sin(new_angle)
 
-        robot.pose = particle_filter(Pose(Position(delta_x, delta_y), delta_angle), arduino_data.ir_sensor_values)
+        # robot.pose = particle_filter(Pose(Position(delta_x, delta_y), delta_angle), arduino_data.ir_sensor_values)
+        particle_filter_result = pf.update(average_distance, delta_angle, arduino_data.ir_sensor_values)
+        robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]), particle_filter_result[1])
     else:
         # use the position from the robot which was updated when it moved
         pass
@@ -83,20 +87,32 @@ def movement_loop():
     # use the rounded position to determine the best high-level strategy move
     robot_int_position = Position(round(robot.pose.pos.x), round(robot.pose.pos.y))
 
-    # list of the 4 surrounding squares
-    surrounding_squares = [Position(robot_int_position.x + 1, robot_int_position.y),
-                           Position(robot_int_position.x - 1, robot_int_position.y),
-                           Position(robot_int_position.x, robot_int_position.y + 1),
-                           Position(robot_int_position.x, robot_int_position.y - 1)]
+    # # list of the 4 surrounding squares
+    # surrounding_squares = [Position(robot_int_position.x + 1, robot_int_position.y),
+    #                        Position(robot_int_position.x - 1, robot_int_position.y),
+    #                        Position(robot_int_position.x, robot_int_position.y + 1),
+    #                        Position(robot_int_position.x, robot_int_position.y - 1)]
+    #
+    # # find the best one
+    # best_square = surrounding_squares[0]
+    # best_square_heuristic = get_cell_heuristic_value(surrounding_squares[0])
+    # for square in surrounding_squares:
+    #     heuristic = get_cell_heuristic_value(square)
+    #     if heuristic > best_square_heuristic:
+    #         best_square_heuristic = heuristic
+    #         best_square = square
+    px = robot_int_position.x
+    py = robot_int_position.y
+    positions = [
+        (px, py),
+        (px, py + 1),
+        (px, py - 1),
+        (px - 1, py),
+        (px + 1, py),
+    ]
 
-    # find the best one
-    best_square = surrounding_squares[0]
-    best_square_heuristic = get_cell_heuristic_value(surrounding_squares[0])
-    for square in surrounding_squares:
-        heuristic = get_cell_heuristic_value(square)
-        if heuristic > best_square_heuristic:
-            best_square_heuristic = heuristic
-            best_square = square
+    values, action = pacbot_rs.get_action_heuristic_values(client.full_state)
+    best_square = Position(*positions[action])
 
     # pathfind to it
     path = [best_square]
@@ -132,7 +148,8 @@ if __name__ == '__main__':
         # start the arduino manager
         manager = PacbotArduinoManager()
 
-    particle_filter_setup(robot.pose)
+    # particle_filter_setup(robot.pose)
+    pf = pacbot_rs.ParticleFilter((14, 7, 0))
 
     clock = pg.time.Clock()
     while 1:

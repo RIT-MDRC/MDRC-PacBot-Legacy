@@ -2,6 +2,7 @@ import serial
 import time
 
 from definitions import *
+from sensor import distance_to_voltage, voltage_to_distance
 
 
 class PacbotArduinoManager:
@@ -24,6 +25,18 @@ class PacbotArduinoManager:
     def get_sensor_data(self) -> IncomingArduinoMessage:
         while self.arduino.in_waiting > 0:
             self.latest_message = str_to_incoming_message(self.arduino.readline().decode('utf-8').rstrip())
+        self.latest_message.ir_sensor_values = (
+            voltage_to_distance(self.latest_message.ir_sensor_values[0]),
+            voltage_to_distance(self.latest_message.ir_sensor_values[1]),
+            voltage_to_distance(self.latest_message.ir_sensor_values[2]),
+            voltage_to_distance(self.latest_message.ir_sensor_values[3]),
+            voltage_to_distance(self.latest_message.ir_sensor_values[4])
+        )
+        self.latest_message.encoder_values = (
+            # TODO
+            self.latest_message.encoder_values[0] / 1000,
+            self.latest_message.encoder_values[1] / 1000
+        )
         return self.latest_message
 
     def close(self):
