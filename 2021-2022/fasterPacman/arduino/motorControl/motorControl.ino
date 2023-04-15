@@ -82,25 +82,25 @@ void loop() {
   // enc1_count = encoder1.read();
   // enc2_count = encoder2.read();
 
-  myMotor1->setSpeed(abs(motor1_inputVel));
-  if(motor1_targetVel == 0)
-  {
-    myMotor1->run(RELEASE);
-  } else if (motor1_targetVel < 0) {
-    myMotor1->run(BACKWARD);
-  } else {
-    myMotor1->run(FORWARD);
-  }
+  // myMotor1->setSpeed(abs(motor1_inputVel));
+  // if(motor1_targetVel == 0)
+  // {
+  //   myMotor1->run(RELEASE);
+  // } else if (motor1_targetVel < 0) {
+  //   myMotor1->run(BACKWARD);
+  // } else {
+  //   myMotor1->run(FORWARD);
+  // }
 
-  myMotor2->setSpeed(abs(motor2_inputVel));
-  if(motor2_targetVel == 0)
-  {
-    myMotor2->run(RELEASE);
-  } else if (motor1_targetVel < 0) {
-    myMotor2->run(BACKWARD);
-  } else {
-    myMotor2->run(FORWARD);
-  }
+  // myMotor2->setSpeed(abs(motor2_inputVel));
+  // if(motor2_targetVel == 0)
+  // {
+  //   myMotor2->run(RELEASE);
+  // } else if (motor1_targetVel < 0) {
+  //   myMotor2->run(BACKWARD);
+  // } else {
+  //   myMotor2->run(FORWARD);
+  // }
   /*----COMMENT END */
 
   //prints of IR data
@@ -155,12 +155,15 @@ void loop() {
       } else if (motorNumber == 2) {
         motor2_targetVel = motorSpeed;
         if (motorSpeed < 0) {
-          myMotor2->run(BACKWARD);
-        } else {
           myMotor2->run(FORWARD);
+        } else {
+          myMotor2->run(BACKWARD);
         }
       }
     }
+    // set motor speeds
+    myMotor1->setSpeed(motor1_targetVel);
+    myMotor2->setSpeed(motor2_targetVel / 2);
   }
 
   send_update_packet();
