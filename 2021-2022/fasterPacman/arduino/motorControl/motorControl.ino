@@ -5,6 +5,9 @@
 
 #include "utility/Adafruit_MS_PWMServoDriver.h"
 
+// uncomment for debugging information to be printed to serial
+#define DEBUG
+
 // motor setup
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *myMotor1 = AFMS.getMotor(1);
@@ -34,7 +37,7 @@ void setup() {
   pinMode(13, OUTPUT);
 
   // serial setup
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   pinMode(2,INPUT_PULLUP);
   attachInterrupt(0, isr_enc1_count, RISING); //interrupt signal to pin 2
@@ -78,6 +81,7 @@ void loop() {
   /*----COMMENT END */
 
   //prints of IR data
+  #ifdef DEBUG
   for(int i = 0; i < 5; i++)
   {
     Serial.print("Sensor: ");
@@ -85,12 +89,15 @@ void loop() {
     Serial.print(": ");
     Serial.println(movingAverages[i]);
   }
+  #endif
   //if command available in terminal
   if (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
+    #ifdef DEBUG
     Serial.print("echo: ");
     Serial.print(data);
     Serial.print(";");
+    #endif
 
     String motorNumberStr = data.substring(0, 1);
     String motorSpeedStr = data.substring(1, 5);
@@ -98,11 +105,13 @@ void loop() {
     int motorNumber = motorNumberStr.toInt();
     int motorSpeed = motorSpeedStr.toInt();
 
+    #ifdef DEBUG
     Serial.print("   you want to turn motor: ");
     Serial.print(motorNumber);
     Serial.print(" at speed ");
     Serial.print(motorSpeed);
     Serial.print("\n");
+    #endif
     
     if (motorSpeed == 0) {
       digitalWrite(13, LOW);
@@ -131,7 +140,25 @@ void loop() {
     }
   }
 
-  delay(10);
+  send_update_packet();
+
+  // delay(10);
+}
+
+// send an update packet to the host over serial
+// packet format:
+//   [encoder1],[encoder2];[sensor1],[sensor2],[sensor3],[sensor4],[sensor5],
+void send_update_packet() 
+{
+  Serial.print(enc1_count);
+  Serial.print(",");
+  Serial.print(enc2_count);
+  Serial.print(";");
+  for (int i = 0; i < 5; i++) {
+    Serial.print(movingAverages[i]);
+    if (i < 4)
+      Serial.print(",");
+  }
 }
 
 //increment counter everytime an edge occurs on pin 2 (Enc1)
@@ -202,8 +229,8 @@ void velocity_control()
   enc1_count = 0;
   enc2_count = 0;
   unsigned int rpm_convert = 1;
-  float motor1_calcVel = (float) motor1_ticks / rpm_convert //10ms ideally passes
-  float motor2_calcVel = (float) motor2_ticks / rpm_convert //10ms ideally passes, will need to  tune
+  float motor1_calcVel = (float) motor1_ticks / rpm_convert; //10ms ideally passes
+  float motor2_calcVel = (float) motor2_ticks / rpm_convert; //10ms ideally passes, will need to  tune
   //Motor 1
   //if greater than target velocity, decrease input to the motor, else if less than target velocity, increase input to the motor
   if((motor1_calcVel > motor1_targetVel) | motor1_inputVel > 0)
