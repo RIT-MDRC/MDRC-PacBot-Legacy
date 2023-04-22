@@ -102,6 +102,7 @@ def grid_bfs_path(start: Position, target: Position):
                         if new_direction != direction:
                             new_path.append(path[i - 1])
                             direction = new_direction
+                    new_path.append(path[-1])
                     return new_path
 
                 # don't add this position if we have already visited it

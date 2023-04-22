@@ -16,7 +16,7 @@ class PathTracker:
         self.heading_controller = PID_controller(2, 0, 0)
         self.drive_controller = PID_controller(1.5, 0, 0)
 
-    def pure_pursuit(self, pos: tuple[float, float], angle: float, path: list[tuple[int, int]], dt) \
+    def pure_pursuit(self, pos: tuple[float, float], angle: float, path: list[tuple[int, int]], dt: float) \
             -> tuple[float, float]:
         """
         Follow a path with the pure pursuit algorithm using current position, direction, path to follow, and grid state.
@@ -25,7 +25,7 @@ class PathTracker:
         @param pos: The current position of the robot.
         @param angle: The current direction of the robot.
         @param path: The path to follow.
-        @param grid: The current shape of the grid.
+        @param dt: The time since the last frame
 
         @return: (speed, angle)  The speed and angle of the robot.
         """
@@ -52,7 +52,7 @@ class PathTracker:
                 look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] + self.PURE_PURSUIT_LOOKAHEAD)
                 look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
                                                     look_ahead_pos[1] - pos[1])
-                correction_angle = (look_ahead_to_robot_angle + ((math.pi/2)-angle))
+                correction_angle = -(look_ahead_to_robot_angle + ((math.pi/2)-angle))
                 
                 # check if we are at the end of the line
                 if abs(pos[1]-second_point[1]) < self.END_OF_PATH_CUTOFF:
@@ -68,7 +68,7 @@ class PathTracker:
                 look_ahead_pos = (robot_pos_projection[0], robot_pos_projection[1] - self.PURE_PURSUIT_LOOKAHEAD)
                 look_ahead_to_robot_angle = math.atan2(pos[0] - look_ahead_pos[0],
                                                     pos[1] - look_ahead_pos[1])
-                correction_angle = -(look_ahead_to_robot_angle + ((math.pi/2)+angle))
+                correction_angle = (look_ahead_to_robot_angle + ((math.pi/2)+angle))
                 
                 # check if we are at the end of the line
                 if abs(pos[1] - second_point[1]) < self.END_OF_PATH_CUTOFF:
@@ -84,7 +84,7 @@ class PathTracker:
                 look_ahead_pos = (robot_pos_projection[0] + self.PURE_PURSUIT_LOOKAHEAD, robot_pos_projection[1])
                 look_ahead_to_robot_angle = math.atan2(pos[1] - look_ahead_pos[1],
                                                     look_ahead_pos[0] - pos[0])
-                correction_angle = -(look_ahead_to_robot_angle + angle)
+                correction_angle = (look_ahead_to_robot_angle + angle)
                 
                 # check if we are at the end of the line
                 if abs(pos[0] - second_point[0]) < self.END_OF_PATH_CUTOFF:
@@ -99,9 +99,9 @@ class PathTracker:
                 
                 # edge case
                 if angle > 0:
-                    correction_angle = (look_ahead_to_robot_angle + ((math.pi)-angle))
+                    correction_angle = -(look_ahead_to_robot_angle + ((math.pi)-angle))
                 else:
-                    correction_angle = (look_ahead_to_robot_angle + (-(math.pi)-angle))
+                    correction_angle = -(look_ahead_to_robot_angle + (-(math.pi)-angle))
                     
                 # check if we are at the end of the line
                 if abs(pos[0] - second_point[0]) < self.END_OF_PATH_CUTOFF:

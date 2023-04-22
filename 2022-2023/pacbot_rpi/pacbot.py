@@ -1,6 +1,7 @@
 from pacbot_arduino_manager import PacbotArduinoManager
 from pacbot_comms import AutoRoboClient
 from definitions import *
+import asyncio
 
 import pacbot_rs
 
@@ -8,6 +9,7 @@ from robot import Robot, DIST_BETWEEN_WHEELS
 from bot_math import *
 from grid import *
 from path_tracker import PathTracker
+from sim_canvas import SimCanvas
 
 from messages import *
 
@@ -33,8 +35,16 @@ path_tracker: PathTracker = PathTracker()
 
 
 def start_client():
-    global client
-    client = AutoRoboClient(ADDRESS, PORT, 10, tick_light=tick_relay_pacbot_position)
+    global client, pf, sim_canvas
+
+    # Create a new event loop for this thread
+    loop = asyncio.new_event_loop()
+
+    # Set the new event loop as the default for this thread
+    asyncio.set_event_loop(loop)
+
+    client = AutoRoboClient(ADDRESS, PORT, pf, 10, tick_light=tick_relay_pacbot_position)
+
     client.run()
 
 
@@ -43,14 +53,19 @@ def tick_relay_pacbot_position(light_state: MsgType.LIGHT_STATE):
     This method is called every tick.
     """
     if client is not None and not USE_PROJECTOR:
-        client.update_fake_location((1, 1))
+        # print('ticking pacman location ' + str(robot.pose))
+        # client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y // 2 - 1))
+        client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y))
 
 
 def get_cell_heuristic_value(pos: Position):
     return 0
 
 
+prev_best_square = None
 def movement_loop():
+    global sim_canvas, prev_best_square
+
     # determine position
     if USE_REAL_ARDUINO:
         # update the robot with encoder data
@@ -78,7 +93,7 @@ def movement_loop():
         delta_y = average_distance * math.sin(new_angle)
 
         # robot.pose = particle_filter(Pose(Position(delta_x, delta_y), delta_angle), arduino_data.ir_sensor_values)
-        particle_filter_result = pf.update(average_distance, delta_angle, arduino_data.ir_sensor_values)
+        particle_filter_result = pf.update(average_distance, delta_angle, list(arduino_data.ir_sensor_values))
         robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]), particle_filter_result[1])
     else:
         # use the position from the robot which was updated when it moved
@@ -87,20 +102,6 @@ def movement_loop():
     # use the rounded position to determine the best high-level strategy move
     robot_int_position = Position(round(robot.pose.pos.x), round(robot.pose.pos.y))
 
-    # # list of the 4 surrounding squares
-    # surrounding_squares = [Position(robot_int_position.x + 1, robot_int_position.y),
-    #                        Position(robot_int_position.x - 1, robot_int_position.y),
-    #                        Position(robot_int_position.x, robot_int_position.y + 1),
-    #                        Position(robot_int_position.x, robot_int_position.y - 1)]
-    #
-    # # find the best one
-    # best_square = surrounding_squares[0]
-    # best_square_heuristic = get_cell_heuristic_value(surrounding_squares[0])
-    # for square in surrounding_squares:
-    #     heuristic = get_cell_heuristic_value(square)
-    #     if heuristic > best_square_heuristic:
-    #         best_square_heuristic = heuristic
-    #         best_square = square
     px = robot_int_position.x
     py = robot_int_position.y
     positions = [
@@ -111,16 +112,32 @@ def movement_loop():
         (px + 1, py),
     ]
 
-    values, action = pacbot_rs.get_action_heuristic_values(client.full_state)
-    best_square = Position(*positions[action])
+    values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
+    best_square: list[int] = [int(positions[action][0]), int(positions[action][1])]
+    # for i in range(3):
+    #     client.game_state.pacbot.update((best_square[0], best_square[1]))
+    #     values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
+    #     best_square = [int(positions[action][0]), int(positions[action][1])]
+    # client.game_state.pacbot.update((int(px), int(py)))
+
+    if best_square != prev_best_square:
+        print('best square changed to', best_square)
+        prev_best_square = best_square
 
     # pathfind to it
-    path = [best_square]
+    path = grid_bfs_path(robot_int_position, Position(best_square[0], best_square[1]))
+    # path = [(int(best_square[0]), int(best_square[1]))]
     if best_square != robot_int_position:
-        path = grid_bfs_path(robot_int_position, best_square)
+        # path = grid_bfs_path(robot_int_position, best_square)
+        path = [(px, py), (int(best_square[0]), int(best_square[1]))]
+
+    if sim_canvas is not None:
+        sim_canvas.update(client.game_state, pf, robot, best_square, path)
+    elif client is not None:
+        sim_canvas = SimCanvas(client.game_state, pf)
 
     # determine motor movements
-    speed, angle = PathTracker.pure_pursuit(
+    (speed, angle) = pure_pursuit.pure_pursuit(
         (robot.pose.pos.x, robot.pose.pos.y),
         robot.pose.angle,
         path,
@@ -136,10 +153,15 @@ def movement_loop():
         pacbot_arduino_manager.write_motors(left_motor, right_motor)
     else:
         robot.step(left_motor, right_motor, dt)
-        client.update_fake_location((int(robot_int_position.x), int(robot_int_position.y)))
+        # client.update_fake_location((round(robot_int_position.x), round(robot_int_position.y)))
 
 
 if __name__ == '__main__':
+    # particle_filter_setup(robot.pose)
+    pf = pacbot_rs.ParticleFilter(14, 7, 0)
+
+    sim_canvas: SimCanvas | None = None
+
     # start the client thread
     client_thread = threading.Thread(target=start_client)
     client_thread.start()
@@ -148,13 +170,15 @@ if __name__ == '__main__':
         # start the arduino manager
         manager = PacbotArduinoManager()
 
-    # particle_filter_setup(robot.pose)
-    pf = pacbot_rs.ParticleFilter((14, 7, 0))
+    pure_pursuit = PathTracker()
 
     clock = pg.time.Clock()
     while 1:
         dt = clock.tick(FPS) / 1000
+        if client is None or client.light_state is None or client.full_state is None:
+            continue
         if client.light_state.mode == client.light_state.PAUSED:
-            pacbot_arduino_manager.write_motors(0, 0)
+            if USE_REAL_ARDUINO:
+                pacbot_arduino_manager.write_motors(0, 0)
         else:
             movement_loop()
