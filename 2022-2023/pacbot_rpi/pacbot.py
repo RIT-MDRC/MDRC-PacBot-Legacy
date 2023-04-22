@@ -27,8 +27,8 @@ PORT = os.environ.get("PORT", 11297)
 
 FPS = 100
 
-USE_PROJECTOR = False
-USE_REAL_ARDUINO = False
+USE_PROJECTOR = os.environ.get("USE_PROJECTOR", 'f') == 't'
+USE_REAL_ARDUINO = os.environ.get("USE_REAL_ARDUINO", 'f') == 't'
 
 robot: Robot = Robot()
 path_tracker: PathTracker = PathTracker()
@@ -44,6 +44,7 @@ def start_client():
     asyncio.set_event_loop(loop)
 
     client = AutoRoboClient(ADDRESS, PORT, pf, 10, tick_light=tick_relay_pacbot_position)
+    client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y))
 
     client.run()
 
@@ -121,7 +122,7 @@ def movement_loop():
     # client.game_state.pacbot.update((int(px), int(py)))
 
     if best_square != prev_best_square:
-        print('best square changed to', best_square)
+        # print('best square changed to', best_square)
         prev_best_square = best_square
 
     # pathfind to it
@@ -158,7 +159,8 @@ def movement_loop():
 
 if __name__ == '__main__':
     # particle_filter_setup(robot.pose)
-    pf = pacbot_rs.ParticleFilter(14, 7, 0)
+    # pf = pacbot_rs.ParticleFilter(14, 7, 0)
+    pf = pacbot_rs.ParticleFilter(4, 28, math.pi)
 
     sim_canvas: SimCanvas | None = None
 
