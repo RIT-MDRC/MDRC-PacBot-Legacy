@@ -194,6 +194,7 @@ class AutoRobo(rm.ProtoModule):
             return
 
         env = os.environ.copy()
+        print(self.ADDRESS)
         env.update({'BIND_ADDRESS': self.ADDRESS, 'BIND_PORT': str(self.PORT)})
 
         execute = [sys.executable, self.processes[process_name]['file']]

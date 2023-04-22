@@ -179,11 +179,9 @@ if __name__ == '__main__':
     clock = pg.time.Clock()
     while 1:
         dt = clock.tick(FPS) / 1000
-        if False and (client is None or client.light_state is None or client.full_state is None):
-            #print('no client')
+        if client is None or client.light_state is None or client.full_state is None:
             continue
-        if False and client.light_state.mode == client.light_state.PAUSED:
-            #print('paused')
+        if client.light_state.mode == client.light_state.PAUSED:
             if USE_REAL_ARDUINO:
                 pacbot_arduino_manager.write_motors(0, 0)
         else:
