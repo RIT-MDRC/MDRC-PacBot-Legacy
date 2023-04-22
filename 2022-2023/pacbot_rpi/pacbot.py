@@ -113,27 +113,29 @@ def movement_loop():
         (px + 1, py),
     ]
 
-    values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
-    best_square: list[int] = [int(positions[action][0]), int(positions[action][1])]
+    # values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
+    # best_square: list[int] = [int(positions[action][0]), int(positions[action][1])]
+
+    path = pacbot_rs.get_heuristic_path(client.game_state, 10)
     # for i in range(3):
     #     client.game_state.pacbot.update((best_square[0], best_square[1]))
     #     values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
     #     best_square = [int(positions[action][0]), int(positions[action][1])]
     # client.game_state.pacbot.update((int(px), int(py)))
 
-    if best_square != prev_best_square:
-        print('best square changed to', best_square)
-        prev_best_square = best_square
-
-    # pathfind to it
-    path = grid_bfs_path(robot_int_position, Position(best_square[0], best_square[1]))
-    # path = [(int(best_square[0]), int(best_square[1]))]
-    if best_square != robot_int_position:
-        # path = grid_bfs_path(robot_int_position, best_square)
-        path = [(px, py), (int(best_square[0]), int(best_square[1]))]
+    # if best_square != prev_best_square:
+    #     print('best square changed to', best_square)
+    #     prev_best_square = best_square
+    #
+    # # pathfind to it
+    # path = grid_bfs_path(robot_int_position, Position(best_square[0], best_square[1]))
+    # # path = [(int(best_square[0]), int(best_square[1]))]
+    # if best_square != robot_int_position:
+    #     # path = grid_bfs_path(robot_int_position, best_square)
+    #     path = [(px, py), (int(best_square[0]), int(best_square[1]))]
 
     if sim_canvas is not None:
-        sim_canvas.update(client.game_state, pf, robot, best_square, path)
+        sim_canvas.update(client.game_state, pf, robot, path[0], [Position(x1, y1) for (x1, y1) in path])
     elif client is not None:
         sim_canvas = SimCanvas(client.game_state, pf)
 
@@ -185,5 +187,5 @@ if __name__ == '__main__':
             if USE_REAL_ARDUINO:
                 pacbot_arduino_manager.write_motors(0, 0)
         else:
-            print('movement loop')
+            # print('movement loop')
             movement_loop()
