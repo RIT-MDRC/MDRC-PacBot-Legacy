@@ -31,6 +31,16 @@ def world2screen(world_pos: tuple[float, float]) -> tuple[float, float]:
 from robot import Robot
 
 
+def get_alt_grid():
+    alt_grid = [[True] * (GRID_HEIGHT + 1) for _ in range(GRID_WIDTH + 1)]
+    for x in range(GRID_WIDTH - 1):
+        for y in range(GRID_HEIGHT - 1):
+            alt_grid[x + 1][y + 1] = (
+                    GRID[x][y] and GRID[x + 1][y] and GRID[x][y + 1] and GRID[x + 1][y + 1]
+            )
+    return alt_grid
+
+
 class SimCanvas:
     def __init__(self, game_state: pacbot_rs.GameState, particle_filter: pacbot_rs.ParticleFilter):
         self.game_state = game_state
@@ -52,10 +62,11 @@ class SimCanvas:
         pg.draw.rect(self.background_image, COLOR_BG, self.bg_rect)
 
         # fill the walls
-        for x in range(GRID_WIDTH):
-            for y in range(GRID_HEIGHT):
-                if GRID[x][y]:
-                    rect = pg.Rect(*world2screen((x - 1, GRID_HEIGHT - y - 2)), DRAW_SCALE, DRAW_SCALE)
+        alt_grid = get_alt_grid()
+        for x in range(GRID_WIDTH + 1):
+            for y in range(GRID_HEIGHT + 1):
+                if alt_grid[x][y]:
+                    rect = pg.Rect(*world2screen((x - 1, GRID_HEIGHT - y - 1)), DRAW_SCALE, DRAW_SCALE)
                     pg.draw.rect(self.background_image, COLOR_WALL_FILL, rect)
 
         pg.display.flip()

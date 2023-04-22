@@ -160,7 +160,7 @@ def movement_loop():
 if __name__ == '__main__':
     # particle_filter_setup(robot.pose)
     # pf = pacbot_rs.ParticleFilter(14, 7, 0)
-    pf = pacbot_rs.ParticleFilter(4, 28, math.pi)
+    pf = pacbot_rs.ParticleFilter(4, 29, math.pi)
 
     sim_canvas: SimCanvas | None = None
 

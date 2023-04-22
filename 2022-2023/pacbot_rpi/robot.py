@@ -1,17 +1,18 @@
 import math
 from sim_canvas import world2screen, COLOR_ROBOT, ROBOT_RADIUS
 import pygame as pg
+import os
 
 from bot_math import Pose, Position
 
-MAX_WHEEL_SPEED = 5
+MAX_WHEEL_SPEED = float(os.environ.get("MAX_WHEEL_SPEED", "5.0"))
 DIST_BETWEEN_WHEELS = 4.0 / 3.5
 
 
 class Robot:
     def __init__(self):
         # self.pose = Pose(Position(14, 7), 0.0)  # radians
-        self.pose = Pose(Position(4, 29), 0.0)  # radians
+        self.pose = Pose(Position(4, 29), math.pi)  # radians
 
     def step(self, left_motor, right_motor, dt):
         """
