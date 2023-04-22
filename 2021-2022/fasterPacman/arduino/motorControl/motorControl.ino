@@ -41,6 +41,14 @@ int motor2_inputVel;
 //counters for amount of rising edges on pins 2 and 3 from encoders.
 volatile long enc1_count = 0;
 volatile long enc2_count = 0;
+long enc1_last = 0; //last encoder count
+long enc2_last = 0;
+long enc1_temp = 0; //temp encoder count
+long enc2_temp = 0;
+// encoder deltas
+long enc1_delta = 0;
+long enc2_delta = 0;
+
 void setup() {
   // put your setup code here, to run once:
   // motor setup
@@ -176,9 +184,18 @@ void loop() {
 //   [encoder1],[encoder2];[sensor1],[sensor2],[sensor3],[sensor4],[sensor5],
 void send_update_packet() 
 {
-  Serial.print(enc1_count);
+//   Serial.print(enc1_count);
+//   Serial.print(",");
+//   Serial.print(enc2_count);
+  enc1_temp = enc1_count;
+  enc2_temp = enc2_count;
+  enc1_delta = enc1_temp - enc1_last;
+  enc2_delta = enc2_temp - enc2_last;
+  enc1_last = enc1_temp;
+  enc2_last = enc2_temp;
+  Serial.print(enc1_delta);
   Serial.print(",");
-  Serial.print(enc2_count);
+  Serial.print(enc2_delta);
   Serial.print(";");
   for (int i = 0; i < 5; i++) {
     Serial.print(movingAverages[i]);

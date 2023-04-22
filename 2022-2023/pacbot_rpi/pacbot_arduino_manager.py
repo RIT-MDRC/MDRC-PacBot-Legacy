@@ -8,8 +8,10 @@ from sensor import distance_to_voltage, voltage_to_distance
 class PacbotArduinoManager:
 
     latest_message = None
+    
+    encoder_ticks_to_meters = 0.0001 # TODO: make this accurate
 
-    def __init__(self, port='/dev/ttyUSB0', baud_rate=9600):
+    def __init__(self, port='/dev/ttyUSB0', baud_rate=115200):
         self.port = port
         self.baud_rate = baud_rate
         self.arduino = serial.Serial(self.port, self.baud_rate, timeout=1)
@@ -23,8 +25,13 @@ class PacbotArduinoManager:
         self.arduino.write(data.encode())
 
     def get_sensor_data(self) -> IncomingArduinoMessage:
+        enc1_delta = 0
+        enc2_delta = 0
         while self.arduino.in_waiting > 0:
             self.latest_message = str_to_incoming_message(self.arduino.readline().decode('utf-8').rstrip())
+            enc1_delta += self.latest_message.encoder_values[0]
+            enc2_delta += self.latest_message.encoder_values[1]
+            
         self.latest_message.ir_sensor_values = (
             voltage_to_distance(self.latest_message.ir_sensor_values[0]),
             voltage_to_distance(self.latest_message.ir_sensor_values[1]),
@@ -33,9 +40,8 @@ class PacbotArduinoManager:
             voltage_to_distance(self.latest_message.ir_sensor_values[4])
         )
         self.latest_message.encoder_values = (
-            # TODO
-            self.latest_message.encoder_values[0] / 1000,
-            self.latest_message.encoder_values[1] / 1000
+            enc1_delta * self.encoder_ticks_to_meters,
+            enc2_delta * self.encoder_ticks_to_meters
         )
         return self.latest_message
 
