@@ -9,7 +9,7 @@ class PacbotArduinoManager:
 
     latest_message = None
     
-    encoder_ticks_to_meters = 0.0001 # TODO: make this accurate
+    encoder_ticks_to_grid_units = 0.0001 # TODO: make this accurate
 
     def __init__(self, port='/dev/ttyUSB0', baud_rate=115200):
         self.port = port
@@ -40,8 +40,8 @@ class PacbotArduinoManager:
             voltage_to_distance(self.latest_message.ir_sensor_values[4])
         )
         self.latest_message.encoder_values = (
-            enc1_delta * self.encoder_ticks_to_meters,
-            enc2_delta * self.encoder_ticks_to_meters
+            enc1_delta * self.encoder_ticks_to_grid_units,
+            enc2_delta * self.encoder_ticks_to_grid_units
         )
         return self.latest_message
 
