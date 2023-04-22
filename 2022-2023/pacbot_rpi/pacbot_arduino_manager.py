@@ -9,7 +9,7 @@ class PacbotArduinoManager:
 
     latest_message = None
     
-    encoder_ticks_to_grid_units = 0.0001 # TODO: make this accurate
+    encoder_ticks_to_grid_units = 0.004571428571
 
     def __init__(self, port='/dev/ttyUSB0', baud_rate=115200):
         self.port = port
