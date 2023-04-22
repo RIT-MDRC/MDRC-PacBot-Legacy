@@ -76,19 +76,19 @@ class AutoRoboClient(rm.ProtoModule):
         """
         self.game_state.red.pos["current"] = (self.full_state.red_ghost.x, self.full_state.red_ghost.y)
         self.game_state.red.pos["next"] = (self.full_state.red_ghost.x, self.full_state.red_ghost.y)
-        # self.game_state.red.frightened_counter = self.full_state.red_ghost.frightened_timer
+        self.game_state.red.frightened_counter = self.full_state.red_ghost.frightened_counter
 
         self.game_state.pink.pos["current"] = (self.full_state.pink_ghost.x, self.full_state.pink_ghost.y)
         self.game_state.pink.pos["next"] = (self.full_state.pink_ghost.x, self.full_state.pink_ghost.y)
-        # self.game_state.pink.frightened_counter = self.full_state.pink_ghost.frightened_timer
+        self.game_state.pink.frightened_counter = self.full_state.pink_ghost.frightened_counter
 
         self.game_state.blue.pos["current"] = (self.full_state.blue_ghost.x, self.full_state.blue_ghost.y)
         self.game_state.blue.pos["next"] = (self.full_state.blue_ghost.x, self.full_state.blue_ghost.y)
-        # self.game_state.blue.frightened_counter = self.full_state.blue_ghost.frightened_timer
+        self.game_state.blue.frightened_counter = self.full_state.blue_ghost.frightened_counter
 
         self.game_state.orange.pos["current"] = (self.full_state.orange_ghost.x, self.full_state.orange_ghost.y)
         self.game_state.orange.pos["next"] = (self.full_state.orange_ghost.x, self.full_state.orange_ghost.y)
-        # self.game_state.orange.frightened_counter = self.full_state.orange_ghost.frightened_timer
+        self.game_state.orange.frightened_counter = self.full_state.orange_ghost.frightened_counter
 
 
         self.game_state.state = [

@@ -10,7 +10,8 @@ DIST_BETWEEN_WHEELS = 4.0 / 3.5
 
 class Robot:
     def __init__(self):
-        self.pose = Pose(Position(14, 7), 0.0)  # radians
+        # self.pose = Pose(Position(14, 7), 0.0)  # radians
+        self.pose = Pose(Position(4, 29), 0.0)  # radians
 
     def step(self, left_motor, right_motor, dt):
         """
