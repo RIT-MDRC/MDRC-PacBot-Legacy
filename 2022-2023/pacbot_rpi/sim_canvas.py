@@ -116,5 +116,9 @@ class SimCanvas:
         path = [world2screen(p) for p in test_path]
         if len(path) > 1:
             pg.draw.lines(self.display, pg.Color("red"), False, path, 2)
+
+        # draw the particle filter positions
+        for point in particle_filter.get_points():
+            pg.draw.circle(self.display, (255, 0, 0), world2screen(point[0]), 2)
         self.display.blit(pg.transform.flip(self.display, False, True), (0, 0))
         pg.display.update()
