@@ -122,7 +122,7 @@ def movement_loop():
     # client.game_state.pacbot.update((int(px), int(py)))
 
     if best_square != prev_best_square:
-        # print('best square changed to', best_square)
+        print('best square changed to', best_square)
         prev_best_square = best_square
 
     # pathfind to it
@@ -170,17 +170,20 @@ if __name__ == '__main__':
 
     if USE_REAL_ARDUINO:
         # start the arduino manager
-        manager = PacbotArduinoManager()
+        pacbot_arduino_manager = PacbotArduinoManager()
 
     pure_pursuit = PathTracker()
 
     clock = pg.time.Clock()
     while 1:
         dt = clock.tick(FPS) / 1000
-        if client is None or client.light_state is None or client.full_state is None:
+        if False and (client is None or client.light_state is None or client.full_state is None):
+            #print('no client')
             continue
-        if client.light_state.mode == client.light_state.PAUSED:
+        if False and client.light_state.mode == client.light_state.PAUSED:
+            #print('paused')
             if USE_REAL_ARDUINO:
                 pacbot_arduino_manager.write_motors(0, 0)
         else:
+            print('movement loop')
             movement_loop()

@@ -6,6 +6,7 @@ from sim_canvas import SimCanvas
 
 from typing import Callable
 
+import os
 import pacbot_rs
 
 
@@ -14,8 +15,8 @@ class AutoRoboClient(rm.ProtoModule):
     This class acts as a client to the AutoRobo class.
     """
 
-    ADDRESS = 'localhost'
-    PORT = 11297
+    ADDRESS = os.environ.get('ADDRESS', 'localhost')
+    PORT = int(os.environ.get('PORT', '11297'))
 
     # times per second that tick() and custom_tick() are called
     FREQUENCY = 10
@@ -55,6 +56,8 @@ class AutoRoboClient(rm.ProtoModule):
         self.subscriptions = [MsgType.LIGHT_STATE, MsgType.FULL_STATE]
         super().__init__(addr, port, message_buffers, MsgType, self.FREQUENCY, self.subscriptions)
         self.state = None
+
+        print('initted')
 
     def start_sim_thread(self):
 
@@ -121,6 +124,7 @@ class AutoRoboClient(rm.ProtoModule):
         """
         This method is called whenever a message is received from the server.
         """
+        print('msg received')
         if msg_type == MsgType.LIGHT_STATE:
             self.light_state = msg
         elif msg_type == MsgType.FULL_STATE:
