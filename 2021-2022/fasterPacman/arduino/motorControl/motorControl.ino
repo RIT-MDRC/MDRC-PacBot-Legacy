@@ -30,7 +30,7 @@ Adafruit_DCMotor *myMotor2 = AFMS.getMotor(2);
 float movingAverages[5];
 
 // sensor pins array
-static const uint8_t analog_pins[] = {A0,A1,A2,A3,A4};
+static const uint8_t analog_pins[] = {A0,A1,A2,A3,A5};
 
 //Motor1 = Left, Motor2 = right
 int motor1_targetVel; //target velocity for feedback control
