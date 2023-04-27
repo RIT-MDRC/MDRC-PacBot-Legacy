@@ -46,6 +46,9 @@ def start_client():
     client = AutoRoboClient(ADDRESS, PORT, pf, 10, tick_light=tick_relay_pacbot_position)
     client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y))
 
+    sim_canvas = SimCanvas(client.game_state, pf)
+    sim_canvas.update(client.game_state, pf, robot, (robot.pose.pos.x, robot.pose.pos.y), [], [0, 0, 0, 0, 0, 0, 0, 0])
+
     client.run()
 
 
@@ -151,8 +154,6 @@ def movement_loop():
     if sim_canvas is not None:
         sim_canvas.update(client.game_state, pf, robot, path[0], [Position(x1, y1) for (x1, y1) in path],
                           pacbot_arduino_manager.latest_message.ir_sensor_values)
-    elif client is not None:
-        sim_canvas = SimCanvas(client.game_state, pf)
 
     # determine motor movements
     (speed, angle) = pure_pursuit.pure_pursuit(
