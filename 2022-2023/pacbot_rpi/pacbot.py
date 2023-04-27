@@ -149,7 +149,8 @@ def movement_loop():
     #     path = [(px, py), (int(best_square[0]), int(best_square[1]))]
 
     if sim_canvas is not None:
-        sim_canvas.update(client.game_state, pf, robot, path[0], [Position(x1, y1) for (x1, y1) in path])
+        sim_canvas.update(client.game_state, pf, robot, path[0], [Position(x1, y1) for (x1, y1) in path],
+                          pacbot_arduino_manager.latest_message.ir_sensor_values)
     elif client is not None:
         sim_canvas = SimCanvas(client.game_state, pf)
 
