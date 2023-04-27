@@ -154,14 +154,14 @@ void loop() {
     } else {
       digitalWrite(LED_BUILTIN, HIGH);
       if (motorNumber == 1) {
-        motor1_targetVel = motorSpeed;
+        motor1_targetVel = abs(motorSpeed);
         if (motorSpeed < 0) {
           myMotor1->run(BACKWARD);
         } else {
           myMotor1->run(FORWARD);
         }
       } else if (motorNumber == 2) {
-        motor2_targetVel = motorSpeed;
+        motor2_targetVel = abs(motorSpeed);
         if (motorSpeed < 0) {
           myMotor2->run(FORWARD);
         } else {
@@ -172,11 +172,11 @@ void loop() {
     // set motor speeds
     myMotor1->setSpeed(motor1_targetVel);
     myMotor2->setSpeed(motor2_targetVel / 2);
+
   }
 
+  delay(20);
   send_update_packet();
-
-  // delay(10);
 }
 
 // send an update packet to the host over serial
