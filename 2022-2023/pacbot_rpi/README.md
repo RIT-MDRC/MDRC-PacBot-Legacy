@@ -64,3 +64,34 @@ This project exists in 5 parts.
    - This is the low-level code that runs on the Arduino, which communicates with the Python code via the serial port
 5. The Projector
    - The projector attempts to determine Pacbot's position using computer vision, and sends messages to MsgType.PACMAN_LOCATION for the server
+
+## The Server
+
+The server, whether it is running on your machine or Harvard's, can be composed of several processes as follows.
+Each component is one of the python files in `Pacbot/src/gameEngine/`
+1. gameEngine - required, keeps track of the current game state
+   - Listens for messages from PACMAN_LOCATION
+   - Sends messages to FULL_STATE, LIGHT_STATE
+2. cameraReader - optional, uses computer vision to track Pacbot
+   - Sends messages to PACMAN_LOCATION
+   - If it doesn't exist, pacbot needs to send messages to PACMAN_LOCATION
+3. keyboardInput - provides a way to control game engine's pacman via keyboard
+   - Sends messages to PACMAN_LOCATION
+   - If it exists, the physical robot's Pacbot code should not exist
+4. server - required, is simply the Robomodules serverside, all other processes are a client
+   - Does not send any messages
+5. terminalPrinter - optional, this thing has never worked for me
+6. visualize - provides a Pygame visualization of the game state
+
+All server processes accept the following environment variables, which must match for all processes.
+If `localhost` is the `BIND_ADDRESS`, no process outside the machine running the server will be able to access it.
+- `BIND_ADDRESS`
+  - Default: `localhost`
+- `BIND_PORT`
+  - Default: `11297`
+
+An easy to manage the server is to use `python3 ~/MDRC-PacBot/2022-2023/auto_robo/auto_robo.py`
+
+Auto robo also accepts BIND_ADDRESS and BIND_PORT, which are passed into each process. 
+
+In order to run auto robo, make sure you have `python3 -m pip install -r ~/MDRC-PacBot/2022-2023/auto_robo/requirements.txt`
