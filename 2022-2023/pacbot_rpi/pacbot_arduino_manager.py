@@ -10,6 +10,8 @@ GRID_CELLS_PER_CM = 1/8.89;
 class PacbotArduinoManager:
 
     latest_message = None
+
+    waiting_for_msg = True
     
     encoder_ticks_to_grid_units = 0.004571428571
 
@@ -23,11 +25,15 @@ class PacbotArduinoManager:
         self.arduino.readline()
 
     def write_motors(self, left: int, right: int):
+        if self.waiting_for_msg:
+            return
+        self.waiting_for_msg = True
         print('motors: ', left, right)
-        self.write(OutgoingArduinoMessage('1', left / 5 * 100).format())
-        self.write(OutgoingArduinoMessage('2', right / 5 * 100).format())
+        self.write(OutgoingArduinoMessage('1', int(left / 5 * 100)).format())
+        self.write(OutgoingArduinoMessage('2', int(right / 5 * 100)).format())
 
     def write(self, data: str):
+        print('SEND', data)
         self.arduino.write(data.encode())
 
     def get_sensor_data(self) -> IncomingArduinoMessage:
@@ -37,6 +43,7 @@ class PacbotArduinoManager:
         while self.arduino.in_waiting > 0:
             line = self.arduino.readline().decode('utf-8')
             print('RECEIVED', self.arduino.in_waiting)
+            self.waiting_for_msg = False
             #print(self.baud_rate)
             #print('line: ')
             #print(repr(line))

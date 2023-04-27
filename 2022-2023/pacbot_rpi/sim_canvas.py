@@ -20,7 +20,7 @@ FPS = 60
 
 ROBOT_RADIUS = DRAW_SCALE * (6 / 3.5) / 2
 SENSOR_ANGLES = [-math.pi / 2, -math.pi / 4, 0, +math.pi / 4, +math.pi / 2]
-
+SENSOR_DISTANCE_FROM_CENTER = 2 * 0.75 / 2.0 # a passage is 2 grid units wide
 
 def world2screen(world_pos: tuple[float, float]) -> tuple[float, float]:
     """Convert world coordinates to screen coordinates."""
@@ -103,22 +103,22 @@ class SimCanvas:
         for i in range(5):
             angle = SENSOR_ANGLES[i]
             distance = particle_filter.get_sense_distances()[i]
-            # draw line from pacbot to the sensed wall
+            # draw line from pacbot to the simulated wall
             pg.draw.line(self.display, COLOR_RAY, world2screen(robot_pose[0]), world2screen(
-                (robot_pose[0][0] + distance * math.cos(robot_pose[1] + angle),
-                 robot_pose[0][1] + distance * math.sin(robot_pose[1] + angle))), 2)
+                (robot_pose[0][0] + (distance) * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + (distance) * math.sin(robot_pose[1] + angle))), 2)
             # add a dot at the end of the line
             pg.draw.circle(self.display, COLOR_RAY, world2screen(
-                (robot_pose[0][0] + distance * math.cos(robot_pose[1] + angle),
-                 robot_pose[0][1] + distance * math.sin(robot_pose[1] + angle))), 3)
-            # also draw a line representing the experimental sensor distance
+                (robot_pose[0][0] + (distance) * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + (distance) * math.sin(robot_pose[1] + angle))), 3)
+            # also draw a line representing the measured sensor distance
             pg.draw.line(self.display, COLOR_RAY_MAXED, world2screen(robot_pose[0]), world2screen(
-                (robot_pose[0][0] + sensors[i] * math.cos(robot_pose[1] + angle),
-                 robot_pose[0][1] + sensors[i] * math.sin(robot_pose[1] + angle))), 2)
+                (robot_pose[0][0] + (sensors[i] + SENSOR_DISTANCE_FROM_CENTER) * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + (sensors[i] + SENSOR_DISTANCE_FROM_CENTER) * math.sin(robot_pose[1] + angle))), 2)
             # add a dot at the end of the line
             pg.draw.circle(self.display, COLOR_RAY_MAXED, world2screen(
-                (robot_pose[0][0] + sensors[i] * math.cos(robot_pose[1] + angle),
-                 robot_pose[0][1] + sensors[i] * math.sin(robot_pose[1] + angle))), 3)
+                (robot_pose[0][0] + (sensors[i] + SENSOR_DISTANCE_FROM_CENTER) * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + (sensors[i] + SENSOR_DISTANCE_FROM_CENTER) * math.sin(robot_pose[1] + angle))), 3)
 
         for (x1, x2, y1, y2) in particle_filter.get_map_segments_list():
             pg.draw.line(self.display, COLOR_LINE, world2screen((x1, y1)), world2screen((x2, y2)), 1)
@@ -132,6 +132,6 @@ class SimCanvas:
 
         # draw the particle filter positions
         for point in particle_filter.get_points():
-            pg.draw.circle(self.display, (255, 0, 0), world2screen(point[0]), 2)
+            pg.draw.circle(self.display, (255, 0, 0), world2screen(point[0]), 1)
         self.display.blit(pg.transform.flip(self.display, False, True), (0, 0))
         pg.display.update()
