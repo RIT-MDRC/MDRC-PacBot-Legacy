@@ -487,6 +487,11 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    if os.environ.get("BIND_ADDRESS") is not None:
+        args.address = os.environ.get("BIND_ADDRESS")
+    if os.environ.get("BIND_PORT") is not None:
+        args.port = int(os.environ.get("BIND_PORT"))
+
     if args.client:
         # Create the client
         client = AutoRoboClient(args.address, args.port)
