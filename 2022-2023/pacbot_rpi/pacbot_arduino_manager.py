@@ -4,7 +4,7 @@ import time
 from definitions import *
 from sensor import distance_to_voltage, voltage_to_distance
 
-SENSOR_GRID_DISTANCE_FROM_SENSOR = 0.3;
+SENSOR_GRID_DISTANCE_FROM_CENTER = 0.3;
 GRID_CELLS_PER_CM = 1/8.89;
 
 class PacbotArduinoManager:
@@ -33,28 +33,29 @@ class PacbotArduinoManager:
     def get_sensor_data(self) -> IncomingArduinoMessage:
         enc1_delta = 0
         enc2_delta = 0
+        new_message = None
         while self.arduino.in_waiting > 0:
             line = self.arduino.readline().decode('utf-8')
+            print('RECEIVED', self.arduino.in_waiting)
             #print(self.baud_rate)
             #print('line: ')
             #print(repr(line))
             #print('after line')
             self.latest_message = str_to_incoming_message(line)
+            new_message = self.latest_message
             enc1_delta += self.latest_message.encoder_values[0]
             enc2_delta += self.latest_message.encoder_values[1]
-            
-        self.latest_message.ir_sensor_values = (
-            voltage_to_distance(self.latest_message.ir_sensor_values[0] * GRID_CELLS_PER_CM - SENSOR_GRID_DISTANCE_FROM_SENSOR),
-            voltage_to_distance(self.latest_message.ir_sensor_values[1] * GRID_CELLS_PER_CM - SENSOR_GRID_DISTANCE_FROM_SENSOR),
-            voltage_to_distance(self.latest_message.ir_sensor_values[2] * GRID_CELLS_PER_CM - SENSOR_GRID_DISTANCE_FROM_SENSOR),
-            voltage_to_distance(self.latest_message.ir_sensor_values[3] * GRID_CELLS_PER_CM - SENSOR_GRID_DISTANCE_FROM_SENSOR),
-            voltage_to_distance(self.latest_message.ir_sensor_values[4 * GRID_CELLS_PER_CM - SENSOR_GRID_DISTANCE_FROM_SENSOR])
-        )
-        print(self.latest_message.ir_sensor_values)
-        self.latest_message.encoder_values = (
-            enc1_delta * self.encoder_ticks_to_grid_units,
-            enc2_delta * self.encoder_ticks_to_grid_units
-        )
+        if new_message is not None:
+            self.latest_message.ir_sensor_values = tuple(
+                    voltage_to_distance(value) * GRID_CELLS_PER_CM for value in self.latest_message.ir_sensor_values
+                )
+            print(self.latest_message.ir_sensor_values)
+            self.latest_message.encoder_values = (
+                enc1_delta * self.encoder_ticks_to_grid_units,
+                enc2_delta * self.encoder_ticks_to_grid_units
+            )
+        if self.latest_message is None:
+            self.latest_message = str_to_incoming_message("0,0;2,2,2,2,2")
         return self.latest_message
 
     def close(self):

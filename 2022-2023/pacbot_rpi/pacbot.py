@@ -2,7 +2,7 @@ from pacbot_arduino_manager import PacbotArduinoManager
 from pacbot_comms import AutoRoboClient
 from definitions import *
 import asyncio
-
+import json
 import pacbot_rs
 
 from robot import Robot, DIST_BETWEEN_WHEELS
@@ -62,15 +62,18 @@ def tick_relay_pacbot_position(light_state: MsgType.LIGHT_STATE):
 def get_cell_heuristic_value(pos: Position):
     return 0
 
+pointspf = []
 
 prev_best_square = None
 def movement_loop():
-    global sim_canvas, prev_best_square
-
+    global sim_canvas, prev_best_square, pointspf
+    #print('MOVEMENT LOOP')
     # determine position
     if USE_REAL_ARDUINO:
         # update the robot with encoder data
+        #print('READ')
         arduino_data: IncomingArduinoMessage = pacbot_arduino_manager.get_sensor_data()
+        #print('AFTER READ')
 
         left_encoder = arduino_data.encoder_values[0]  # the distance the left wheel has traveled forwards
         right_encoder = arduino_data.encoder_values[1]  # the distance the right wheel has traveled forwards
@@ -94,15 +97,26 @@ def movement_loop():
         delta_y = average_distance * math.sin(new_angle)
 
         # robot.pose = particle_filter(Pose(Position(delta_x, delta_y), delta_angle), arduino_data.ir_sensor_values)
+        #print('DOING UPDATE')
         particle_filter_result = pf.update(average_distance, delta_angle, list(arduino_data.ir_sensor_values))
         robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]), particle_filter_result[1])
     else:
         # use the position from the robot which was updated when it moved
         pass
+    #print('AFTER UPDATE')
+    #pointspf.append(pf.get_points())
+    #pointspf = json.loads(json.dumps(pointspf))
+    #print(pf.get_points()[0])
+    #pf1 = pf.get_points()
+    #pf2 = pf.get_points()
+    #print(id(pf1))
+    #print(id(pf2))
+    with open('test.txt', 'w') as f:
+        f.write(json.dumps(pointspf))
 
     # use the rounded position to determine the best high-level strategy move
     robot_int_position = Position(round(robot.pose.pos.x), round(robot.pose.pos.y))
-
+    print(robot_int_position)
     px = robot_int_position.x
     py = robot_int_position.y
     positions = [

@@ -124,7 +124,7 @@ class AutoRoboClient(rm.ProtoModule):
         """
         This method is called whenever a message is received from the server.
         """
-        print('msg received')
+        # print('msg received')
         if msg_type == MsgType.LIGHT_STATE:
             self.light_state = msg
         elif msg_type == MsgType.FULL_STATE:
@@ -145,7 +145,7 @@ class AutoRoboClient(rm.ProtoModule):
         This method can be called by the bot code to update Pacbot's location
         """
         self.pacman_fake_location = location
-        self.game_state.pacbot.update((round(location[0]), round(location[1])))
+        self.game_state.pacbot.update((abs(round(location[0])), abs(round(location[1]))))
 
         new_msg = PacmanState.AgentState()
         # Required X and Y location
