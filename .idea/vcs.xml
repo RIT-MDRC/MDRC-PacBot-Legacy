@@ -2,5 +2,11 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/2022-2023/auto_robo/Pacbot" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/2022-2023/auto_robo/Pacbot/docs/Sample BotCode/robomodules" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/2022-2023/auto_robo/Pacbot/src/botCode/robomodules" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/2022-2023/auto_robo/Pacbot/src/gameEngine/robomodules" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/2022-2023/auto_robo/robomodules" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/2022-2023/pacbot_rpi/robomodules" vcs="Git" />
   </component>
 </project>
