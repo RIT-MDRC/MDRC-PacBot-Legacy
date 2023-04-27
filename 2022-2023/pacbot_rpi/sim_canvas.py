@@ -72,7 +72,7 @@ class SimCanvas:
         pg.display.flip()
 
     def update(self, game_state: pacbot_rs.GameState, particle_filter: pacbot_rs.ParticleFilter, robot: Robot,
-               destination: (int, int), test_path: list[Position]):
+               destination: (int, int), test_path: list[Position], sensors: list[float]):
         self.game_state = game_state
         self.particle_filter = particle_filter
 
@@ -107,6 +107,18 @@ class SimCanvas:
             pg.draw.line(self.display, COLOR_RAY, world2screen(robot_pose[0]), world2screen(
                 (robot_pose[0][0] + distance * math.cos(robot_pose[1] + angle),
                  robot_pose[0][1] + distance * math.sin(robot_pose[1] + angle))), 2)
+            # add a dot at the end of the line
+            pg.draw.circle(self.display, COLOR_RAY, world2screen(
+                (robot_pose[0][0] + distance * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + distance * math.sin(robot_pose[1] + angle))), 3)
+            # also draw a line representing the experimental sensor distance
+            pg.draw.line(self.display, COLOR_RAY_MAXED, world2screen(robot_pose[0]), world2screen(
+                (robot_pose[0][0] + sensors[i] * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + sensors[i] * math.sin(robot_pose[1] + angle))), 2)
+            # add a dot at the end of the line
+            pg.draw.circle(self.display, COLOR_RAY_MAXED, world2screen(
+                (robot_pose[0][0] + sensors[i] * math.cos(robot_pose[1] + angle),
+                 robot_pose[0][1] + sensors[i] * math.sin(robot_pose[1] + angle))), 3)
 
         for (x1, x2, y1, y2) in particle_filter.get_map_segments_list():
             pg.draw.line(self.display, COLOR_LINE, world2screen((x1, y1)), world2screen((x2, y2)), 1)
