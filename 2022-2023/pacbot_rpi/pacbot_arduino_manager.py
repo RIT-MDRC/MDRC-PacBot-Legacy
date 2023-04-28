@@ -31,7 +31,7 @@ class PacbotArduinoManager:
         if self.waiting_for_msg and not forced:
             return
         self.waiting_for_msg = True
-        print('motors: ', left, right)
+        #print('motors: ', left, right)
 
         motor_minimum_absolute_speed = 60
         motor_maximum_absolute_speed = 200
@@ -60,12 +60,10 @@ class PacbotArduinoManager:
         self.lines_sent.append(right_msg)
 
         self.write(left_msg.format())
-        # time.sleep(0.5)
         self.write(right_msg.format())
-        self.arduino.flush()
 
     def write(self, data: str):
-        print('SEND', data)
+        #print('SEND', data)
         self.arduino.write(data.encode())
 
     def get_sensor_data(self) -> IncomingArduinoMessage:

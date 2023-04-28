@@ -4,6 +4,7 @@ from definitions import *
 import asyncio
 import json
 import pacbot_rs
+import time
 
 from robot import Robot, DIST_BETWEEN_WHEELS
 from bot_math import *
@@ -49,7 +50,7 @@ robot: Robot = Robot()
 
 # The global particle filter
 # pf = pacbot_rs.ParticleFilter(14, 7, 0)
-pf: pacbot_rs.ParticleFilter = pacbot_rs.ParticleFilter(9, 29, math.pi)
+pf: pacbot_rs.ParticleFilter = pacbot_rs.ParticleFilter(4, 29, math.pi)
 
 # The simulated visualization
 sim_canvas: SimCanvas | None = None
@@ -232,6 +233,7 @@ if __name__ == '__main__':
         if client.light_state.mode == client.light_state.PAUSED:
             # if paused, turn off motors
             if USE_REAL_ARDUINO:
-                pacbot_arduino_manager.write_motors(0, 0)
+                pacbot_arduino_manager.write_motors(0, 0, forced=True)
+                time.sleep(1)
         else:
             movement_loop()
