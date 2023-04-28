@@ -123,6 +123,8 @@ def movement_loop():
         # Calculate the change in angle
         delta_angle = (right_encoder - left_encoder) / dist_between_wheels
 
+        if USE_PROJECTOR:
+            pf.rcv_position(client.full_state.pacman.x, client.full_state.pacman.y)
         particle_filter_result = pf.update(average_distance, delta_angle, list(arduino_data.ir_sensor_values))
         robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]),
                           particle_filter_result[1])
