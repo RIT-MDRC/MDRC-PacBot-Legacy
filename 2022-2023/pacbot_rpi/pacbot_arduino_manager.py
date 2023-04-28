@@ -1,5 +1,5 @@
-import serial
 import time
+import serial, os
 
 from definitions import *
 from sensor import voltage_to_distance
@@ -18,7 +18,7 @@ class PacbotArduinoManager:
     lines_read: list[IncomingArduinoMessage] = []
     lines_sent: list[OutgoingArduinoMessage] = []
 
-    def __init__(self, port='/dev/ttyUSB1', baud_rate=115200):
+    def __init__(self, port=os.environ.get('PI_SERIAL_PORT', '/dev/ttyUSB0'), baud_rate=115200):
         self.port = port
         self.baud_rate = baud_rate
         self.arduino = serial.Serial(self.port, self.baud_rate, timeout=1)
