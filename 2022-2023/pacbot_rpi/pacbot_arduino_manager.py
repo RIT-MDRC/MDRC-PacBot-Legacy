@@ -1,4 +1,5 @@
 import serial
+import time
 
 from definitions import *
 from sensor import voltage_to_distance
@@ -17,7 +18,7 @@ class PacbotArduinoManager:
     lines_read: list[IncomingArduinoMessage] = []
     lines_sent: list[OutgoingArduinoMessage] = []
 
-    def __init__(self, port='/dev/ttyUSB0', baud_rate=115200):
+    def __init__(self, port='/dev/ttyUSB1', baud_rate=115200):
         self.port = port
         self.baud_rate = baud_rate
         self.arduino = serial.Serial(self.port, self.baud_rate, timeout=1)
@@ -26,25 +27,27 @@ class PacbotArduinoManager:
         self.arduino.readline()
         self.arduino.readline()
 
-    def write_motors(self, left: int, right: int):
-        if self.waiting_for_msg:
+    def write_motors(self, left: int, right: int, forced: bool=False):
+        if self.waiting_for_msg and not forced:
             return
         self.waiting_for_msg = True
         print('motors: ', left, right)
 
-        motor_minimum_absolute_speed = 40
-        motor_maximum_absolute_speed = 155
+        motor_minimum_absolute_speed = 60
+        motor_maximum_absolute_speed = 200
 
         # left and right are values between -1 and 1
         # modify them so that they fit the above constraints
         left_normalized = abs(left) * (
                 motor_maximum_absolute_speed - motor_minimum_absolute_speed) + motor_minimum_absolute_speed
+        left_normalized = min(255, 2 * left_normalized)
         if left < 0:
             left_normalized *= -1
         elif left == 0:
             left_normalized = 0
         right_normalized = abs(right) * (
                 motor_maximum_absolute_speed - motor_minimum_absolute_speed) + motor_minimum_absolute_speed
+        right_normalized = min(255, 2 * right_normalized)
         if right < 0:
             right_normalized *= -1
         elif right == 0:
@@ -57,7 +60,9 @@ class PacbotArduinoManager:
         self.lines_sent.append(right_msg)
 
         self.write(left_msg.format())
+        # time.sleep(0.5)
         self.write(right_msg.format())
+        self.arduino.flush()
 
     def write(self, data: str):
         print('SEND', data)
