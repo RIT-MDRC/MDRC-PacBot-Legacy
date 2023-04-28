@@ -126,6 +126,9 @@ def movement_loop():
 
         if USE_PROJECTOR:
             pf.rcv_position(client.full_state.pacman.x, client.full_state.pacman.y)
+        elif len(os.environ.get('FORCE_PF_POSITION', '')) > 0:
+            forced_pos = map(int,os.environ.get('FORCE_PF_POSITION').split(','))
+            pf.rcv_position(*forced_pos)
         particle_filter_result = pf.update(average_distance, delta_angle, list(arduino_data.ir_sensor_values))
         robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]),
                           particle_filter_result[1])
@@ -230,7 +233,7 @@ if __name__ == '__main__':
         if client is None or client.light_state is None or client.full_state is None:
             # client has not yet received any game state from the server
             continue
-        if client.light_state.mode == client.light_state.PAUSED:
+        if client.light_state.mode == client.light_state.PAUSED and os.environ.get('MOVE_WHEN_PAUSED', 'f') == 'f':
             # if paused, turn off motors
             if USE_REAL_ARDUINO:
                 pacbot_arduino_manager.write_motors(0, 0, forced=True)
