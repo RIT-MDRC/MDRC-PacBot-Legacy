@@ -95,14 +95,14 @@ def draw_ray(surface: pg.Surface, start_pos: tuple[float, float], angle: float):
     pg.draw.aaline(surface, color, world2screen(start_pos), world2screen(end_pos))
 
 
-def get_alt_grid():
-    alt_grid = [[True] * (GRID_HEIGHT + 1) for _ in range(GRID_WIDTH + 1)]
-    for x in range(GRID_WIDTH - 1):
-        for y in range(GRID_HEIGHT - 1):
-            alt_grid[x + 1][y + 1] = (
-                GRID[x][y] and GRID[x + 1][y] and GRID[x][y + 1] and GRID[x + 1][y + 1]
-            )
-    return alt_grid
+# def get_alt_grid():
+#     alt_grid = [[True] * (GRID_HEIGHT + 1) for _ in range(GRID_WIDTH + 1)]
+#     for x in range(GRID_WIDTH - 1):
+#         for y in range(GRID_HEIGHT - 1):
+#             alt_grid[x + 1][y + 1] = (
+#                 GRID[x][y] and GRID[x + 1][y] and GRID[x][y + 1] and GRID[x + 1][y + 1]
+#             )
+#     return alt_grid
 
 
 GRID = get_alt_grid()

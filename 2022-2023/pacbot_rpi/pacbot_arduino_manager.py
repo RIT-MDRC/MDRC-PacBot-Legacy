@@ -1,19 +1,21 @@
 import serial
-import time
 
 from definitions import *
-from sensor import distance_to_voltage, voltage_to_distance
+from sensor import voltage_to_distance
 
-SENSOR_GRID_DISTANCE_FROM_CENTER = 0.3;
-GRID_CELLS_PER_CM = 1/8.89;
+SENSOR_GRID_DISTANCE_FROM_CENTER = 0.3
+GRID_CELLS_PER_CM = 1 / 8.89
+
 
 class PacbotArduinoManager:
-
     latest_message = None
 
     waiting_for_msg = True
-    
+
     encoder_ticks_to_grid_units = 0.004571428571
+
+    lines_read: list[IncomingArduinoMessage] = []
+    lines_sent: list[OutgoingArduinoMessage] = []
 
     def __init__(self, port='/dev/ttyUSB0', baud_rate=115200):
         self.port = port
@@ -29,8 +31,33 @@ class PacbotArduinoManager:
             return
         self.waiting_for_msg = True
         print('motors: ', left, right)
-        self.write(OutgoingArduinoMessage('1', int(left / 5 * 100)).format())
-        self.write(OutgoingArduinoMessage('2', int(right / 5 * 100)).format())
+
+        motor_minimum_absolute_speed = 40
+        motor_maximum_absolute_speed = 155
+
+        # left and right are values between -1 and 1
+        # modify them so that they fit the above constraints
+        left_normalized = abs(left) * (
+                motor_maximum_absolute_speed - motor_minimum_absolute_speed) + motor_minimum_absolute_speed
+        if left < 0:
+            left_normalized *= -1
+        elif left == 0:
+            left_normalized = 0
+        right_normalized = abs(right) * (
+                motor_maximum_absolute_speed - motor_minimum_absolute_speed) + motor_minimum_absolute_speed
+        if right < 0:
+            right_normalized *= -1
+        elif right == 0:
+            right_normalized = 0
+
+        left_msg = OutgoingArduinoMessage('1', int(left_normalized))
+        right_msg = OutgoingArduinoMessage('2', int(right_normalized))
+
+        self.lines_sent.append(left_msg)
+        self.lines_sent.append(right_msg)
+
+        self.write(left_msg.format())
+        self.write(right_msg.format())
 
     def write(self, data: str):
         print('SEND', data)
@@ -39,31 +66,40 @@ class PacbotArduinoManager:
     def get_sensor_data(self) -> IncomingArduinoMessage:
         enc1_delta = 0
         enc2_delta = 0
-        new_message = None
+        msg_received = False
         while self.arduino.in_waiting > 0:
             line = self.arduino.readline().decode('utf-8')
-            print('RECEIVED', self.arduino.in_waiting)
+
+            msg = str_to_incoming_message(line)
+            self.latest_message = msg
             self.waiting_for_msg = False
-            #print(self.baud_rate)
-            #print('line: ')
-            #print(repr(line))
-            #print('after line')
-            self.latest_message = str_to_incoming_message(line)
-            new_message = self.latest_message
+            msg_received = True
+            self.lines_read.append(msg)
+
             enc1_delta += self.latest_message.encoder_values[0]
             enc2_delta += self.latest_message.encoder_values[1]
-        if new_message is not None:
+        if msg_received:
             self.latest_message.ir_sensor_values = tuple(
-                    voltage_to_distance(value) * GRID_CELLS_PER_CM for value in self.latest_message.ir_sensor_values
-                )
+                voltage_to_distance(value) * GRID_CELLS_PER_CM for value in self.latest_message.ir_sensor_values
+            )
             print(self.latest_message.ir_sensor_values)
             self.latest_message.encoder_values = (
                 enc1_delta * self.encoder_ticks_to_grid_units,
                 enc2_delta * self.encoder_ticks_to_grid_units
             )
         if self.latest_message is None:
-            self.latest_message = str_to_incoming_message("0,0;2,2,2,2,2")
+            self.latest_message = str_to_incoming_message("0,0;0,0,0,0,0")
         return self.latest_message
+
+    def get_debug_lines(self) -> tuple[list[IncomingArduinoMessage], list[OutgoingArduinoMessage]]:
+        # clear lines_read and lines_sent and return them
+        lines_read = self.lines_read
+        lines_sent = self.lines_sent
+
+        self.lines_read = []
+        self.lines_sent = []
+
+        return lines_read, lines_sent
 
     def close(self):
         self.arduino.close()

@@ -17,25 +17,53 @@ import threading
 import os
 import pygame as pg
 
+# DEBUG_VIS; if true, the robot will display a visualization of the particle filter and other info
+DEBUG_VIS = os.environ.get("DEBUG_VIS", 'f') == 't'
+# DEBUG_JSON; if true, the robot will save game info to json
+DEBUG_JSON = os.environ.get("DEBUG_JSON", 'f') == 't'
+# DEBUG_GAME_STATE; if true, the robot will include game state in json
+DEBUG_GAME_STATE = os.environ.get("DEBUG_GAME_STATE", 'f') == 't'
+# DEBUG_PF_INFO; if true, the robot will include the particle filter info in json
+DEBUG_PF_INFO = os.environ.get("DEBUG_PF_INFO", 'f') == 't'
+
+# USE_PROJECTOR; if false, the robot will manually send its location to the server
+USE_PROJECTOR = os.environ.get("USE_PROJECTOR", 'f') == 't'
+# USE_REAL_ARDUINO; if true, use the particle filter and arduino motors
+USE_REAL_ARDUINO = os.environ.get("USE_REAL_ARDUINO", 'f') == 't'
+
+# ADDRESS and PORT of the server
+ADDRESS = os.environ.get("ADDRESS", 'localhost')
+PORT = os.environ.get("PORT", 11297)
+
+# Movement loop rate
+FPS = 100
+
 client_thread: threading.Thread | None = None
 client: AutoRoboClient | None = None
 
 pacbot_arduino_manager: PacbotArduinoManager | None = None
+pure_pursuit = PathTracker()
 
-ADDRESS = os.environ.get("ADDRESS", 'localhost')
-PORT = os.environ.get("PORT", 11297)
-
-FPS = 100
-
-USE_PROJECTOR = os.environ.get("USE_PROJECTOR", 'f') == 't'
-USE_REAL_ARDUINO = os.environ.get("USE_REAL_ARDUINO", 'f') == 't'
-
+# The current best guess robot position
 robot: Robot = Robot()
-path_tracker: PathTracker = PathTracker()
+
+# The global particle filter
+# pf = pacbot_rs.ParticleFilter(14, 7, 0)
+pf: pacbot_rs.ParticleFilter = pacbot_rs.ParticleFilter(9, 29, math.pi)
+
+# The simulated visualization
+sim_canvas: SimCanvas | None = None
+
+# The debug information for each frame
+debug_frames: list[DebugFrame] = []
 
 
-def start_client():
-    global client, pf, sim_canvas
+def start_client_and_visualization_canvas():
+    """
+    Starts the client thread.
+    @return:
+    """
+    global client, robot, pf, sim_canvas
 
     # Create a new event loop for this thread
     loop = asyncio.new_event_loop()
@@ -43,117 +71,80 @@ def start_client():
     # Set the new event loop as the default for this thread
     asyncio.set_event_loop(loop)
 
+    # Create the client
     client = AutoRoboClient(ADDRESS, PORT, pf, 10, tick_light=tick_relay_pacbot_position)
-    client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y))
+    # Get the rust bot location, representing the start location
+    robot.pose = Pose(
+        Position(pf.get_pose()[0][0], pf.get_pose()[0][1]),
+        pf.get_pose()[1]
+    )
+    # Set the location to the default Rust location
+    client.update_fake_location((round(robot.pose.pos.x), round(robot.pose.pos.y)))
 
-    sim_canvas = SimCanvas(client.game_state, pf)
-    sim_canvas.update(client.game_state, pf, robot, (robot.pose.pos.x, robot.pose.pos.y), [], [0, 0, 0, 0, 0, 0, 0, 0])
+    if DEBUG_VIS:
+        # Start the simulated visualization
+        sim_canvas = SimCanvas(client.game_state, pf)
+        sim_canvas.update(client.game_state, pf, robot, (robot.pose.pos.x, robot.pose.pos.y), [],
+                          [0, 0, 0, 0, 0, 0, 0, 0])
 
+    # Run the client indefinitely
     client.run()
 
 
-def tick_relay_pacbot_position(light_state: MsgType.LIGHT_STATE):
+def tick_relay_pacbot_position(_: MsgType.LIGHT_STATE):
     """
     This method is called every tick.
     """
     if client is not None and not USE_PROJECTOR:
-        # print('ticking pacman location ' + str(robot.pose))
-        # client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y // 2 - 1))
         client.update_fake_location((robot.pose.pos.x, robot.pose.pos.y))
 
 
-def get_cell_heuristic_value(pos: Position):
-    return 0
-
-pointspf = []
-
-prev_best_square = None
 def movement_loop():
-    global sim_canvas, prev_best_square, pointspf
-    #print('MOVEMENT LOOP')
+    global sim_canvas, debug_frames
+
+    # debug info, set later
+    arduino_data: IncomingArduinoMessage | None = None
+
     # determine position
     if USE_REAL_ARDUINO:
         # update the robot with encoder data
-        #print('READ')
-        arduino_data: IncomingArduinoMessage = pacbot_arduino_manager.get_sensor_data()
-        #print('AFTER READ')
+        arduino_data = pacbot_arduino_manager.get_sensor_data()
 
-        left_encoder = arduino_data.encoder_values[0]  # the distance the left wheel has traveled forwards
-        right_encoder = arduino_data.encoder_values[1]  # the distance the right wheel has traveled forwards
+        # the distance the left wheel has traveled forwards
+        left_encoder = arduino_data.encoder_values[0]
+        # the distance the right wheel has traveled forwards
+        right_encoder = arduino_data.encoder_values[1]
 
         dist_between_wheels = DIST_BETWEEN_WHEELS
 
-        current_angle = robot.pose.angle
-
-        # Calculate the change in position (x, y) and angle
         # Calculate the average distance traveled by both wheels
         average_distance = (left_encoder + right_encoder) / 2
 
         # Calculate the change in angle
         delta_angle = (right_encoder - left_encoder) / dist_between_wheels
 
-        # Update the current angle with the change in angle
-        new_angle = current_angle + delta_angle
-
-        # Calculate the changes in x and y position using trigonometry
-        delta_x = average_distance * math.cos(new_angle)
-        delta_y = average_distance * math.sin(new_angle)
-
-        # robot.pose = particle_filter(Pose(Position(delta_x, delta_y), delta_angle), arduino_data.ir_sensor_values)
-        #print('DOING UPDATE')
         particle_filter_result = pf.update(average_distance, delta_angle, list(arduino_data.ir_sensor_values))
-        robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]), particle_filter_result[1])
+        robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]),
+                          particle_filter_result[1])
     else:
         # use the position from the robot which was updated when it moved
-        pass
-    #print('AFTER UPDATE')
-    #pointspf.append(pf.get_points())
-    #pointspf = json.loads(json.dumps(pointspf))
-    #print(pf.get_points()[0])
-    #pf1 = pf.get_points()
-    #pf2 = pf.get_points()
-    #print(id(pf1))
-    #print(id(pf2))
-    with open('test.txt', 'w') as f:
-        f.write(json.dumps(pointspf))
-
-    # use the rounded position to determine the best high-level strategy move
-    robot_int_position = Position(round(robot.pose.pos.x), round(robot.pose.pos.y))
-    print(robot_int_position)
-    px = robot_int_position.x
-    py = robot_int_position.y
-    positions = [
-        (px, py),
-        (px, py + 1),
-        (px, py - 1),
-        (px - 1, py),
-        (px + 1, py),
-    ]
-
-    # values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
-    # best_square: list[int] = [int(positions[action][0]), int(positions[action][1])]
+        pf.set_pose(robot.pose.pos.x, robot.pose.pos.y, robot.pose.angle)
 
     path = pacbot_rs.get_heuristic_path(client.game_state, 10)
-    # for i in range(3):
-    #     client.game_state.pacbot.update((best_square[0], best_square[1]))
-    #     values, action = pacbot_rs.get_action_heuristic_values(client.game_state)
-    #     best_square = [int(positions[action][0]), int(positions[action][1])]
-    # client.game_state.pacbot.update((int(px), int(py)))
-
-    # if best_square != prev_best_square:
-    #     print('best square changed to', best_square)
-    #     prev_best_square = best_square
-    #
-    # # pathfind to it
-    # path = grid_bfs_path(robot_int_position, Position(best_square[0], best_square[1]))
-    # # path = [(int(best_square[0]), int(best_square[1]))]
-    # if best_square != robot_int_position:
-    #     # path = grid_bfs_path(robot_int_position, best_square)
-    #     path = [(px, py), (int(best_square[0]), int(best_square[1]))]
-
-    if sim_canvas is not None:
-        sim_canvas.update(client.game_state, pf, robot, path[0], [Position(x1, y1) for (x1, y1) in path],
-                          pacbot_arduino_manager.latest_message.ir_sensor_values)
+    if len(path) >= 2:
+        # determine whether the first segment is horizontal or vertical
+        if path[0][0] == path[1][0]:
+            # vertical
+            # if pacbot is horizontally off by more than 0.1 grid cells, add the cell in that direction to the path
+            if abs(robot.pose.pos.x - path[0][0]) > 0.1:
+                path.insert(0, (
+                    round(robot.pose.pos.x) + (-1 if robot.pose.pos.x < path[0][0] else 1), round(robot.pose.pos.y)))
+        else:
+            # horizontal
+            # if pacbot is vertically off by more than 0.1 grid cells, add its current location to the path
+            if abs(robot.pose.pos.y - path[0][1]) > 0.1:
+                path.insert(0, (
+                    round(robot.pose.pos.x), round(robot.pose.pos.y + (-1 if robot.pose.pos.y < path[0][1] else 1))))
 
     # determine motor movements
     (speed, angle) = pure_pursuit.pure_pursuit(
@@ -172,34 +163,73 @@ def movement_loop():
         pacbot_arduino_manager.write_motors(left_motor, right_motor)
     else:
         robot.step(left_motor, right_motor, dt)
-        # client.update_fake_location((round(robot_int_position.x), round(robot_int_position.y)))
+
+    # update the server's knowledge of Pacbot's location
+    if not USE_PROJECTOR:
+        client.update_fake_location((round(robot.pose.pos.x), round(robot.pose.pos.y)))
+
+    if sim_canvas is not None:
+        sim_canvas.update(client.game_state, pf, robot, path[0], [Position(x1, y1) for (x1, y1) in path],
+                          pacbot_arduino_manager.latest_message.ir_sensor_values if USE_REAL_ARDUINO else [0, 0, 0, 0,
+                                                                                                           0])
+
+    arduino_lines_read, arduino_lines_sent = pacbot_arduino_manager.get_debug_lines() if USE_REAL_ARDUINO else ([], [])
+
+    if DEBUG_JSON:
+        debug_frame = DebugFrame(
+            USE_REAL_ARDUINO=USE_REAL_ARDUINO,
+            USE_PROJECTOR=USE_PROJECTOR,
+            ADDRESS=ADDRESS,
+            PORT=PORT,
+
+            game_state=client.full_state.SerializeToString() if DEBUG_GAME_STATE else None,
+
+            pacbot_pose=robot.pose,
+            pacbot_pose_sensor_readings=pf.get_sense_distances(),
+
+            pf_points=pf.get_points() if DEBUG_PF_INFO else [],
+            pf_map_segments=pf.get_map_segments_list() if DEBUG_PF_INFO else [],
+            pf_empty_grid_cells=pf.get_empty_grid_cells() if DEBUG_PF_INFO else [],
+
+            target_pos=Position(path[0][0], path[0][1]),
+            target_path=[Position(x1, y1) for (x1, y1) in path],
+
+            pp_speed=speed,
+            pp_angle=angle,
+            pp_left_motor=left_motor,
+            pp_right_motor=right_motor,
+
+            encoder_readings=arduino_data.encoder_values if arduino_data is not None else [0, 0],
+            ir_sensor_readings=arduino_data.ir_sensor_values if arduino_data is not None else [0, 0, 0, 0, 0],
+
+            lines_read=arduino_lines_read if USE_REAL_ARDUINO else None,
+            lines_sent=arduino_lines_sent if USE_REAL_ARDUINO else None,
+        )
+
+        debug_frames.append(json.loads(json.dumps(debug_frame)))
+
+        with open('debug.json', 'w') as f:
+            f.write(json.dumps(debug_frames))
 
 
 if __name__ == '__main__':
-    # particle_filter_setup(robot.pose)
-    # pf = pacbot_rs.ParticleFilter(14, 7, 0)
-    pf = pacbot_rs.ParticleFilter(4, 29, math.pi)
-
-    sim_canvas: SimCanvas | None = None
-
     # start the client thread
-    client_thread = threading.Thread(target=start_client)
+    client_thread = threading.Thread(target=start_client_and_visualization_canvas)
     client_thread.start()
 
     if USE_REAL_ARDUINO:
         # start the arduino manager
         pacbot_arduino_manager = PacbotArduinoManager()
 
-    pure_pursuit = PathTracker()
-
     clock = pg.time.Clock()
     while 1:
         dt = clock.tick(FPS) / 1000
         if client is None or client.light_state is None or client.full_state is None:
+            # client has not yet received any game state from the server
             continue
         if client.light_state.mode == client.light_state.PAUSED:
+            # if paused, turn off motors
             if USE_REAL_ARDUINO:
                 pacbot_arduino_manager.write_motors(0, 0)
         else:
-            # print('movement loop')
             movement_loop()

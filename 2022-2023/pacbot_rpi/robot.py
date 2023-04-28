@@ -1,11 +1,11 @@
 import math
-from sim_canvas import world2screen, COLOR_ROBOT, ROBOT_RADIUS
+from sim_canvas import world2screen, COLOR_ROBOT_BLUE, ROBOT_RADIUS
 import pygame as pg
 import os
 
 from bot_math import Pose, Position
 
-MAX_WHEEL_SPEED = float(os.environ.get("MAX_WHEEL_SPEED", "5.0"))
+MAX_WHEEL_SPEED = float(os.environ.get("MAX_WHEEL_SPEED", "2.0"))
 DIST_BETWEEN_WHEELS = 4.0 / 3.5
 
 
@@ -35,9 +35,9 @@ class Robot:
     def draw(self, surface):
         center = world2screen((self.pose.pos.x, self.pose.pos.y))
 
-        pg.draw.circle(surface, COLOR_ROBOT, center, ROBOT_RADIUS, width=2)
+        pg.draw.circle(surface, COLOR_ROBOT_BLUE, center, ROBOT_RADIUS, width=2)
         end_pos = (
             center[0] + math.cos(self.pose.angle) * ROBOT_RADIUS,
             center[1] + math.sin(self.pose.angle) * ROBOT_RADIUS,
         )
-        pg.draw.line(surface, COLOR_ROBOT, center, end_pos)
+        pg.draw.line(surface, COLOR_ROBOT_BLUE, center, end_pos)
