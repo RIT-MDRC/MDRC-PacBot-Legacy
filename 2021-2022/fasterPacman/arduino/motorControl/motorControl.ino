@@ -122,7 +122,7 @@ void loop() {
   }
   #endif
   //if command available in terminal
-  if (Serial.available() > 0) {
+  while (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
     #ifdef DEBUG
     Serial.print("echo: ");
@@ -131,7 +131,7 @@ void loop() {
     #endif
 
     String motorNumberStr = data.substring(0, 1);
-    String motorSpeedStr = data.substring(1, 5);
+    String motorSpeedStr = data.substring(1, 6);
 
     int motorNumber = motorNumberStr.toInt();
     int motorSpeed = motorSpeedStr.toInt();

@@ -12,7 +12,7 @@ class OutgoingArduinoMessage(NamedTuple):
 
     def format(self):
         """Returns a string of the message formatted for printing."""
-        return f"{self.command} {self.argument}"
+        return f"{self.command} {self.argument}\n"
 
 
 class IncomingArduinoMessage:
