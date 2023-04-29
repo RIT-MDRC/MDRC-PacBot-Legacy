@@ -1,8 +1,7 @@
-import time
-import serial, os
+import serial
+import os
 
 from definitions import *
-from sensor import voltage_to_distance
 
 SENSOR_GRID_DISTANCE_FROM_CENTER = 0.3
 GRID_CELLS_PER_CM = 1 / 8.89
@@ -27,11 +26,11 @@ class PacbotArduinoManager:
         self.arduino.readline()
         self.arduino.readline()
 
-    def write_motors(self, left: int, right: int, forced: bool=False):
+    def write_motors(self, left: int, right: int, forced: bool = False):
         if self.waiting_for_msg and not forced:
             return
         self.waiting_for_msg = True
-        #print('motors: ', left, right)
+        # print('motors: ', left, right)
 
         motor_minimum_absolute_speed = 60
         motor_maximum_absolute_speed = 200
@@ -63,7 +62,7 @@ class PacbotArduinoManager:
         self.write(right_msg.format())
 
     def write(self, data: str):
-        #print('SEND', data)
+        # print('SEND', data)
         self.arduino.write(data.encode())
 
     def get_sensor_data(self) -> IncomingArduinoMessage:
@@ -82,9 +81,10 @@ class PacbotArduinoManager:
             enc1_delta += self.latest_message.encoder_values[0]
             enc2_delta += self.latest_message.encoder_values[1]
         if msg_received:
-            self.latest_message.ir_sensor_values = tuple(
-                voltage_to_distance(value) * GRID_CELLS_PER_CM for value in self.latest_message.ir_sensor_values
-            )
+            # we used to send distance values, but now we directly send voltage values
+            # self.latest_message.ir_sensor_values = tuple(
+            #     voltage_to_distance(value) * GRID_CELLS_PER_CM for value in self.latest_message.ir_sensor_values
+            # )
             print(self.latest_message.ir_sensor_values)
             self.latest_message.encoder_values = (
                 enc1_delta * self.encoder_ticks_to_grid_units,
