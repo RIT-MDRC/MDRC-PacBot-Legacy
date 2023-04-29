@@ -28,13 +28,13 @@ class PacbotArduinoManager:
         self.arduino.readline()
 
     def write_motors(self, left: int, right: int, forced: bool=False):
-        if self.waiting_for_msg and not forced:
+        if os.environ.get('DISABLE_MOTORS', 'f') == 't' or (self.waiting_for_msg and not forced):
             return
         self.waiting_for_msg = True
         #print('motors: ', left, right)
 
-        motor_minimum_absolute_speed = 60
-        motor_maximum_absolute_speed = 200
+        motor_minimum_absolute_speed = 30
+        motor_maximum_absolute_speed = 100
 
         # left and right are values between -1 and 1
         # modify them so that they fit the above constraints
@@ -61,6 +61,11 @@ class PacbotArduinoManager:
 
         self.write(left_msg.format())
         self.write(right_msg.format())
+
+        # when turning, only turn a little bit
+        if right_normalized != 0 and left_normalized / right_normalized < 0:
+            time.sleep(0.2)
+            self.write_motors(0, 0, True)
 
     def write(self, data: str):
         #print('SEND', data)
