@@ -127,7 +127,7 @@ class SimCanvas:
 
         # this dot represents the robot's destination
         pg.draw.circle(self.display, COLOR_SENSOR_DISTANCE_GREEN, world2screen((destination[0], destination[1])), 5)
-        
+
         # draw the sensor distances, both simulated raycast and measured
         # print(sensors[:4])
         for i in range(5):
@@ -137,9 +137,9 @@ class SimCanvas:
 
             for (color, distance) in [
                 # draw line from pacbot to the simulated wall
-                (COLOR_SIMULATED_RAYCAST_RED, particle_filter.get_sense_distances()[i]),
+                (COLOR_SIMULATED_RAYCAST_RED, particle_filter.get_sense_distances()[i])
                 # draw a line representing the measured sensor distance
-                (COLOR_SENSOR_DISTANCE_GREEN, sensors[i] + SENSOR_DISTANCE_FROM_CENTER)
+                # (COLOR_SENSOR_DISTANCE_GREEN, sensors[i] + SENSOR_DISTANCE_FROM_CENTER)
             ]:
                 if distance - ROBOT_RADIUS_GRID_UNITS <= 0:
                     continue
