@@ -31,6 +31,8 @@ DEBUG_PF_INFO = os.environ.get("DEBUG_PF_INFO", 'f') == 't'
 USE_PROJECTOR = os.environ.get("USE_PROJECTOR", 'f') == 't'
 # USE_REAL_ARDUINO; if true, use the particle filter and arduino motors
 USE_REAL_ARDUINO = os.environ.get("USE_REAL_ARDUINO", 'f') == 't'
+# PATH_TYPE; MCTS or HEURISTIC; the algorithm to use for pathfinding
+PATH_TYPE = os.environ.get("PATH_TYPE", 'HEURISTIC')
 
 # ADDRESS and PORT of the server
 ADDRESS = os.environ.get("ADDRESS", 'localhost')
@@ -127,7 +129,7 @@ def movement_loop():
         if USE_PROJECTOR:
             pf.rcv_position(client.full_state.pacman.x, client.full_state.pacman.y)
         elif len(os.environ.get('FORCE_PF_POSITION', '')) > 0:
-            forced_pos = map(int,os.environ.get('FORCE_PF_POSITION').split(','))
+            forced_pos = map(int, os.environ.get('FORCE_PF_POSITION').split(','))
             pf.rcv_position(*forced_pos)
         particle_filter_result = pf.update(average_distance, delta_angle, list(arduino_data.ir_sensor_values))
         robot.pose = Pose(Position(particle_filter_result[0][0], particle_filter_result[0][1]),
@@ -136,7 +138,13 @@ def movement_loop():
         # use the position from the robot which was updated when it moved
         pf.set_pose(robot.pose.pos.x, robot.pose.pos.y, robot.pose.angle)
 
-    path = pacbot_rs.get_heuristic_path(client.game_state, 10)
+    # determine path
+    path: list[tuple[int, int]] = []
+    if PATH_TYPE == 'HEURISTIC':
+        path = pacbot_rs.get_heuristic_path(client.game_state, 10)
+    elif PATH_TYPE == 'MCTS':
+        path = pacbot_rs.get_mcts_path(client.game_state, max_path_len=10, mcts_iterations=100)
+
     if len(path) >= 2:
         # determine whether the first segment is horizontal or vertical
         if path[0][0] == path[1][0]:

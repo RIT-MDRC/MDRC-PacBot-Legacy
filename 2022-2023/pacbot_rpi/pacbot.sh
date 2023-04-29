@@ -13,6 +13,9 @@ export USE_PROJECTOR=f
 export DISABLE_MOTORS=t
 export FORCE_PF_POSITION=4,29
 
+# HEURISTIC or MCTS
+export PATH_TYPE=MCTS
+
 # debug, f or t
 export DEBUG_JSON=f
 # game state currently broken
