@@ -22,7 +22,7 @@ FPS = 60
 
 ROBOT_RADIUS_GRID_UNITS = (6 / 3.5) / 2
 ROBOT_RADIUS = DRAW_SCALE * ROBOT_RADIUS_GRID_UNITS
-SENSOR_ANGLES = [-math.pi / 2, -math.pi / 4, 0, +math.pi / 4, +math.pi / 2]
+SENSOR_ANGLES = [math.pi / 2, math.pi / 4, 0, -math.pi / 4, -math.pi / 2]
 SENSOR_DISTANCE_FROM_CENTER = 2 * 0.75 / 2.0  # a passage is 2 grid units wide
 
 
@@ -127,9 +127,12 @@ class SimCanvas:
 
         # this dot represents the robot's destination
         pg.draw.circle(self.display, COLOR_SENSOR_DISTANCE_GREEN, world2screen((destination[0], destination[1])), 5)
-
+        
         # draw the sensor distances, both simulated raycast and measured
+        # print(sensors[:4])
         for i in range(5):
+            if i == 4:
+                continue  # sensor broken
             angle = SENSOR_ANGLES[i]
 
             for (color, distance) in [
