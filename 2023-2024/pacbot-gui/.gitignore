@@ -2,3 +2,5 @@
 .vscode/
 
 **/*.js
+
+node_modules/
