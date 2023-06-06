@@ -29,3 +29,8 @@ coverage
 
 test-results/
 playwright-report/
+
+# Compiled Typescript
+**/*.js
+**/*.d.ts
+tsconfig.app.tsbuildinfo

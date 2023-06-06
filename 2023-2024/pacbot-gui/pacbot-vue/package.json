@@ -15,7 +15,8 @@
   },
   "dependencies": {
     "vue": "^3.3.2",
-    "vue-router": "^4.2.0"
+    "vue-router": "^4.2.0",
+    "vuetify": "^3.3.2"
   },
   "devDependencies": {
     "@playwright/test": "^1.33.0",
