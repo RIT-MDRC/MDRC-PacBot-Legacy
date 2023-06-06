@@ -15,9 +15,13 @@ const vuetify = createVuetify({
   directives,
 })
 
+// Konva
+import VueKonva from 'vue-konva';
+
 const app = createApp(App)
 
 app.use(router)
 app.use(vuetify)
+app.use(VueKonva)
 
 app.mount('#app')

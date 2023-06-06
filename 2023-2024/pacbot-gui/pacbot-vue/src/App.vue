@@ -1,11 +1,33 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import HelloWorld from './components/HelloWorld.vue'
+import { reactive } from 'vue'
+
+const state = reactive({
+  configKonva: {
+    width: 200,
+    height: 200
+  },
+  configCircle: {
+    x: 100,
+    y: 100,
+    radius: 70,
+    fill: "red",
+    stroke: "black",
+    strokeWidth: 4
+  }
+});
 </script>
 
 <template>
   <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+
+    <v-stage :config="state.configKonva">
+      <v-layer>
+        <v-circle :config="state.configCircle"></v-circle>
+      </v-layer>
+    </v-stage>
 
     <div class="wrapper">
       <HelloWorld msg="You did it!" />

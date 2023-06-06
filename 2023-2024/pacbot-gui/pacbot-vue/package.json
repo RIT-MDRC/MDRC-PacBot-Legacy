@@ -14,7 +14,9 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "konva": "^9.2.0",
     "vue": "^3.3.2",
+    "vue-konva": "^3.0.2",
     "vue-router": "^4.2.0",
     "vuetify": "^3.3.2"
   },
