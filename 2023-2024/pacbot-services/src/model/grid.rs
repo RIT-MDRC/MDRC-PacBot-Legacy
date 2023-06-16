@@ -1,5 +1,5 @@
 /// Enum for grid cell values.
-#[derive(Clone, Copy, Debug, Eq, PartialEq, IntoPrimitive, TryFromPrimitive)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 #[repr(u8)]
 #[allow(non_camel_case_types)]
 pub enum GridValue {
