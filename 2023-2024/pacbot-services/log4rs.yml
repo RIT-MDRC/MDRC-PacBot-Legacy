@@ -1,0 +1,12 @@
+appenders:
+  stdout:
+    kind: console
+
+root:
+  level: warn
+  appenders:
+    - stdout
+
+loggers:
+  pacbot_services:
+    level: error
