@@ -4,6 +4,8 @@ use serialport::{ClearBuffer, SerialPort};
 use std::io::{Read, Write};
 use std::time::{Duration, Instant};
 
+const MAX_BYTE_VALUE: u8 = 254;
+
 pub struct SerialManager {
     next_message_id: u8,
     sent_messages: [SerialMessage; 255],
@@ -56,7 +58,7 @@ impl SerialManager {
                             Ok(()) => {
                                 self.serial_port = Some(p);
                                 info!("buffers cleared, doing ping test...");
-                                self.try_send_message(SerialMessageCode::Ping, &vec![])?;
+                                self.try_send_message(SerialMessageCode::Ping, &[])?;
                                 info!("connection successful");
                                 Ok(())
                             }
@@ -127,7 +129,7 @@ impl SerialManager {
     fn try_send_message(
         &mut self,
         message_code: SerialMessageCode,
-        args: &Vec<u8>,
+        args: &[u8],
     ) -> Result<Vec<u8>, (SerialError, String)> {
         if message_code.send_args_count() != args.len() {
             error!(
@@ -154,7 +156,7 @@ impl SerialManager {
         let message = self.sent_messages[self.next_message_id as usize];
 
         self.next_message_id = match self.next_message_id {
-            254 => 0,
+            MAX_BYTE_VALUE => 0,
             x => x + 1,
         };
 
@@ -238,8 +240,8 @@ impl SerialManager {
         }
     }
 
-    pub fn send_message(&mut self, message_code: SerialMessageCode, args: Vec<u8>) -> Vec<u8> {
+    pub fn send_message(&mut self, message_code: SerialMessageCode, args: &[u8]) -> Vec<u8> {
         // TODO recover gracefully by clearing buffers and sending 0s
-        self.try_send_message(message_code, &args).unwrap()
+        self.try_send_message(message_code, args).unwrap()
     }
 }

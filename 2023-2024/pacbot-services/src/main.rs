@@ -21,7 +21,7 @@ fn main() {
         std::io::stdin().read_line(&mut input).unwrap();
 
         led_on = !led_on;
-        serial_manager.send_message(SerialMessageCode::Led, vec![led_on as u8]);
+        serial_manager.send_message(SerialMessageCode::Led, &[led_on as u8]);
     }
     // for i in 0..20 {
     //     let bytes = serial_manager.send_message(SerialMessageCode::Repeat, vec![i + 1]);
