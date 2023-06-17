@@ -4,15 +4,22 @@ use serialport::{ClearBuffer, SerialPort};
 use std::io::{Read, Write};
 use std::time::{Duration, Instant};
 
+/// the highest available index for sent_messages
 const MAX_BYTE_VALUE: u8 = 254;
 
+/// stores the information needed to use [serialport]
 pub struct SerialManager {
+    /// the id of the next message to be sent
+    /// used to ensure messages are not skipped
     next_message_id: u8,
+    /// a record of the last [SerialMessage] that was sent with each ID
     sent_messages: [SerialMessage; 255],
+    /// the [SerialPort] object used for communication
     serial_port: Option<Box<dyn SerialPort>>,
 }
 
 impl SerialManager {
+    /// creates a new [SerialManager]
     pub fn new() -> Self {
         Self {
             next_message_id: 0,
@@ -25,6 +32,7 @@ impl SerialManager {
         }
     }
 
+    /// connects to the first available [SerialPort] and tests it
     pub fn connect(&mut self) -> Result<(), (SerialError, String)> {
         let ports = serialport::available_ports();
         info!("ports: {:?}", ports);
@@ -69,6 +77,11 @@ impl SerialManager {
         }
     }
 
+    /// sends one byte to the serial port, without flushing
+    ///
+    /// # Arguments
+    ///
+    /// * `byte` - the byte to send
     pub fn send_byte(&mut self, byte: u8) -> Result<usize, (SerialError, String)> {
         match &mut self.serial_port {
             None => {
@@ -88,6 +101,7 @@ impl SerialManager {
         }
     }
 
+    /// reads one byte from the serial port; note the global timeout for the serial port
     pub fn receive_byte(&mut self) -> Result<u8, (SerialError, String)> {
         match &mut self.serial_port {
             None => {
@@ -110,6 +124,7 @@ impl SerialManager {
         }
     }
 
+    /// flushes the output of the serial port
     pub fn flush(&mut self) -> Result<(), (SerialError, String)> {
         match &mut self.serial_port {
             None => Err((SerialError::NoActiveConnection, "".to_string())),
@@ -126,6 +141,13 @@ impl SerialManager {
         }
     }
 
+    /// attempts to send and read the response for the given message_code
+    /// returns the response from the serial port
+    ///
+    /// # Arguments
+    ///
+    /// * `message_code` - the type of message to send
+    /// * `args` - the arguments for the given message type
     fn try_send_message(
         &mut self,
         message_code: SerialMessageCode,
@@ -207,6 +229,11 @@ impl SerialManager {
         }
     }
 
+    /// runs the maximum length message as many times as possible, and returns the count
+    ///
+    /// # Arguments
+    ///
+    /// * `seconds` - the number of seconds to run the test for
     #[allow(dead_code)]
     pub fn benchmark(&mut self, seconds: u64) -> i32 {
         warn!("running serial port benchmark");
@@ -240,6 +267,13 @@ impl SerialManager {
         }
     }
 
+    /// unfinished
+    /// should attempt to send the given message and, if it fails, reset the serial port
+    ///
+    /// # Arguments
+    ///
+    /// * `message_code` - the type of message to send
+    /// * `args` - the arguments for the given message type
     pub fn send_message(&mut self, message_code: SerialMessageCode, args: &[u8]) -> Vec<u8> {
         // TODO recover gracefully by clearing buffers and sending 0s
         self.try_send_message(message_code, args).unwrap()
