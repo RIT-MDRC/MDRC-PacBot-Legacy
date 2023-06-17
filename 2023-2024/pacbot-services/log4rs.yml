@@ -1,12 +1,10 @@
 appenders:
   stdout:
     kind: console
+    encoder:
+      pattern: "{d(%Y-%m-%d %H:%M:%S)} {h({l})} [{t}] {m}{n}"
 
 root:
   level: warn
   appenders:
     - stdout
-
-loggers:
-  pacbot_services:
-    level: error
