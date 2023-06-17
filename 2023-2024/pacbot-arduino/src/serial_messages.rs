@@ -37,6 +37,13 @@ pub enum SerialMessageCode {
     RepeatMax = 4,
     Led = 5,
 
+    // each distance sensor produces a 16-bit output
+    DistanceSingle = 6,
+    DistanceQuadruple = 7,
+
+    // assume each encoder output fits in 3 bytes?
+    MotorsEncoders = 8,
+
     // below are only sent from Arduino to pacbot_services
     MissedMessage = 3,
 }
@@ -49,6 +56,12 @@ impl SerialMessageCode {
             Self::RepeatMax => MAX_SERIAL_MESSAGE_ARGS,
             Self::Led => 1,
 
+            Self::DistanceSingle => 1,
+            Self::DistanceQuadruple => 4,
+
+            // one for each motor speed
+            Self::MotorsEncoders => 4,
+
             Self::MissedMessage => 0,
         }
     }
@@ -59,6 +72,11 @@ impl SerialMessageCode {
             Self::Repeat => 1,
             Self::RepeatMax => MAX_SERIAL_MESSAGE_ARGS,
             Self::Led => 0,
+
+            Self::DistanceSingle => 2,
+            Self::DistanceQuadruple => 8,
+
+            Self::MotorsEncoders => 4,
 
             Self::MissedMessage => 2, // (expected id, actual id)
         }
@@ -74,6 +92,11 @@ impl TryFrom<u8> for SerialMessageCode {
             2 => Ok(Self::Repeat),
             4 => Ok(Self::RepeatMax),
             5 => Ok(Self::Led),
+
+            6 => Ok(Self::DistanceSingle),
+            7 => Ok(Self::DistanceQuadruple),
+
+            8 => Ok(Self::MotorsEncoders),
 
             3 => Ok(Self::MissedMessage),
 

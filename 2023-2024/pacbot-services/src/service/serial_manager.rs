@@ -205,6 +205,7 @@ impl SerialManager {
         }
     }
 
+    #[allow(dead_code)]
     pub fn benchmark(&mut self, seconds: u64) -> i32 {
         warn!("running serial port benchmark");
         match &mut self.serial_port {

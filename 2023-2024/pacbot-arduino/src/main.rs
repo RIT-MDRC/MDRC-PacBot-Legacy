@@ -3,7 +3,6 @@
 
 mod serial_messages;
 
-use arduino_hal::prelude::*;
 use panic_halt as _;
 
 use crate::serial_messages::*;
@@ -42,6 +41,11 @@ fn main() -> ! {
 
                         &args
                     }
+
+                    SerialMessageCode::DistanceSingle => msg_noop(&args),
+                    SerialMessageCode::DistanceQuadruple => msg_noop(&args),
+
+                    SerialMessageCode::MotorsEncoders => msg_noop(&args),
 
                     SerialMessageCode::MissedMessage => msg_noop(&args),
                 };
