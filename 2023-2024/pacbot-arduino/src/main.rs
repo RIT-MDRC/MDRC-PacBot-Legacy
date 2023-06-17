@@ -56,9 +56,6 @@ fn main() -> ! {
                 serial.flush();
             }
         }
-        // ufmt::uwrite!(&mut serial, "{}", 2);
-        // led.toggle();
-        // arduino_hal::delay_ms(1000);
     }
 }
 
