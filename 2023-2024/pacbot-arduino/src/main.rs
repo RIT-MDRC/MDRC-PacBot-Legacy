@@ -25,6 +25,7 @@ fn main() -> ! {
             Ok(code) => {
                 let mut args = [0; MAX_SERIAL_MESSAGE_ARGS];
 
+                #[allow(clippy::needless_range_loop)]
                 for i in 0..code.send_args_count() {
                     args[i] = serial.read_byte();
                 }
@@ -33,12 +34,22 @@ fn main() -> ! {
                     SerialMessageCode::Ping => msg_noop(&args),
                     SerialMessageCode::Repeat => msg_repeat(&args),
                     SerialMessageCode::RepeatMax => msg_repeat(&args),
+                    SerialMessageCode::Led => {
+                        match args[0] {
+                            0 => led.set_low(),
+                            _ => led.set_high()
+                        }
+
+                        &args
+                    }
 
                     SerialMessageCode::MissedMessage => msg_noop(&args),
                 };
 
                 serial.write_byte(message_id);
                 serial.write_byte(message_code);
+
+                #[allow(clippy::needless_range_loop)]
                 for i in 0..code.response_args_count() {
                     serial.write_byte(response[i]);
                 }
@@ -52,9 +63,9 @@ fn main() -> ! {
 }
 
 fn msg_noop(_args: &[u8; MAX_SERIAL_MESSAGE_ARGS]) -> &[u8; MAX_SERIAL_MESSAGE_ARGS] {
-    return &[0; MAX_SERIAL_MESSAGE_ARGS];
+    &[0; MAX_SERIAL_MESSAGE_ARGS]
 }
 
 fn msg_repeat(args: &[u8; MAX_SERIAL_MESSAGE_ARGS]) -> &[u8; MAX_SERIAL_MESSAGE_ARGS] {
-    &args
+    args
 }

@@ -1,7 +1,6 @@
 use crate::model::serial_messages::*;
 use log::{debug, error, info, trace, warn};
 use serialport::{ClearBuffer, SerialPort};
-use std::error::Error;
 use std::io::{Read, Write};
 use std::time::{Duration, Instant};
 
@@ -171,6 +170,8 @@ impl SerialManager {
             self.send_byte(*i)?;
         }
 
+        self.flush()?;
+
         info!(
             "sent full message with id: {}; code: '{:?}'; args: {:?}",
             message.id, message_code, args
@@ -189,7 +190,8 @@ impl SerialManager {
                 // receive the response arguments
                 let mut response_args = Vec::new();
 
-                for i in 0..response_message_code.response_args_count() {
+                #[allow(clippy::needless_range_loop)]
+                for _ in 0..response_message_code.response_args_count() {
                     response_args.push(self.receive_byte()?);
                 }
 
@@ -210,14 +212,14 @@ impl SerialManager {
                 error!("attempted to benchmark without a connection");
                 0
             }
-            Some(port) => {
+            Some(_) => {
                 let start_time = Instant::now();
                 let mut ping_count = 0;
                 let args = [0; MAX_SERIAL_MESSAGE_ARGS].to_vec();
                 while start_time.elapsed() < Duration::from_secs(seconds) {
                     match self.try_send_message(SerialMessageCode::RepeatMax, &args) {
                         Err((e, msg)) => {
-                            error!("Encountered error during ping: {}", msg);
+                            error!("Encountered error {:?} during ping: {}", e, msg);
                             return ping_count;
                         }
                         Ok(_) => {

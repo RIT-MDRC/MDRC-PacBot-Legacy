@@ -35,6 +35,7 @@ pub enum SerialMessageCode {
     Ping = 1,
     Repeat = 2,
     RepeatMax = 4,
+    Led = 5,
 
     // below are only sent from Arduino to pacbot_services
     MissedMessage = 3,
@@ -46,6 +47,7 @@ impl SerialMessageCode {
             Self::Ping => 0,
             Self::Repeat => 1, // repeat argument 1
             Self::RepeatMax => MAX_SERIAL_MESSAGE_ARGS,
+            Self::Led => 1,
 
             Self::MissedMessage => 0,
         }
@@ -56,6 +58,7 @@ impl SerialMessageCode {
             Self::Ping => 0,
             Self::Repeat => 1,
             Self::RepeatMax => MAX_SERIAL_MESSAGE_ARGS,
+            Self::Led => 0,
 
             Self::MissedMessage => 2, // (expected id, actual id)
         }
@@ -70,6 +73,7 @@ impl TryFrom<u8> for SerialMessageCode {
             1 => Ok(Self::Ping),
             2 => Ok(Self::Repeat),
             4 => Ok(Self::RepeatMax),
+            5 => Ok(Self::Led),
 
             3 => Ok(Self::MissedMessage),
 
