@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 log = "0.4.19"
 log4rs = "1.2.0"
+serialport = "4.2.1"

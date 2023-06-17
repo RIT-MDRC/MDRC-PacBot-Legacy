@@ -1,12 +1,19 @@
 #![no_std]
 #![no_main]
 
+mod serial_messages;
+
+use arduino_hal::prelude::*;
 use panic_halt as _;
+
+use embedded_hal::serial::Read;
+use embedded_hal::serial::Write;
 
 #[arduino_hal::entry]
 fn main() -> ! {
     let dp = arduino_hal::Peripherals::take().unwrap();
     let pins = arduino_hal::pins!(dp);
+    let mut serial = arduino_hal::default_serial!(dp, pins, 115200);
 
     /*
      * For examples (and inspiration), head to
@@ -21,7 +28,11 @@ fn main() -> ! {
     let mut led = pins.d13.into_output();
 
     loop {
-        led.toggle();
-        arduino_hal::delay_ms(1000);
+        let b = serial.read_byte();
+        serial.write_byte(b);
+        serial.flush();
+        // ufmt::uwrite!(&mut serial, "{}", 2);
+        // led.toggle();
+        // arduino_hal::delay_ms(1000);
     }
 }
