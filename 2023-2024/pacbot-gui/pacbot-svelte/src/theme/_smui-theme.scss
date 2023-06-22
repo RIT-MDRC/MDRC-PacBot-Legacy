@@ -16,6 +16,9 @@ html,
 body {
   background-color: theme.$surface;
   color: theme.$on-surface;
+
+  margin: 0;
+  padding: 0;
 }
 
 a {
