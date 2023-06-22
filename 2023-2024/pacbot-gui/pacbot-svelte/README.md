@@ -36,3 +36,7 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+
+### Svelte Kit Material UI
+
+Whenever you add a new SMUI package, run `npm run prepare` again to rebuild your CSS file with the new component’s styles included.
