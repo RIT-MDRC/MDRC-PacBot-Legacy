@@ -1,5 +1,6 @@
 <script lang="ts">
 	import TopAppBar, { Row, Section, Title } from '@smui/top-app-bar';
+	import Paper, { Content } from '@smui/paper';
 	import IconButton from '@smui/icon-button';
 	import RecursivePage from './recursivePage.svelte';
 	import { onMount } from 'svelte';
@@ -114,7 +115,9 @@
 		{:else if content_type == 'settings'}
 			<SettingsPanel />
 		{:else if content_type == ''}
-			<p>hello</p>
+			<Paper square variant="unelevated">
+				<Content>hi</Content>
+			</Paper>
 		{/if}
 	</div>
 </div>
