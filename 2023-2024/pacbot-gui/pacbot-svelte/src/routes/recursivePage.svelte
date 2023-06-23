@@ -13,18 +13,16 @@
 		<TopAppBar variant="static" color="primary" dense>
 			<Row>
 				<Section>
-					{#if content_type == ''}
-						<IconButton class="material-icons" on:click={() => (content_type = 'horizontal')}
-							>horizontal_split</IconButton
-						>
-						<IconButton class="material-icons" on:click={() => (content_type = 'vertical')}
-							>vertical_split</IconButton
-						>
-					{:else}
-						<IconButton class="material-icons" on:click={() => (content_type = '')}
-							>close</IconButton
-						>
-					{/if}
+					<IconButton
+						class="material-icons"
+						on:click={() => (content_type = content_type == 'horizontal' ? '' : 'horizontal')}
+						>{content_type == 'horizontal' ? 'close' : 'horizontal_split'}</IconButton
+					>
+					<IconButton
+						class="material-icons"
+						on:click={() => (content_type = content_type == 'vertical' ? '' : 'vertical')}
+						>{content_type == 'vertical' ? 'close' : 'vertical_split'}</IconButton
+					>
 
 					{#if is_top_level}
 						<Title>RIT Pacbot</Title>
@@ -97,6 +95,13 @@
 
 	#content-left {
 		width: 50%;
+	}
+
+	#vertical-split-resizer {
+		width: 3px;
+		background-color: gray;
+		border: 1px solid black;
+		cursor: grab;
 	}
 
 	#content-right {
