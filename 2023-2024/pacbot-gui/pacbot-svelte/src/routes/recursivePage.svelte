@@ -3,6 +3,7 @@
 	import IconButton from '@smui/icon-button';
 	import RecursivePage from './recursivePage.svelte';
 	import { onMount } from 'svelte';
+	import SettingsPanel from './settingsPanel.svelte';
 
 	export let is_top_level: boolean = false;
 
@@ -26,20 +27,20 @@
 
 	function onVerticalPointerDown(e: any) {
 		vertical_move_start = vertical_split_width;
-		vertical_move_client_start = e.clientX;
+		vertical_move_client_start = e.screenX;
 	}
 
 	function onHorizontalPointerDown(e: any) {
 		horizontal_move_start = horizontal_split_width;
-		horizontal_move_client_start = e.clientY;
+		horizontal_move_client_start = e.screenY;
 	}
 
 	function onPointerMove(e: any) {
 		if (horizontal_move_start != -1) {
-			horizontal_split_width = horizontal_move_start - (horizontal_move_client_start - e.clientY);
+			horizontal_split_width = horizontal_move_start - (horizontal_move_client_start - e.screenY);
 		}
 		if (vertical_move_start != -1) {
-			vertical_split_width = vertical_move_start - (vertical_move_client_start - e.clientX);
+			vertical_split_width = vertical_move_start - (vertical_move_client_start - e.screenX);
 		}
 	}
 
@@ -89,7 +90,10 @@
 	<div id="content" bind:this={content}>
 		{#if content_type == 'vertical'}
 			<div id="content-vertical">
-				<div id="content-left" style="width: {vertical_split_width}px">
+				<div
+					id="content-left"
+					style="min-width: {vertical_split_width}px; max-width: {vertical_split_width}px"
+				>
 					<RecursivePage />
 				</div>
 				<div id="vertical-split-resizer" on:pointerdown={onVerticalPointerDown} />
@@ -108,8 +112,7 @@
 				</div>
 			</div>
 		{:else if content_type == 'settings'}
-			<p>settings</p>
-			<IconButton class="material-icons" on:click={() => (content_type = '')}>close</IconButton>
+			<SettingsPanel />
 		{:else if content_type == ''}
 			<p>hello</p>
 		{/if}
@@ -122,6 +125,8 @@
 		flex-direction: column;
 
 		height: 100%;
+
+		overflow-y: auto;
 	}
 
 	#content {
