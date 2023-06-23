@@ -3,9 +3,13 @@
     <v-toolbar-title>RIT Pacbot</v-toolbar-title>
   </v-toolbar>
   <v-row class="fill-height">
-    <v-col>
+    <v-col ref="konvaContainer">
       <v-container class="text-center">
-        
+        <v-stage :config="configKonva">
+          <v-layer>
+            <v-circle :config="configCircle"></v-circle>
+          </v-layer>
+        </v-stage>
       </v-container>
     </v-col>
     <v-col>
@@ -65,9 +69,37 @@
 
 <script setup lang="ts">
   import { stat } from 'fs';
-import { ref } from 'vue'
+import { nextTick } from 'process';
+import { onMounted } from 'vue';
+import { ref, Ref, computed } from 'vue'
 
   let tab = ref('option-1');
+
+  let konvaContainer: any = ref(null);
+
+  let gridWidth = ref(100);
+
+  onMounted(() => {
+    window.addEventListener('resize', onResize);
+  })
+
+  function onResize() {
+    gridWidth.value = Math.min(Math.floor(window.innerHeight * 0.8), Math.floor(window.innerWidth / 2));
+  }
+  
+  let configKonva = computed(() => ({
+    width: gridWidth.value,
+    height: gridWidth.value
+  }))
+
+  let configCircle = computed(() => ({
+    x: gridWidth.value/2,
+    y: gridWidth.value/2,
+    radius: gridWidth.value/2,
+    fill: "red",
+    stroke: "black",
+    strokeWidth: 4
+  }))
 
   let services = [
     {
