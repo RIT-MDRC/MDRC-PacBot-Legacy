@@ -131,4 +131,16 @@ impl WebsocketManager {
             }
         }
     }
+
+    pub fn blast_message(
+        &mut self,
+        message: &WebsocketMessage,
+    ) -> Result<(), (WebsocketError, String)> {
+        let client_ids = self.clients.keys().cloned().collect::<Vec<u64>>();
+        trace!("blast to {} clients: {:?}", client_ids.len(), message);
+        for client_id in client_ids {
+            self.send_message(client_id, message)?;
+        }
+        Ok(())
+    }
 }
