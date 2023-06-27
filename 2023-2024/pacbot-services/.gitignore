@@ -2,3 +2,5 @@
 /.vscode/
 
 /target/
+
+./log4rs.yml
