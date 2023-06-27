@@ -2,11 +2,12 @@
 	import RecursivePage from './recursivePage.svelte';
 	import { onMount } from 'svelte';
 	import { websocketClient } from './websocket';
+	import { WEBSOCKET_SERVER_PORT } from './websocketMessages';
 
 	onMount(() => {
 		let wsUrl: string;
 		if (typeof window !== 'undefined') {
-			const wsPort = 8765; // Set to your WebSocket port
+			const wsPort = WEBSOCKET_SERVER_PORT;
 			const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
 			wsUrl = `${protocol}//${window.location.hostname}:${wsPort}`;
 		} else {

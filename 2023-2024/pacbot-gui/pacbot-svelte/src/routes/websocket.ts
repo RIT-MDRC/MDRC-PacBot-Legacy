@@ -1,4 +1,5 @@
 import { onMount } from 'svelte';
+import { type WebsocketMessage, type PingMessage, type PongMessage } from './websocketMessages';
 
 class WebSocketClient {
     private socket: WebSocket | null = null;
@@ -34,16 +35,30 @@ class WebSocketClient {
 
             this.socket.onmessage = (event: MessageEvent) => {
                 console.log('WebSocket message received: ', event);
+
+                const msg = JSON.parse(event.data) as WebsocketMessage;
+                if ('Ping' in msg) {
+                    this.sendMessage({
+                        "Pong": {
+                            "data": msg.Ping.data
+                        }
+                    })
+                    this.sendMessage({
+                        "Ping": {
+                            "data": msg.Ping.data + 1
+                        }
+                    })
+                }
             };
         });
     }
 
-    sendMessage(msg: string): void {
+    sendMessage(msg: WebsocketMessage): void {
         if (!this.socket || this.socket.readyState !== this.socket.OPEN) {
             console.error('Socket is not open.');
             return;
         }
-        this.socket.send(msg);
+        this.socket.send(JSON.stringify(msg));
     }
 }
 
