@@ -12,18 +12,21 @@ pub enum WebsocketError {
     ClientClosedError,
 }
 
+/// keeps track of the websocket server and active clients
 pub struct WebsocketManager {
+    /// source of incoming events
     event_hub: EventHub,
+    /// map between client ids and the client's `Responder`
     clients: HashMap<u64, Responder>,
 }
 
 impl WebsocketManager {
+    /// creates a new `WebsocketManager` and launches the server
     pub fn new() -> Result<Self, (WebsocketError, String)> {
         // listen for WebSockets on port 8080:
         let event_hub = simple_websockets::launch(WEBSOCKET_SERVER_PORT);
         match event_hub {
             Ok(event_hub) => {
-                // map between client ids and the client's `Responder`:
                 let clients: HashMap<u64, Responder> = HashMap::new();
                 info!("websocket server started on port {}", WEBSOCKET_SERVER_PORT);
                 Ok(Self { event_hub, clients })
@@ -32,6 +35,7 @@ impl WebsocketManager {
         }
     }
 
+    /// run the main loop of the `WebsocketManager`
     pub fn forever(&mut self) {
         loop {
             match self.event_hub.poll_event() {
@@ -88,6 +92,7 @@ impl WebsocketManager {
         }
     }
 
+    /// process a message from a client
     fn proc_msg(
         &mut self,
         client_id: u64,
@@ -105,6 +110,7 @@ impl WebsocketManager {
         Ok(())
     }
 
+    /// try to send a message to a client
     pub fn send_message(
         &mut self,
         client_id: u64,
@@ -132,6 +138,7 @@ impl WebsocketManager {
         }
     }
 
+    /// blast a message to all active clients
     pub fn blast_message(
         &mut self,
         message: &WebsocketMessage,
