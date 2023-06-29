@@ -5,6 +5,12 @@ appenders:
       pattern: "{d(%Y-%m-%d %H:%M:%S)} {h({l})} [{t}] {m}{n}"
 
 root:
-  level: warn
+  level: trace
   appenders:
     - stdout
+
+loggers:
+  tokio_tungstenite:
+    level: info
+  tungstenite:
+    level: info
