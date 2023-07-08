@@ -3,8 +3,10 @@ use std::sync::mpsc::{Receiver, Sender};
 
 #[derive(Clone)]
 pub enum ServiceOption {
-    OptionGroup(ServiceOptionGroup),
-    Button(String),
+    OptionGroup(String, ServiceOptionGroup),
+    Button(String, bool),
+    Number(String, i32),
+    UnsignedNumber(String, u32),
 }
 
 #[derive(Clone)]
@@ -21,10 +23,10 @@ pub struct ServiceControllerOptions {
 
 #[derive(Clone)]
 pub enum ServiceDebugEntry {
-    DebugGroup(ServiceDebugGroup),
-    Int(i32),
-    Float(f32),
-    Text(String),
+    DebugGroup(String, ServiceDebugGroup),
+    Int(String, i32),
+    Float(String, f32),
+    Text(String, String),
 }
 
 #[derive(Clone)]
@@ -41,18 +43,22 @@ pub struct ServiceControllerDebug {
 }
 
 pub trait Service<S, I, O> {
-    fn get_options(&self) -> (ServiceOptionGroup, ServiceDebugGroup);
+    fn get_options(&self) -> ServiceOptionGroup;
 
-    fn set_options(&self, options: &ServiceOptionGroup);
+    fn get_debug(&self) -> ServiceDebugGroup;
+
+    fn get_default_input(&self) -> I;
+
+    fn set_options(&mut self, options: &ServiceOptionGroup);
 
     fn initialize(&mut self, initialization_values: S) -> Result<(), String>;
 
-    fn step(&mut self, input_values: &I, debug: &mut ServiceDebugGroup) -> Result<O, String>;
+    fn step(&mut self, input_values: &I) -> Result<O, String>;
 
     fn uninitialize(&mut self);
 }
 
-enum ServiceMessage {
+pub enum ServiceMessage {
     SendOptions,
     SendDebug,
 
@@ -62,16 +68,16 @@ enum ServiceMessage {
     End,
 }
 
-struct ServiceMessengers {
-    service_message_receiver: Receiver<ServiceMessage>,
+pub struct ServiceMessengers {
+    pub service_message_receiver: Receiver<ServiceMessage>,
 
-    options_receiver: Receiver<ServiceControllerOptions>,
-    options_sender: Sender<ServiceControllerOptions>,
+    pub options_receiver: Receiver<ServiceControllerOptions>,
+    pub options_sender: Sender<ServiceControllerOptions>,
 
-    debug_sender: Sender<ServiceControllerDebug>,
+    pub debug_sender: Sender<ServiceControllerDebug>,
 }
 
-struct ServiceController<S, I, O> {
+pub struct ServiceController<S, I, O> {
     service: Box<dyn Service<S, I, O>>,
     options: ServiceControllerOptions,
     debug: ServiceControllerDebug,
@@ -94,7 +100,8 @@ impl<S, I, O> ServiceController<S, I, O> {
         output_sender: Sender<O>,
         service_messengers: ServiceMessengers,
     ) -> Self {
-        let (options, debug) = service.get_options();
+        let options = service.get_options();
+        let debug = service.get_debug();
 
         Self {
             service: Box::new(service),
@@ -168,6 +175,8 @@ impl<S, I, O> ServiceController<S, I, O> {
                         }
                     }
                     ServiceMessage::SendDebug => {
+                        self.debug.service_debug = self.service.get_debug();
+
                         match self
                             .service_messengers
                             .debug_sender
@@ -205,7 +214,7 @@ impl<S, I, O> ServiceController<S, I, O> {
             if self.debug.initialized && self.debug.new_input_available {
                 if let Some(input) = &self.last_input {
                     info!("stepping service");
-                    match self.service.step(input, &mut self.debug.service_debug) {
+                    match self.service.step(input) {
                         Ok(output) => match self.output_sender.send(output) {
                             Ok(()) => trace!("sent output"),
                             Err(e) => error!("error sending output: {}", e.to_string()),
@@ -221,14 +230,14 @@ impl<S, I, O> ServiceController<S, I, O> {
     }
 }
 
-struct ServiceControllerInterface<S, I, O> {
-    initialization_input_sender: Sender<S>,
-    input_sender: Sender<I>,
-    output_receiver: Receiver<O>,
-    service_message_sender: Sender<ServiceMessage>,
-    options_sender: Sender<ServiceControllerOptions>,
-    options_receiver: Receiver<ServiceControllerOptions>,
-    debug_receiver: Receiver<ServiceControllerDebug>,
+pub struct ServiceControllerInterface<S, I, O> {
+    pub initialization_input_sender: Sender<S>,
+    pub input_sender: Sender<I>,
+    pub output_receiver: Receiver<O>,
+    pub service_message_sender: Sender<ServiceMessage>,
+    pub options_sender: Sender<ServiceControllerOptions>,
+    pub options_receiver: Receiver<ServiceControllerOptions>,
+    pub debug_receiver: Receiver<ServiceControllerDebug>,
 }
 
 // tests for service controller
@@ -253,14 +262,19 @@ mod tests {
         WaitThenReturnZero,
     }
     impl Service<usize, ValueServiceInstructions, usize> for ValueService {
-        fn get_options(&self) -> (ServiceOptionGroup, ServiceDebugGroup) {
-            (
-                ServiceOptionGroup { options: vec![] },
-                ServiceDebugGroup { debug: vec![] },
-            )
+        fn get_options(&self) -> ServiceOptionGroup {
+            ServiceOptionGroup { options: vec![] }
         }
 
-        fn set_options(&self, _options: &ServiceOptionGroup) {}
+        fn get_debug(&self) -> ServiceDebugGroup {
+            ServiceDebugGroup { debug: vec![] }
+        }
+
+        fn get_default_input(&self) -> ValueServiceInstructions {
+            ValueServiceInstructions::Store(0)
+        }
+
+        fn set_options(&mut self, _options: &ServiceOptionGroup) {}
 
         fn initialize(&mut self, initialization_values: usize) -> Result<(), String> {
             self.initial_value = initialization_values;
@@ -268,11 +282,7 @@ mod tests {
             Ok(())
         }
 
-        fn step(
-            &mut self,
-            input_values: &ValueServiceInstructions,
-            _debug: &mut ServiceDebugGroup,
-        ) -> Result<usize, String> {
+        fn step(&mut self, input_values: &ValueServiceInstructions) -> Result<usize, String> {
             match input_values {
                 ValueServiceInstructions::Store(x) => {
                     self.value = *x;

@@ -4,4 +4,5 @@ pub mod replay_manager;
 pub mod robomodules_manager;
 pub mod serial_manager;
 pub mod service_controller;
+pub mod test_service;
 pub mod websocket_manager;
