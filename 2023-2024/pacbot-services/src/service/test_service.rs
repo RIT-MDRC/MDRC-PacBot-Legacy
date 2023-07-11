@@ -2,7 +2,9 @@ use crate::service::service_controller::{
     Service, ServiceDebugEntry, ServiceDebugGroup, ServiceOption, ServiceOptionGroup,
     ServiceStatus, ServiceStatusGroup, ServiceStatusLevel,
 };
+use serde::{Deserialize, Serialize};
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 enum TestServiceOperations {
     Add,
     Subtract,
@@ -17,19 +19,23 @@ pub struct TestService {
     last_input: [u32; 2],
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TestServiceInitializationInput {
     number: u32,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TestServiceInput {
     inputs: [u32; 2],
     operation: TestServiceOperations,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TestServiceOutput {
     output: f32,
 }
 
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TestServiceOptions {
     number: u32,
 }
@@ -72,6 +78,10 @@ impl Service<TestServiceInitializationInput, TestServiceInput, TestServiceOutput
                 ServiceDebugEntry::Int("debug 2".to_string(), self.last_input[1] as i32),
             ],
         }
+    }
+
+    fn get_default_initialization_input(&self) -> TestServiceInitializationInput {
+        TestServiceInitializationInput { number: 0 }
     }
 
     fn get_default_input(&self) -> TestServiceInput {

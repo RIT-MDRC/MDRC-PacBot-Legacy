@@ -1,6 +1,4 @@
-use crate::model::serial_messages::SerialMessageCode;
 use crate::model::websocket_messages::WebsocketMessage;
-use crate::service::serial_manager::SerialManager;
 use crate::service::service_controller::{
     ServiceController, ServiceControllerInterface, ServiceMessengers,
 };
@@ -47,6 +45,7 @@ fn start_test_service() -> (
     let (service_message_sender, service_message_receiver) = channel();
     let (options_sender, options_receiver) = channel();
     let (options_recv_sender, options_recv_receiver) = channel();
+    let (status_sender, status_receiver) = channel();
     let (debug_sender, debug_receiver) = channel();
 
     let service_controller_thread = thread::spawn(move || {
@@ -59,6 +58,7 @@ fn start_test_service() -> (
                 service_message_receiver,
                 options_receiver,
                 options_sender: options_recv_sender,
+                status_sender,
                 debug_sender,
             },
         );
@@ -73,6 +73,7 @@ fn start_test_service() -> (
         service_message_sender,
         options_sender,
         options_receiver: options_recv_receiver,
+        status_receiver,
         debug_receiver,
     };
 

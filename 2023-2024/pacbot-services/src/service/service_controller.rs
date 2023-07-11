@@ -2,32 +2,32 @@ use log::{error, info, trace};
 use serde::{Deserialize, Serialize};
 use std::sync::mpsc::{Receiver, Sender};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ServiceStatusLevel {
     Normal,
     Warning,
     Error,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceStatus {
     pub level: ServiceStatusLevel,
     pub text: String,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceStatusGroup {
     pub overall: ServiceStatus,
 
     pub statuses: Vec<ServiceStatus>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceControllerStatus {
     pub service_status: ServiceStatusGroup,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ServiceOption {
     OptionGroup(String, ServiceOptionGroup),
     Button(String, bool),
@@ -35,19 +35,19 @@ pub enum ServiceOption {
     UnsignedNumber(String, u32),
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceOptionGroup {
     pub options: Vec<ServiceOption>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceControllerOptions {
     pub paused: bool,
 
     pub service_options: ServiceOptionGroup,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum ServiceDebugEntry {
     DebugGroup(String, ServiceDebugGroup),
     Int(String, i32),
@@ -55,12 +55,12 @@ pub enum ServiceDebugEntry {
     Text(String, String),
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceDebugGroup {
     pub debug: Vec<ServiceDebugEntry>,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ServiceControllerDebug {
     pub initialized: bool,
     pub new_input_available: bool,
@@ -74,6 +74,8 @@ pub trait Service<S, I, O> {
     fn get_status(&self) -> ServiceStatusGroup;
 
     fn get_debug(&self) -> ServiceDebugGroup;
+
+    fn get_default_initialization_input(&self) -> S;
 
     fn get_default_input(&self) -> I;
 
@@ -120,11 +122,17 @@ pub struct ServiceController<S, I, O> {
     output_sender: Sender<O>,
 
     last_input: Option<I>,
+    last_output: Option<O>,
 
     service_messengers: ServiceMessengers,
 }
 
-impl<S, I, O> ServiceController<S, I, O> {
+impl<S, I, O> ServiceController<S, I, O>
+where
+    S: Serialize + for<'a> Deserialize<'a>,
+    I: Serialize + for<'a> Deserialize<'a>,
+    O: Serialize + for<'a> Deserialize<'a> + Clone,
+{
     pub fn new(
         service: impl Service<S, I, O> + 'static,
         initialization_input_receiver: Receiver<S>,
@@ -159,6 +167,7 @@ impl<S, I, O> ServiceController<S, I, O> {
             output_sender,
 
             last_input: None,
+            last_output: None,
             service_messengers,
         }
     }
@@ -267,10 +276,13 @@ impl<S, I, O> ServiceController<S, I, O> {
                 if let Some(input) = &self.last_input {
                     info!("stepping service");
                     match self.service.step(input) {
-                        Ok(output) => match self.output_sender.send(output) {
-                            Ok(()) => trace!("sent output"),
-                            Err(e) => error!("error sending output: {}", e.to_string()),
-                        },
+                        Ok(output) => {
+                            self.last_output = Some(output.clone());
+                            match self.output_sender.send(output) {
+                                Ok(()) => trace!("sent output"),
+                                Err(e) => error!("error sending output: {}", e.to_string()),
+                            }
+                        }
                         Err(e) => {
                             error!("error stepping service: {}", e.to_string());
                         }
@@ -307,6 +319,8 @@ mod tests {
         initial_value: usize,
         value: usize,
     }
+
+    #[derive(Clone, Debug, Serialize, Deserialize)]
     enum ValueServiceInstructions {
         Store(usize),
         ReturnZero,
@@ -314,6 +328,7 @@ mod tests {
         ReturnInitial,
         WaitThenReturnZero,
     }
+
     impl Service<usize, ValueServiceInstructions, usize> for ValueService {
         fn get_options(&self) -> ServiceOptionGroup {
             ServiceOptionGroup { options: vec![] }
@@ -331,6 +346,10 @@ mod tests {
 
         fn get_debug(&self) -> ServiceDebugGroup {
             ServiceDebugGroup { debug: vec![] }
+        }
+
+        fn get_default_initialization_input(&self) -> usize {
+            0
         }
 
         fn get_default_input(&self) -> ValueServiceInstructions {

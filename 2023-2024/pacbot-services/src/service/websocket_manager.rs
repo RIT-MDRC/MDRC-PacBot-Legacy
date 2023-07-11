@@ -101,6 +101,9 @@ impl WebsocketManager {
         let response = match message {
             WebsocketMessage::Ping { data } => Some(WebsocketMessage::Pong { data }),
             WebsocketMessage::Pong { .. } => None,
+
+            WebsocketMessage::WebsocketMessageFromClient(_message) => None,
+            WebsocketMessage::WebsocketMessageFromServer(_message) => None,
         };
 
         if let Some(response) = response {
