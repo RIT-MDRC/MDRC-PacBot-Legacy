@@ -1,7 +1,8 @@
 use log::{error, info, trace};
+use serde::{Deserialize, Serialize};
 use std::sync::mpsc::{Receiver, Sender};
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum ServiceOption {
     OptionGroup(String, ServiceOptionGroup),
     Button(String, bool),
@@ -9,19 +10,19 @@ pub enum ServiceOption {
     UnsignedNumber(String, u32),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ServiceOptionGroup {
     pub options: Vec<ServiceOption>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ServiceControllerOptions {
     pub paused: bool,
 
     pub service_options: ServiceOptionGroup,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub enum ServiceDebugEntry {
     DebugGroup(String, ServiceDebugGroup),
     Int(String, i32),
@@ -29,12 +30,12 @@ pub enum ServiceDebugEntry {
     Text(String, String),
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ServiceDebugGroup {
     pub debug: Vec<ServiceDebugEntry>,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ServiceControllerDebug {
     pub initialized: bool,
     pub new_input_available: bool,
@@ -58,6 +59,7 @@ pub trait Service<S, I, O> {
     fn uninitialize(&mut self);
 }
 
+#[derive(Serialize, Deserialize)]
 pub enum ServiceMessage {
     SendOptions,
     SendDebug,
