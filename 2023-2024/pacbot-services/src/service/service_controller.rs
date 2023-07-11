@@ -3,6 +3,31 @@ use serde::{Deserialize, Serialize};
 use std::sync::mpsc::{Receiver, Sender};
 
 #[derive(Clone, Serialize, Deserialize)]
+pub enum ServiceStatusLevel {
+    Normal,
+    Warning,
+    Error,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ServiceStatus {
+    pub level: ServiceStatusLevel,
+    pub text: String,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ServiceStatusGroup {
+    pub overall: ServiceStatus,
+
+    pub statuses: Vec<ServiceStatus>,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct ServiceControllerStatus {
+    pub service_status: ServiceStatusGroup,
+}
+
+#[derive(Clone, Serialize, Deserialize)]
 pub enum ServiceOption {
     OptionGroup(String, ServiceOptionGroup),
     Button(String, bool),
@@ -46,6 +71,8 @@ pub struct ServiceControllerDebug {
 pub trait Service<S, I, O> {
     fn get_options(&self) -> ServiceOptionGroup;
 
+    fn get_status(&self) -> ServiceStatusGroup;
+
     fn get_debug(&self) -> ServiceDebugGroup;
 
     fn get_default_input(&self) -> I;
@@ -62,6 +89,7 @@ pub trait Service<S, I, O> {
 #[derive(Serialize, Deserialize)]
 pub enum ServiceMessage {
     SendOptions,
+    SendStatus,
     SendDebug,
 
     Step,
@@ -76,12 +104,14 @@ pub struct ServiceMessengers {
     pub options_receiver: Receiver<ServiceControllerOptions>,
     pub options_sender: Sender<ServiceControllerOptions>,
 
+    pub status_sender: Sender<ServiceControllerStatus>,
     pub debug_sender: Sender<ServiceControllerDebug>,
 }
 
 pub struct ServiceController<S, I, O> {
     service: Box<dyn Service<S, I, O>>,
     options: ServiceControllerOptions,
+    status: ServiceControllerStatus,
     debug: ServiceControllerDebug,
 
     initialization_input_receiver: Receiver<S>,
@@ -103,6 +133,7 @@ impl<S, I, O> ServiceController<S, I, O> {
         service_messengers: ServiceMessengers,
     ) -> Self {
         let options = service.get_options();
+        let status = service.get_status();
         let debug = service.get_debug();
 
         Self {
@@ -111,6 +142,9 @@ impl<S, I, O> ServiceController<S, I, O> {
                 paused: false,
 
                 service_options: options,
+            },
+            status: ServiceControllerStatus {
+                service_status: status,
             },
             debug: ServiceControllerDebug {
                 initialized: false,
@@ -173,6 +207,22 @@ impl<S, I, O> ServiceController<S, I, O> {
                             }
                             Err(e) => {
                                 error!("error sending service options: {}", e.to_string())
+                            }
+                        }
+                    }
+                    ServiceMessage::SendStatus => {
+                        self.status.service_status = self.service.get_status();
+
+                        match self
+                            .service_messengers
+                            .status_sender
+                            .send(self.status.clone())
+                        {
+                            Ok(()) => {
+                                trace!("sent service status info")
+                            }
+                            Err(e) => {
+                                error!("error sending service status: {}", e.to_string())
                             }
                         }
                     }
@@ -240,6 +290,7 @@ pub struct ServiceControllerInterface<S, I, O> {
     pub options_sender: Sender<ServiceControllerOptions>,
     pub options_receiver: Receiver<ServiceControllerOptions>,
     pub debug_receiver: Receiver<ServiceControllerDebug>,
+    pub status_receiver: Receiver<ServiceControllerStatus>,
 }
 
 // tests for service controller
@@ -266,6 +317,16 @@ mod tests {
     impl Service<usize, ValueServiceInstructions, usize> for ValueService {
         fn get_options(&self) -> ServiceOptionGroup {
             ServiceOptionGroup { options: vec![] }
+        }
+
+        fn get_status(&self) -> ServiceStatusGroup {
+            ServiceStatusGroup {
+                overall: ServiceStatus {
+                    level: ServiceStatusLevel::Normal,
+                    text: "".to_string(),
+                },
+                statuses: vec![],
+            }
         }
 
         fn get_debug(&self) -> ServiceDebugGroup {
@@ -315,6 +376,7 @@ mod tests {
         let (service_message_sender, service_message_receiver) = channel();
         let (options_sender, options_receiver) = channel();
         let (options_recv_sender, options_recv_receiver) = channel();
+        let (status_sender, status_receiver) = channel();
         let (debug_sender, debug_receiver) = channel();
 
         let service_controller_thread = thread::spawn(move || {
@@ -330,6 +392,7 @@ mod tests {
                     service_message_receiver,
                     options_receiver,
                     options_sender: options_recv_sender,
+                    status_sender,
                     debug_sender,
                 },
             );
@@ -345,6 +408,7 @@ mod tests {
             options_sender,
             options_receiver: options_recv_receiver,
             debug_receiver,
+            status_receiver,
         };
 
         sleep(Duration::from_millis(100));

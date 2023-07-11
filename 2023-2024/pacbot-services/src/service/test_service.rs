@@ -1,5 +1,6 @@
 use crate::service::service_controller::{
     Service, ServiceDebugEntry, ServiceDebugGroup, ServiceOption, ServiceOptionGroup,
+    ServiceStatus, ServiceStatusGroup, ServiceStatusLevel,
 };
 
 enum TestServiceOperations {
@@ -51,6 +52,16 @@ impl Service<TestServiceInitializationInput, TestServiceInput, TestServiceOutput
                 "test option 1".to_string(),
                 0,
             )],
+        }
+    }
+
+    fn get_status(&self) -> ServiceStatusGroup {
+        ServiceStatusGroup {
+            overall: ServiceStatus {
+                level: ServiceStatusLevel::Normal,
+                text: "NORMAL".to_string(),
+            },
+            statuses: vec![],
         }
     }
 
